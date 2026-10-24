@@ -4,6 +4,7 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/account_form_page.dart';
+import 'package:hello_ledger/presentation/stats_page.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
 import 'package:intl/intl.dart';
 
@@ -31,6 +32,11 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('我的記帳本'),
         actions: [
+          IconButton(
+            tooltip: '每月統計',
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () => _open(context, const StatsPage()),
+          ),
           IconButton(
             tooltip: '新增帳戶',
             icon: const Icon(Icons.account_balance_wallet_outlined),
