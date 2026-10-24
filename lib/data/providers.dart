@@ -16,6 +16,71 @@ final allAccountsProvider = StreamProvider<List<Account>>((ref) {
   return db.select(db.accounts).watch();
 });
 
+/// 目前選定的月份（首頁與統計分頁共用）。
+class SelectedMonth extends Notifier<DateTime> {
+  @override
+  DateTime build() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month);
+  }
+
+  void shift(int months) {
+    state = DateTime(state.year, state.month + months);
+  }
+}
+
+final selectedMonthProvider =
+    NotifierProvider<SelectedMonth, DateTime>(SelectedMonth.new);
+
+/// 選定月份的統計。
+class MonthlyStats {
+  const MonthlyStats({
+    required this.txs,
+    required this.income,
+    required this.expense,
+    required this.categoryRows,
+  });
+
+  /// 這個月的所有交易（含轉帳），新的在前面。
+  final List<TransactionRecord> txs;
+  final int income;
+  final int expense;
+
+  /// 支出類別（類別 id，金額），金額大的在前面。
+  final List<MapEntry<int?, int>> categoryRows;
+
+  int get balance => income - expense;
+}
+
+final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
+  final month = ref.watch(selectedMonthProvider);
+  final all = ref.watch(transactionsProvider).value ?? [];
+  final txs = all
+      .where((t) => t.date.year == month.year && t.date.month == month.month)
+      .toList();
+
+  var income = 0;
+  var expense = 0;
+  final byCategory = <int?, int>{};
+  for (final t in txs) {
+    if (t.type == TransactionType.income) {
+      income += t.amount;
+    } else if (t.type == TransactionType.expense) {
+      expense += t.amount;
+      byCategory[t.categoryId] = (byCategory[t.categoryId] ?? 0) + t.amount;
+    }
+  }
+  final rows = byCategory.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+
+  return MonthlyStats(
+    txs: txs,
+    income: income,
+    expense: expense,
+    categoryRows: rows,
+  );
+});
+
 /// 帳戶一有變動就重新排程信用卡繳款提醒。在 App 最上層 watch 它即可。
 final reminderSyncProvider = Provider<void>((ref) {
   final accounts = ref.watch(allAccountsProvider).value;

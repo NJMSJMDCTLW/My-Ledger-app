@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/billing_dates.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
@@ -23,7 +24,7 @@ class CreditCardSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+          padding: const EdgeInsets.fromLTRB(24, 20, 16, 4),
           child: Text('信用卡', style: Theme.of(context).textTheme.titleMedium),
         ),
         for (final c in cards)
@@ -60,7 +61,6 @@ class _CardTile extends StatelessWidget {
     final fmt = DateFormat('M/d');
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -85,7 +85,10 @@ class _CardTile extends StatelessWidget {
               const SizedBox(height: 8),
               LinearProgressIndicator(
                 value: (debt / limit).clamp(0.0, 1.0),
-                minHeight: 6,
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+                color: AppTheme.macaron[0],
+                backgroundColor: AppTheme.macaron[0].withValues(alpha: 0.25),
               ),
               const SizedBox(height: 4),
               Text(

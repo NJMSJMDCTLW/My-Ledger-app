@@ -1,18 +1,106 @@
 import 'package:flutter/material.dart';
 
+/// 溫暖的馬卡龍色調。
 class AppTheme {
-  static const Color _seed = Color.fromARGB(255, 249, 189, 24);
+  // 主色：蜜桃粉
+  static const Color _seed = Color(0xFFF2A5A0);
 
-  static ThemeData get light => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: _seed),
+  /// 馬卡龍色盤，共 12 色，預設的 11 個類別各拿到一個不重複的顏色：
+  /// 粉、蜜桃、奶油黃、薄荷、天空藍、薰衣草、蘭花粉、開心果、
+  /// 長春花藍、青綠、焦糖、珊瑚。
+  static const List<Color> macaron = [
+    Color(0xFFF7A8B8),
+    Color(0xFFFFC9A3),
+    Color(0xFFFFE29A),
+    Color(0xFFB5E3C8),
+    Color(0xFFA8D8EA),
+    Color(0xFFC9B6E4),
+    Color(0xFFF2B8DD),
+    Color(0xFFD9E4A1),
+    Color(0xFFB3BDF0),
+    Color(0xFF9ADBD3),
+    Color(0xFFE5C9A8),
+    Color(0xFFF6A59A),
+  ];
+
+  /// 同一個類別在整個 App 裡永遠是同一個顏色（類別超過 12 個才會開始重複）。
+  static Color categoryColor(int? categoryId) {
+    if (categoryId == null) return const Color(0xFFD9CFC7);
+    return macaron[categoryId % macaron.length];
+  }
+
+  /// 色盤都是淺色，上面的文字統一用深咖啡色才看得清楚。
+  static const Color onMacaron = Color(0xFF5A4038);
+
+  static const Color expense = Color(0xFFE0707F);
+  static const Color income = Color(0xFF5DAE8B);
+
+  /// 結餘的顏色：正數綠色、負數紅色、剛好 0 用預設色（回傳 null）。
+  static Color? balanceColor(int cents) {
+    if (cents > 0) return income;
+    if (cents < 0) return expense;
+    return null;
+  }
+
+  static ThemeData get light => _build(Brightness.light);
+  static ThemeData get dark => _build(Brightness.dark);
+
+  static ThemeData _build(Brightness brightness) {
+    final isLight = brightness == Brightness.light;
+    var scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+    if (isLight) {
+      scheme = scheme.copyWith(
+        surface: const Color(0xFFFFF8F2), // 奶油白
+        surfaceContainerLowest: Colors.white,
+        surfaceContainerHighest: const Color(0xFFFCE9DF),
       );
+    }
 
-  static ThemeData get dark => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _seed,
-          brightness: Brightness.dark,
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
+      appBarTheme: AppBarTheme(
+        centerTitle: true,
+        backgroundColor: scheme.surface,
+        scrolledUnderElevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: shape,
+        color: isLight ? Colors.white : scheme.surfaceContainerHigh,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      ),
+      listTileTheme: ListTileThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: isLight ? Colors.white : scheme.surfaceContainerHigh,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
         ),
-      );
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        elevation: 2,
+        backgroundColor: scheme.primaryContainer,
+        foregroundColor: scheme.onPrimaryContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      dialogTheme: DialogThemeData(shape: shape),
+    );
+  }
 }

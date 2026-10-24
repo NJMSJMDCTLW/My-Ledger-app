@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/category_icons.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -208,7 +209,16 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                       decoration: const InputDecoration(labelText: '類別'),
                       items: [
                         for (final c in categories)
-                          DropdownMenuItem(value: c.id, child: Text(c.name)),
+                          DropdownMenuItem(
+                            value: c.id,
+                            child: Row(
+                              children: [
+                                Icon(categoryIcon(c.name), size: 20),
+                                const SizedBox(width: 12),
+                                Text(c.name),
+                              ],
+                            ),
+                          ),
                       ],
                       onChanged: (v) => setState(() => _categoryId = v),
                       validator: (v) => v == null ? '請選擇類別' : null,

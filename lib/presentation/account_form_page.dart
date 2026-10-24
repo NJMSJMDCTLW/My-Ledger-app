@@ -8,7 +8,10 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 
 class AccountFormPage extends ConsumerStatefulWidget {
-  const AccountFormPage({super.key, this.existing});
+  const AccountFormPage({super.key, this.existing, this.initialType});
+
+  /// 新增時預設選哪種類型（例如從信用卡分頁進來就是信用卡）。
+  final AccountType? initialType;
 
   /// 有值代表編輯這個帳戶；null 代表新增。
   final Account? existing;
@@ -34,6 +37,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
   void initState() {
     super.initState();
     final a = widget.existing;
+    _type = widget.initialType ?? AccountType.bank;
     if (a != null) {
       _name.text = a.name;
       _type = a.type;
