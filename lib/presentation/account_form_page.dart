@@ -8,7 +8,10 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 
 class AccountFormPage extends ConsumerStatefulWidget {
-  const AccountFormPage({super.key});
+  const AccountFormPage({super.key, this.existing});
+
+  /// 有值代表編輯這個帳戶；null 代表新增。
+  final Account? existing;
 
   @override
   ConsumerState<AccountFormPage> createState() => _AccountFormPageState();
@@ -25,6 +28,25 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
   AccountType _type = AccountType.bank;
 
   bool get _isCredit => _type == AccountType.creditCard;
+  bool get _isEditing => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final a = widget.existing;
+    if (a != null) {
+      _name.text = a.name;
+      _type = a.type;
+      // 信用卡的欠款存成負數，編輯時顯示成正數
+      _balance.text = (a.openingBalance.abs() / 100).toStringAsFixed(2);
+      if (a.creditLimit != null) {
+        _limit.text = (a.creditLimit! / 100).toStringAsFixed(2);
+      }
+      _statementDay.text = a.statementDay?.toString() ?? '';
+      _dueDay.text = a.dueDay?.toString() ?? '';
+      _last4.text = a.last4 ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -54,26 +76,74 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     // 信用卡的欠款用負數表示，所以使用者輸入「欠款」時轉成負數
     if (_isCredit) opening = -opening.abs();
 
-    await db.into(db.accounts).insert(
-          AccountsCompanion.insert(
-            name: _name.text.trim(),
-            type: _type,
-            openingBalance: Value(opening),
-            creditLimit: Value(_isCredit ? parseCents(_limit.text) : null),
-            statementDay:
-                Value(_isCredit ? int.tryParse(_statementDay.text) : null),
-            dueDay: Value(_isCredit ? int.tryParse(_dueDay.text) : null),
-            last4: Value(
-                _isCredit && _last4.text.isNotEmpty ? _last4.text : null),
-          ),
-        );
+    final companion = AccountsCompanion(
+      name: Value(_name.text.trim()),
+      type: Value(_type),
+      openingBalance: Value(opening),
+      creditLimit: Value(_isCredit ? parseCents(_limit.text) : null),
+      statementDay: Value(_isCredit ? int.tryParse(_statementDay.text) : null),
+      dueDay: Value(_isCredit ? int.tryParse(_dueDay.text) : null),
+      last4: Value(_isCredit && _last4.text.isNotEmpty ? _last4.text : null),
+    );
+
+    if (_isEditing) {
+      final id = widget.existing!.id;
+      await (db.update(db.accounts)..where((a) => a.id.equals(id)))
+          .write(companion);
+    } else {
+      await db.into(db.accounts).insert(companion);
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _toggleArchive() async {
+    final account = widget.existing!;
+    final archiving = !account.isArchived;
+
+    if (archiving) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('封存這個帳戶？'),
+          content: const Text('封存後不會出現在帳戶清單與總資產，也不能再選來記帳。'
+              '歷史交易會保留，隨時可以取消封存。'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('封存'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
+
+    final db = ref.read(databaseProvider);
+    await (db.update(db.accounts)..where((a) => a.id.equals(account.id)))
+        .write(AccountsCompanion(isArchived: Value(archiving)));
     if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('新增帳戶')),
+      appBar: AppBar(
+        title: Text(_isEditing ? '編輯帳戶' : '新增帳戶'),
+        actions: [
+          if (_isEditing)
+            IconButton(
+              tooltip: widget.existing!.isArchived ? '取消封存' : '封存',
+              icon: Icon(widget.existing!.isArchived
+                  ? Icons.unarchive_outlined
+                  : Icons.archive_outlined),
+              onPressed: _toggleArchive,
+            ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: ListView(

@@ -16,13 +16,15 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accounts = ref.watch(accountsProvider).value ?? [];
+    final allAccounts = ref.watch(allAccountsProvider).value ?? [];
+    final accounts = allAccounts.where((a) => !a.isArchived).toList();
+    final archived = allAccounts.where((a) => a.isArchived).toList();
     final txs = ref.watch(transactionsProvider).value ?? [];
     final categories = ref.watch(categoriesProvider).value ?? [];
     final balances = ref.watch(balancesProvider);
 
     final total = balances.values.fold<int>(0, (sum, v) => sum + v);
-    final accountNames = {for (final a in accounts) a.id: a.name};
+    final accountNames = {for (final a in allAccounts) a.id: a.name};
     final categoryNames = {for (final c in categories) c.id: c.name};
 
     return Scaffold(
@@ -63,10 +65,21 @@ class HomePage extends ConsumerWidget {
           else
             for (final a in accounts)
               ListTile(
+                onTap: () => _open(context, AccountFormPage(existing: a)),
                 title: Text(a.name),
                 subtitle: Text(a.type.label),
                 trailing: Text(formatCents(balances[a.id] ?? 0)),
               ),
+          if (archived.isNotEmpty) ...[
+            const _SectionTitle('已封存帳戶'),
+            for (final a in archived)
+              ListTile(
+                onTap: () => _open(context, AccountFormPage(existing: a)),
+                title: Text(a.name),
+                subtitle: Text(a.type.label),
+                textColor: Theme.of(context).disabledColor,
+              ),
+          ],
           const _SectionTitle('最近交易'),
           if (txs.isEmpty)
             const ListTile(title: Text('還沒有交易'))

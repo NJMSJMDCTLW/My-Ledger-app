@@ -116,7 +116,12 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accounts = ref.watch(accountsProvider).value ?? [];
+    // 編輯舊交易時，即使它用的帳戶已封存也要能顯示
+    final ex = widget.existing;
+    final accounts = (ref.watch(allAccountsProvider).value ?? [])
+        .where((a) =>
+            !a.isArchived || a.id == ex?.accountId || a.id == ex?.toAccountId)
+        .toList();
     final allCategories = ref.watch(categoriesProvider).value ?? [];
 
     final categoryType = _type == TransactionType.income
