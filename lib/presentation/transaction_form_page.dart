@@ -8,7 +8,10 @@ import 'package:hello_ledger/data/providers.dart';
 import 'package:intl/intl.dart';
 
 class TransactionFormPage extends ConsumerStatefulWidget {
-  const TransactionFormPage({super.key});
+  const TransactionFormPage({super.key, this.existing});
+
+  /// 有值代表編輯這筆交易；null 代表新增。
+  final TransactionRecord? existing;
 
   @override
   ConsumerState<TransactionFormPage> createState() =>
@@ -24,6 +27,23 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   int? _accountId;
   int? _toAccountId;
   int? _categoryId;
+
+  bool get _isEditing => widget.existing != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final t = widget.existing;
+    if (t != null) {
+      _type = t.type;
+      _date = t.date;
+      _accountId = t.accountId;
+      _toAccountId = t.toAccountId;
+      _categoryId = t.categoryId;
+      _amount.text = (t.amount / 100).toStringAsFixed(2);
+      _note.text = t.note;
+    }
+  }
 
   @override
   void dispose() {
@@ -48,17 +68,49 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     if (!_formKey.currentState!.validate()) return;
     final db = ref.read(databaseProvider);
 
-    await db.into(db.transactions).insert(
-          TransactionsCompanion.insert(
-            date: _date,
-            amount: parseCents(_amount.text)!,
-            type: _type,
-            accountId: _accountId!,
-            toAccountId: Value(_isTransfer ? _toAccountId : null),
-            categoryId: Value(_isTransfer ? null : _categoryId),
-            note: Value(_note.text.trim()),
+    final companion = TransactionsCompanion(
+      date: Value(_date),
+      amount: Value(parseCents(_amount.text)!),
+      type: Value(_type),
+      accountId: Value(_accountId!),
+      toAccountId: Value(_isTransfer ? _toAccountId : null),
+      categoryId: Value(_isTransfer ? null : _categoryId),
+      note: Value(_note.text.trim()),
+    );
+
+    if (_isEditing) {
+      final id = widget.existing!.id;
+      await (db.update(db.transactions)..where((t) => t.id.equals(id)))
+          .write(companion);
+    } else {
+      await db.into(db.transactions).insert(companion);
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _delete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('刪除這筆交易？'),
+        content: const Text('刪除後無法復原。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
           ),
-        );
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('刪除'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    final db = ref.read(databaseProvider);
+    final id = widget.existing!.id;
+    await (db.delete(db.transactions)..where((t) => t.id.equals(id))).go();
     if (mounted) Navigator.pop(context);
   }
 
@@ -74,7 +126,17 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         allCategories.where((c) => c.type == categoryType).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('新增交易')),
+      appBar: AppBar(
+        title: Text(_isEditing ? '編輯交易' : '新增交易'),
+        actions: [
+          if (_isEditing)
+            IconButton(
+              tooltip: '刪除',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _delete,
+            ),
+        ],
+      ),
       body: accounts.isEmpty
           ? const Center(child: Text('請先新增一個帳戶'))
           : Form(
@@ -99,7 +161,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     decoration: const InputDecoration(labelText: '金額'),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    autofocus: true,
+                    autofocus: !_isEditing,
                     validator: (v) {
                       final cents = parseCents(v ?? '');
                       return (cents == null || cents <= 0)

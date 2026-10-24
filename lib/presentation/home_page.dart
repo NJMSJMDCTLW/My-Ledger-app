@@ -73,6 +73,7 @@ class HomePage extends ConsumerWidget {
           else
             for (final t in txs.take(50))
               ListTile(
+                onTap: () => _open(context, TransactionFormPage(existing: t)),
                 title: Text(t.type == TransactionType.transfer
                     ? '轉帳：${accountNames[t.accountId] ?? '?'} → ${accountNames[t.toAccountId] ?? '?'}'
                     : categoryNames[t.categoryId] ?? '未分類'),
