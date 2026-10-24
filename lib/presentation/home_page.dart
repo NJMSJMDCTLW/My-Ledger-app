@@ -4,6 +4,7 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/account_form_page.dart';
+import 'package:hello_ledger/presentation/credit_card_section.dart';
 import 'package:hello_ledger/presentation/stats_page.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
 import 'package:intl/intl.dart';
@@ -64,6 +65,12 @@ class HomePage extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+          CreditCardSection(
+            cards: accounts
+                .where((a) => a.type == AccountType.creditCard)
+                .toList(),
+            balances: balances,
           ),
           const _SectionTitle('帳戶'),
           if (accounts.isEmpty)
