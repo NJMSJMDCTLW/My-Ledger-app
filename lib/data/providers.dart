@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 
@@ -13,6 +14,13 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 final allAccountsProvider = StreamProvider<List<Account>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.select(db.accounts).watch();
+});
+
+/// 帳戶一有變動就重新排程信用卡繳款提醒。在 App 最上層 watch 它即可。
+final reminderSyncProvider = Provider<void>((ref) {
+  final accounts = ref.watch(allAccountsProvider).value;
+  if (accounts == null) return;
+  NotificationService.instance.rescheduleCreditCardReminders(accounts);
 });
 
 /// 使用中的帳戶（未封存）。
