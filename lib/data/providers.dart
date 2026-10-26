@@ -56,6 +56,21 @@ class MonthlyStats {
 final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
   final month = ref.watch(selectedMonthProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
+  return computeMonthlyStats(all, month);
+});
+
+/// 選定月份的「上個月」統計，用來做比較。
+final previousMonthlyStatsProvider = Provider<MonthlyStats>((ref) {
+  final month = ref.watch(selectedMonthProvider);
+  final all = ref.watch(transactionsProvider).value ?? [];
+  return computeMonthlyStats(all, DateTime(month.year, month.month - 1));
+});
+
+/// 算出某個月份的統計。
+MonthlyStats computeMonthlyStats(
+  List<TransactionRecord> all,
+  DateTime month,
+) {
   final txs = all
       .where((t) => t.date.year == month.year && t.date.month == month.month)
       .toList();
@@ -80,7 +95,7 @@ final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
     expense: expense,
     categoryRows: rows,
   );
-});
+}
 
 final recurringRulesProvider = StreamProvider<List<RecurringRule>>((ref) {
   final db = ref.watch(databaseProvider);
