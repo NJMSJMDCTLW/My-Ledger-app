@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/money.dart';
 
-/// 和上個月比較的文字，例如「▲ 120.00 (+25%)」。
+/// 和上一期比較的文字，例如「▲ 120.00 (+25%)」。
 ///
 /// [higherIsBad] 為 true 時（支出），增加是紅色、減少是綠色；
 /// 為 false 時（收入、結餘）剛好相反。
@@ -13,7 +13,8 @@ class DeltaText extends StatelessWidget {
     required this.previous,
     required this.higherIsBad,
     this.showAmount = true,
-    this.noPreviousLabel = '上月無資料',
+    this.previousName = '上月',
+    this.noPreviousLabel,
   });
 
   final int current;
@@ -23,19 +24,23 @@ class DeltaText extends StatelessWidget {
   /// 是否顯示差額金額；列表空間小的地方只顯示百分比。
   final bool showAmount;
 
-  /// 上個月是 0、本月有金額時顯示的字（類別明細會用「新增」）。
-  final String noPreviousLabel;
+  /// 比較對象的名稱，例如「上月」「前六個月」「去年」。
+  final String previousName;
 
-  /// 計算比較結果的文字。上個月是 0 時沒有百分比可算。
+  /// 上一期是 0、這一期有金額時顯示的字（類別明細會用「新增」）。沒給就用「○○無資料」。
+  final String? noPreviousLabel;
+
+  /// 計算比較結果的文字。上一期是 0 時沒有百分比可算。
   static String describe(
     int current,
     int previous, {
     bool showAmount = true,
-    String noPreviousLabel = '上月無資料',
+    String previousName = '上月',
+    String? noPreviousLabel,
   }) {
     final diff = current - previous;
-    if (diff == 0) return '與上月持平';
-    if (previous == 0) return noPreviousLabel;
+    if (diff == 0) return '與$previousName持平';
+    if (previous == 0) return noPreviousLabel ?? '$previousName無資料';
 
     final arrow = diff > 0 ? '▲' : '▼';
     final pct = (diff.abs() / previous.abs() * 100).round();
@@ -61,6 +66,7 @@ class DeltaText extends StatelessWidget {
         current,
         previous,
         showAmount: showAmount,
+        previousName: previousName,
         noPreviousLabel: noPreviousLabel,
       ),
       style: Theme.of(context)

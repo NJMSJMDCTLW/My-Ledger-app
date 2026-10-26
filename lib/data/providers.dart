@@ -4,6 +4,7 @@ import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/recurring_service.dart';
+import 'package:hello_ledger/data/stats_range.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -25,8 +26,12 @@ class SelectedMonth extends Notifier<DateTime> {
     return DateTime(now.year, now.month);
   }
 
+  /// 前後移動幾個月；不能超過這個月（沒有未來的紀錄可看）。
   void shift(int months) {
-    state = DateTime(state.year, state.month + months);
+    final now = DateTime.now();
+    final thisMonth = DateTime(now.year, now.month);
+    final target = DateTime(state.year, state.month + months);
+    state = target.isAfter(thisMonth) ? thisMonth : target;
   }
 }
 
@@ -59,11 +64,44 @@ final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
   return computeMonthlyStats(all, month);
 });
 
-/// 選定月份的「上個月」統計，用來做比較。
-final previousMonthlyStatsProvider = Provider<MonthlyStats>((ref) {
-  final month = ref.watch(selectedMonthProvider);
+/// 統計分頁目前選的時間範圍種類（每月、近六個月、一年）。
+class SelectedStatsPeriod extends Notifier<StatsPeriod> {
+  @override
+  StatsPeriod build() => StatsPeriod.month;
+
+  void select(StatsPeriod period) => state = period;
+}
+
+final statsPeriodProvider =
+    NotifierProvider<SelectedStatsPeriod, StatsPeriod>(SelectedStatsPeriod.new);
+
+/// 統計分頁目前的時間範圍：由種類加上共用的月份算出來。
+final statsRangeProvider = Provider<StatsRange>((ref) {
+  return statsRangeFor(
+    ref.watch(statsPeriodProvider),
+    ref.watch(selectedMonthProvider),
+  );
+});
+
+/// 統計分頁範圍內的統計。
+final periodStatsProvider = Provider<MonthlyStats>((ref) {
+  final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
-  return computeMonthlyStats(all, DateTime(month.year, month.month - 1));
+  return computeRangeStats(all, range.start, range.end);
+});
+
+/// 「上一期」的統計（上個月、前六個月、去年），用來做比較。
+final previousPeriodStatsProvider = Provider<MonthlyStats>((ref) {
+  final range = ref.watch(statsRangeProvider);
+  final all = ref.watch(transactionsProvider).value ?? [];
+  return computeRangeStats(all, range.previousStart, range.previousEnd);
+});
+
+/// 範圍內每個月的收入與支出，畫長條圖用。
+final periodMonthlyTotalsProvider = Provider<List<MonthTotals>>((ref) {
+  final range = ref.watch(statsRangeProvider);
+  final all = ref.watch(transactionsProvider).value ?? [];
+  return monthlyTotals(all, range);
 });
 
 /// 算出某個月份的統計。
@@ -71,9 +109,21 @@ MonthlyStats computeMonthlyStats(
   List<TransactionRecord> all,
   DateTime month,
 ) {
-  final txs = all
-      .where((t) => t.date.year == month.year && t.date.month == month.month)
-      .toList();
+  return computeRangeStats(
+    all,
+    DateTime(month.year, month.month),
+    DateTime(month.year, month.month + 1),
+  );
+}
+
+/// 算出 [start]（含）到 [end]（不含）之間的統計。
+MonthlyStats computeRangeStats(
+  List<TransactionRecord> all,
+  DateTime start,
+  DateTime end,
+) {
+  final txs =
+      all.where((t) => !t.date.isBefore(start) && t.date.isBefore(end)).toList();
 
   var income = 0;
   var expense = 0;

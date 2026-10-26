@@ -19,6 +19,7 @@ class ExpenseBreakdown extends StatefulWidget {
     required this.categories,
     this.showList = false,
     this.previousByCategory,
+    this.previousName = '上月',
   });
 
   final List<MapEntry<int?, int>> rows;
@@ -26,6 +27,9 @@ class ExpenseBreakdown extends StatefulWidget {
   final List<Category> categories;
   final bool showList;
   final Map<int?, int>? previousByCategory;
+
+  /// 比較對象的名稱，例如「上月」「前六個月」「去年」。
+  final String previousName;
 
   @override
   State<ExpenseBreakdown> createState() => _ExpenseBreakdownState();
@@ -174,6 +178,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                         current: listRows[i].value,
                         previous: prev[listRows[i].key] ?? 0,
                         higherIsBad: true,
+                        previousName: widget.previousName,
                         noPreviousLabel: '新增',
                       ),
                   ],
