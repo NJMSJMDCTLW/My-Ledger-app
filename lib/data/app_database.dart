@@ -5,18 +5,23 @@ import 'package:hello_ledger/data/tables.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Accounts, Categories, Transactions])
+@DriftDatabase(tables: [Accounts, Categories, Transactions, RecurringRules])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(driftDatabase(name: 'ledger'));
+  AppDatabase([QueryExecutor? executor])
+      : super(executor ?? driftDatabase(name: 'ledger'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
           await _seedCategories();
+        },
+        onUpgrade: (m, from, to) async {
+          // v1 -> v2：新增固定收支的資料表，原本的資料不動
+          if (from < 2) await m.createTable(recurringRules);
         },
       );
 

@@ -42,3 +42,28 @@ class Transactions extends Table {
   TextColumn get note => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
+
+/// 固定收支的規則（例如每月 5 號的房租）。
+/// App 啟動時，會替每條規則補上已到期但還沒產生的交易。
+@DataClassName('RecurringRule')
+class RecurringRules extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get type => intEnum<TransactionType>()();
+
+  /// 金額一律存正整數，單位是「分」。
+  IntColumn get amount => integer()();
+  IntColumn get accountId => integer().references(Accounts, #id)();
+  IntColumn get toAccountId => integer().nullable().references(Accounts, #id)();
+  IntColumn get categoryId => integer().nullable().references(Categories, #id)();
+  TextColumn get note => text().withDefault(const Constant(''))();
+
+  /// 每月幾號（1~31）。該月沒有這一天就用月底。
+  IntColumn get dayOfMonth => integer()();
+
+  /// 從這天起才開始產生交易。
+  DateTimeColumn get startDate => dateTime()();
+
+  /// 最近一次已產生的交易日期，避免重複產生。
+  DateTimeColumn get lastGenerated => dateTime().nullable()();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+}

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
+import 'package:hello_ledger/data/recurring_service.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -79,6 +80,21 @@ final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
     expense: expense,
     categoryRows: rows,
   );
+});
+
+final recurringRulesProvider = StreamProvider<List<RecurringRule>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return (db.select(db.recurringRules)
+        ..orderBy([(r) => OrderingTerm.asc(r.dayOfMonth)]))
+      .watch();
+});
+
+/// 固定收支規則一有變動（包含 App 剛啟動），就補上到期的交易。
+/// 產生交易後 lastGenerated 會更新，規則串流再發一次，但第二次不會再產生新的，所以不會無限循環。
+final recurringSyncProvider = Provider<void>((ref) {
+  final rules = ref.watch(recurringRulesProvider).value;
+  if (rules == null) return;
+  generateDueTransactions(ref.read(databaseProvider));
 });
 
 /// 帳戶一有變動就重新排程信用卡繳款提醒。在 App 最上層 watch 它即可。

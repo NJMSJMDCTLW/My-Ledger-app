@@ -17,6 +17,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(reminderSyncProvider); // 讓繳款提醒隨帳戶資料自動更新
+    ref.watch(recurringSyncProvider); // 啟動時補上到期的固定收支
 
     return MaterialApp(
       title: '我的記帳本',
