@@ -13,7 +13,7 @@ class AppDatabase extends _$AppDatabase {
       : super(executor ?? driftDatabase(name: 'ledger'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -26,8 +26,15 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) await m.createTable(recurringRules);
           // v2 -> v3：多貨幣。新增匯率表，以及轉帳的「轉入金額」欄位
           if (from < 3) {
+            // 這張表是照最新的樣子建的，已經包含 v4 的 isManual 欄位
             await m.createTable(exchangeRates);
             await m.addColumn(transactions, transactions.toAmount);
+          }
+          // v3 -> v4：匯率可以自動更新。v3 的匯率都是使用者自己填的，標成手動，
+          // 這樣第一次自動更新時不會把它們蓋掉
+          if (from == 3) {
+            await m.addColumn(exchangeRates, exchangeRates.isManual);
+            await customStatement('UPDATE exchange_rates SET is_manual = 1');
           }
         },
       );

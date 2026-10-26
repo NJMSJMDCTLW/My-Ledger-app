@@ -7,6 +7,7 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
+import 'package:hello_ledger/data/rate_service.dart';
 
 class AccountFormPage extends ConsumerStatefulWidget {
   const AccountFormPage({super.key, this.existing, this.initialType});
@@ -106,12 +107,8 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     // 第一次用這個外幣：把使用者填的匯率存起來（之後在「匯率」分頁修改）
     final rate = double.tryParse(_rate.text.trim());
     if (_needsRate && rate != null) {
-      await db.into(db.exchangeRates).insertOnConflictUpdate(
-            ExchangeRatesCompanion.insert(
-              currency: _currency,
-              rateToHkd: rate,
-            ),
-          );
+      // 使用者自己填的，標成手動，自動更新不會蓋掉
+      await setManualRate(db, _currency, rate);
     }
 
     if (_isEditing) {
@@ -214,8 +211,15 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
                   ),
               ],
               // 編輯時不能換貨幣，不然舊的金額會被當成另一種貨幣
-              onChanged:
-                  _isEditing ? null : (v) => setState(() => _currency = v!),
+              onChanged: _isEditing
+                  ? null
+                  : (v) {
+                      setState(() => _currency = v!);
+                      // 這個外幣還沒有匯率就先試著自動抓；抓不到再請使用者自己填
+                      if (_needsRate) {
+                        ref.read(rateUpdaterProvider.notifier).refresh();
+                      }
+                    },
             ),
             if (!_isEditing &&
                 _currency != baseCurrency &&
@@ -225,7 +229,18 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
                 controller: _rate,
                 decoration: InputDecoration(
                   labelText: '匯率：1 $_currency = ? HKD',
-                  helperText: '用來把這個帳戶折合成港幣，之後可以在「匯率」分頁修改',
+                  helperText: ref.watch(rateUpdaterProvider).isLoading
+                      ? '正在自動取得最新匯率…'
+                      : '自動取得失敗，可以按右邊的按鈕重試，或自己填寫。之後可以在「匯率」分頁修改',
+                  suffixIcon: IconButton(
+                    tooltip: '自動取得最新匯率',
+                    icon: const Icon(Icons.cloud_download_outlined),
+                    onPressed: ref.watch(rateUpdaterProvider).isLoading
+                        ? null
+                        : () => ref
+                            .read(rateUpdaterProvider.notifier)
+                            .refresh(),
+                  ),
                 ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),

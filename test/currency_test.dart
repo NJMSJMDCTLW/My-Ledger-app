@@ -20,6 +20,7 @@ ExchangeRate rate(String currency, double r) =>
     ExchangeRate(
       currency: currency,
       rateToHkd: r,
+      isManual: false,
       updatedAt: DateTime(2026),
     );
 

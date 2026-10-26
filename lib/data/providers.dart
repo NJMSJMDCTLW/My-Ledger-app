@@ -4,6 +4,7 @@ import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/hkd_converter.dart';
+import 'package:hello_ledger/data/rate_service.dart';
 import 'package:hello_ledger/data/recurring_service.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 
@@ -242,4 +243,65 @@ final missingRateCurrenciesProvider = Provider<Set<String>>((ref) {
     for (final a in accounts)
       if (!converter.hasRate(a.currency)) a.currency,
   };
+});
+
+/// 匯率自動更新的狀態，匯率分頁用來顯示「更新中」「上次更新」「失敗原因」。
+class RateUpdateState {
+  const RateUpdateState({
+    this.isLoading = false,
+    this.error,
+    this.lastSuccess,
+  });
+
+  final bool isLoading;
+
+  /// 上一次更新失敗的原因；成功或還沒更新過是 null。
+  final String? error;
+
+  /// 這次開著 App 期間，最近一次成功更新的時間。
+  final DateTime? lastSuccess;
+}
+
+class RateUpdater extends Notifier<RateUpdateState> {
+  @override
+  RateUpdateState build() => const RateUpdateState();
+
+  /// 去抓最新匯率並更新。成功回傳 true；失敗（沒網路等）回傳 false，原因在 state.error。
+  Future<bool> refresh() async {
+    if (state.isLoading) return false;
+    state = RateUpdateState(isLoading: true, lastSuccess: state.lastSuccess);
+    try {
+      await updateExchangeRates(ref.read(databaseProvider));
+      state = RateUpdateState(lastSuccess: DateTime.now());
+      return true;
+    } on RateFetchException catch (e) {
+      state = RateUpdateState(error: e.message, lastSuccess: state.lastSuccess);
+      return false;
+    } catch (_) {
+      state = RateUpdateState(
+        error: '更新匯率時發生錯誤',
+        lastSuccess: state.lastSuccess,
+      );
+      return false;
+    }
+  }
+}
+
+final rateUpdaterProvider =
+    NotifierProvider<RateUpdater, RateUpdateState>(RateUpdater.new);
+
+/// 開啟 App（以及帳戶有變動）時，需要的話自動更新匯率。在 App 最上層 watch 它即可。
+/// 沒網路等失敗都靜靜略過，不打擾使用者；失敗原因會留在 [rateUpdaterProvider]。
+final rateStartupSyncProvider = FutureProvider<void>((ref) async {
+  final accounts = (await ref.watch(allAccountsProvider.future))
+      .where((a) => !a.isArchived)
+      .toList();
+  final rates = await ref.watch(exchangeRatesProvider.future);
+
+  final needed = shouldAutoUpdate(
+    rates: rates,
+    currenciesInUse: {for (final a in accounts) a.currency},
+    now: DateTime.now(),
+  );
+  if (needed) await ref.read(rateUpdaterProvider.notifier).refresh();
 });

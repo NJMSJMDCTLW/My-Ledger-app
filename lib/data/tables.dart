@@ -80,6 +80,9 @@ class ExchangeRates extends Table {
   /// 貨幣代碼，例如 USD、JPY。
   TextColumn get currency => text()();
   RealColumn get rateToHkd => real()();
+
+  /// true 代表使用者自己填的匯率，自動更新時不會被蓋掉。
+  BoolColumn get isManual => boolean().withDefault(const Constant(false))();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 
   @override

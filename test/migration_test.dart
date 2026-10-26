@@ -77,4 +77,31 @@ void main() {
           ),
         );
   });
+
+  test('從第 3 版升級到第 4 版：原本的匯率保留，並標成手動', () async {
+    final db = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          // 第 3 版的匯率表：還沒有 is_manual 欄位
+          raw.execute('''
+            CREATE TABLE exchange_rates (
+              currency TEXT NOT NULL PRIMARY KEY,
+              rate_to_hkd REAL NOT NULL,
+              updated_at INTEGER NOT NULL DEFAULT 0
+            );
+          ''');
+          raw.execute(
+              "INSERT INTO exchange_rates (currency, rate_to_hkd, updated_at) VALUES ('USD', 7.8, 1790000000)");
+          raw.execute('PRAGMA user_version = 3');
+        },
+      ),
+    );
+    addTearDown(db.close);
+
+    final rates = await db.select(db.exchangeRates).get();
+    expect(rates.single.currency, 'USD');
+    expect(rates.single.rateToHkd, 7.8);
+    // 使用者自己填過的匯率，升級後要視為手動，第一次自動更新才不會蓋掉
+    expect(rates.single.isManual, isTrue);
+  });
 }

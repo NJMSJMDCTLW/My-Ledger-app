@@ -2304,6 +2304,21 @@ class $ExchangeRatesTable extends ExchangeRates
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isManualMeta = const VerificationMeta(
+    'isManual',
+  );
+  @override
+  late final GeneratedColumn<bool> isManual = GeneratedColumn<bool>(
+    'is_manual',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_manual" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -2317,7 +2332,12 @@ class $ExchangeRatesTable extends ExchangeRates
     defaultValue: currentDateAndTime,
   );
   @override
-  List<GeneratedColumn> get $columns => [currency, rateToHkd, updatedAt];
+  List<GeneratedColumn> get $columns => [
+    currency,
+    rateToHkd,
+    isManual,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2346,6 +2366,12 @@ class $ExchangeRatesTable extends ExchangeRates
     } else if (isInserting) {
       context.missing(_rateToHkdMeta);
     }
+    if (data.containsKey('is_manual')) {
+      context.handle(
+        _isManualMeta,
+        isManual.isAcceptableOrUnknown(data['is_manual']!, _isManualMeta),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -2369,6 +2395,10 @@ class $ExchangeRatesTable extends ExchangeRates
         DriftSqlType.double,
         data['${effectivePrefix}rate_to_hkd'],
       )!,
+      isManual: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_manual'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -2386,10 +2416,14 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
   /// 貨幣代碼，例如 USD、JPY。
   final String currency;
   final double rateToHkd;
+
+  /// true 代表使用者自己填的匯率，自動更新時不會被蓋掉。
+  final bool isManual;
   final DateTime updatedAt;
   const ExchangeRate({
     required this.currency,
     required this.rateToHkd,
+    required this.isManual,
     required this.updatedAt,
   });
   @override
@@ -2397,6 +2431,7 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
     final map = <String, Expression>{};
     map['currency'] = Variable<String>(currency);
     map['rate_to_hkd'] = Variable<double>(rateToHkd);
+    map['is_manual'] = Variable<bool>(isManual);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -2405,6 +2440,7 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
     return ExchangeRatesCompanion(
       currency: Value(currency),
       rateToHkd: Value(rateToHkd),
+      isManual: Value(isManual),
       updatedAt: Value(updatedAt),
     );
   }
@@ -2417,6 +2453,7 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
     return ExchangeRate(
       currency: serializer.fromJson<String>(json['currency']),
       rateToHkd: serializer.fromJson<double>(json['rateToHkd']),
+      isManual: serializer.fromJson<bool>(json['isManual']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -2426,6 +2463,7 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
     return <String, dynamic>{
       'currency': serializer.toJson<String>(currency),
       'rateToHkd': serializer.toJson<double>(rateToHkd),
+      'isManual': serializer.toJson<bool>(isManual),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -2433,16 +2471,19 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
   ExchangeRate copyWith({
     String? currency,
     double? rateToHkd,
+    bool? isManual,
     DateTime? updatedAt,
   }) => ExchangeRate(
     currency: currency ?? this.currency,
     rateToHkd: rateToHkd ?? this.rateToHkd,
+    isManual: isManual ?? this.isManual,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   ExchangeRate copyWithCompanion(ExchangeRatesCompanion data) {
     return ExchangeRate(
       currency: data.currency.present ? data.currency.value : this.currency,
       rateToHkd: data.rateToHkd.present ? data.rateToHkd.value : this.rateToHkd,
+      isManual: data.isManual.present ? data.isManual.value : this.isManual,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -2452,36 +2493,41 @@ class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
     return (StringBuffer('ExchangeRate(')
           ..write('currency: $currency, ')
           ..write('rateToHkd: $rateToHkd, ')
+          ..write('isManual: $isManual, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(currency, rateToHkd, updatedAt);
+  int get hashCode => Object.hash(currency, rateToHkd, isManual, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ExchangeRate &&
           other.currency == this.currency &&
           other.rateToHkd == this.rateToHkd &&
+          other.isManual == this.isManual &&
           other.updatedAt == this.updatedAt);
 }
 
 class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
   final Value<String> currency;
   final Value<double> rateToHkd;
+  final Value<bool> isManual;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const ExchangeRatesCompanion({
     this.currency = const Value.absent(),
     this.rateToHkd = const Value.absent(),
+    this.isManual = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExchangeRatesCompanion.insert({
     required String currency,
     required double rateToHkd,
+    this.isManual = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : currency = Value(currency),
@@ -2489,12 +2535,14 @@ class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
   static Insertable<ExchangeRate> custom({
     Expression<String>? currency,
     Expression<double>? rateToHkd,
+    Expression<bool>? isManual,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (currency != null) 'currency': currency,
       if (rateToHkd != null) 'rate_to_hkd': rateToHkd,
+      if (isManual != null) 'is_manual': isManual,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2503,12 +2551,14 @@ class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
   ExchangeRatesCompanion copyWith({
     Value<String>? currency,
     Value<double>? rateToHkd,
+    Value<bool>? isManual,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
     return ExchangeRatesCompanion(
       currency: currency ?? this.currency,
       rateToHkd: rateToHkd ?? this.rateToHkd,
+      isManual: isManual ?? this.isManual,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2522,6 +2572,9 @@ class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
     }
     if (rateToHkd.present) {
       map['rate_to_hkd'] = Variable<double>(rateToHkd.value);
+    }
+    if (isManual.present) {
+      map['is_manual'] = Variable<bool>(isManual.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -2537,6 +2590,7 @@ class ExchangeRatesCompanion extends UpdateCompanion<ExchangeRate> {
     return (StringBuffer('ExchangeRatesCompanion(')
           ..write('currency: $currency, ')
           ..write('rateToHkd: $rateToHkd, ')
+          ..write('isManual: $isManual, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4452,6 +4506,7 @@ typedef $$ExchangeRatesTableCreateCompanionBuilder =
     ExchangeRatesCompanion Function({
       required String currency,
       required double rateToHkd,
+      Value<bool> isManual,
       Value<DateTime> updatedAt,
       Value<int> rowid,
     });
@@ -4459,6 +4514,7 @@ typedef $$ExchangeRatesTableUpdateCompanionBuilder =
     ExchangeRatesCompanion Function({
       Value<String> currency,
       Value<double> rateToHkd,
+      Value<bool> isManual,
       Value<DateTime> updatedAt,
       Value<int> rowid,
     });
@@ -4479,6 +4535,11 @@ class $$ExchangeRatesTableFilterComposer
 
   ColumnFilters<double> get rateToHkd => $composableBuilder(
     column: $table.rateToHkd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isManual => $composableBuilder(
+    column: $table.isManual,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4507,6 +4568,11 @@ class $$ExchangeRatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isManual => $composableBuilder(
+    column: $table.isManual,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4527,6 +4593,9 @@ class $$ExchangeRatesTableAnnotationComposer
 
   GeneratedColumn<double> get rateToHkd =>
       $composableBuilder(column: $table.rateToHkd, builder: (column) => column);
+
+  GeneratedColumn<bool> get isManual =>
+      $composableBuilder(column: $table.isManual, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -4565,11 +4634,13 @@ class $$ExchangeRatesTableTableManager
               ({
                 Value<String> currency = const Value.absent(),
                 Value<double> rateToHkd = const Value.absent(),
+                Value<bool> isManual = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExchangeRatesCompanion(
                 currency: currency,
                 rateToHkd: rateToHkd,
+                isManual: isManual,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -4577,11 +4648,13 @@ class $$ExchangeRatesTableTableManager
               ({
                 required String currency,
                 required double rateToHkd,
+                Value<bool> isManual = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExchangeRatesCompanion.insert(
                 currency: currency,
                 rateToHkd: rateToHkd,
+                isManual: isManual,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
