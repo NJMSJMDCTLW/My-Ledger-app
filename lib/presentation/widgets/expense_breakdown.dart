@@ -28,12 +28,14 @@ class ExpenseBreakdown extends StatefulWidget {
 class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
   int? _touched; // 被點到的區塊
 
-  String? _nameOf(int? id) {
+  Category? _categoryOf(int? id) {
     for (final c in widget.categories) {
-      if (c.id == id) return c.name;
+      if (c.id == id) return c;
     }
     return null;
   }
+
+  String? _nameOf(int? id) => _categoryOf(id)?.name;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +124,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                 leading: CircleAvatar(
                   backgroundColor: AppTheme.categoryColor(rows[i].key),
                   foregroundColor: AppTheme.onMacaron,
-                  child: Icon(categoryIcon(_nameOf(rows[i].key)), size: 20),
+                  child: Icon(categoryIcon(_categoryOf(rows[i].key)), size: 20),
                 ),
                 title: Text(_nameOf(rows[i].key) ?? '未分類'),
                 subtitle: Text(

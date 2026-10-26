@@ -230,7 +230,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                             value: c.id,
                             child: Row(
                               children: [
-                                Icon(categoryIcon(c.name), size: 20),
+                                Icon(categoryIcon(c), size: 20),
                                 const SizedBox(width: 12),
                                 Text(c.name),
                               ],

@@ -2871,10 +2871,11 @@ class $$CategoriesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (transactionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Category,
                           $CategoriesTable,
-                          TransactionRecord
+                          TransactionRecord,
+                          $TransactionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$CategoriesTableReferences
@@ -2885,17 +2886,16 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).transactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                       if (recurringRulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Category,
                           $CategoriesTable,
-                          RecurringRule
+                          RecurringRule,
+                          $RecurringRulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$CategoriesTableReferences
@@ -2906,10 +2906,8 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).recurringRulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                     ];

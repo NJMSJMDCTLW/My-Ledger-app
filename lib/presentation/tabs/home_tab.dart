@@ -113,7 +113,7 @@ class HomeTab extends ConsumerWidget {
                     : categoryById[t.categoryId]?.name ?? '未分類',
                 icon: t.type == TransactionType.transfer
                     ? Icons.swap_horiz
-                    : categoryIcon(categoryById[t.categoryId]?.name),
+                    : categoryIcon(categoryById[t.categoryId]),
                 accountName: accountNames[t.accountId] ?? '?',
                 onTap: () => Navigator.push(
                   context,

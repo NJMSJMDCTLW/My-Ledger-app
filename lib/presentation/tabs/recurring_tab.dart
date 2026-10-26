@@ -45,7 +45,7 @@ class RecurringTab extends ConsumerWidget {
                 : categoryById[r.categoryId]?.name ?? '未分類',
             icon: r.type == TransactionType.transfer
                 ? Icons.swap_horiz
-                : categoryIcon(categoryById[r.categoryId]?.name),
+                : categoryIcon(categoryById[r.categoryId]),
             accountName: accountNames[r.accountId] ?? '?',
           ),
       ],

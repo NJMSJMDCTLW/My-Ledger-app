@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/presentation/account_form_page.dart';
+import 'package:hello_ledger/presentation/category_form_page.dart';
 import 'package:hello_ledger/presentation/tabs/accounts_tab.dart';
+import 'package:hello_ledger/presentation/tabs/categories_tab.dart';
 import 'package:hello_ledger/presentation/tabs/credit_cards_tab.dart';
 import 'package:hello_ledger/presentation/recurring_form_page.dart';
 import 'package:hello_ledger/presentation/tabs/home_tab.dart';
@@ -23,8 +25,9 @@ class _AppShellState extends State<AppShell> {
   static const _accounts = 2;
   static const _creditCards = 3;
   static const _recurring = 4;
+  static const _categories = 5;
 
-  static const _titles = ['我的記帳本', '統計', '帳戶', '信用卡', '固定收支'];
+  static const _titles = ['我的記帳本', '統計', '帳戶', '信用卡', '固定收支', '分類管理'];
 
   int _index = _home;
 
@@ -32,7 +35,7 @@ class _AppShellState extends State<AppShell> {
     Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
   }
 
-  /// 每個分頁右下角的按鈕：首頁記一筆，帳戶、信用卡、固定收支分頁各自新增；統計不需要。
+  /// 每個分頁右下角的按鈕：首頁記一筆，帳戶、信用卡、固定收支、分類管理分頁各自新增；統計不需要。
   Widget? get _fab => switch (_index) {
         _home => FloatingActionButton.extended(
             onPressed: () => _open(const TransactionFormPage()),
@@ -54,6 +57,11 @@ class _AppShellState extends State<AppShell> {
             onPressed: () => _open(const RecurringFormPage()),
             icon: const Icon(Icons.add),
             label: const Text('新增固定收支'),
+          ),
+        _categories => FloatingActionButton.extended(
+            onPressed: () => _open(const CategoryFormPage()),
+            icon: const Icon(Icons.add),
+            label: const Text('新增分類'),
           ),
         _ => null,
       };
@@ -101,6 +109,11 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(Icons.event_repeat),
             label: Text('固定收支'),
           ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.category_outlined),
+            selectedIcon: Icon(Icons.category),
+            label: Text('分類管理'),
+          ),
         ],
       ),
       floatingActionButton: _fab,
@@ -112,6 +125,7 @@ class _AppShellState extends State<AppShell> {
           const AccountsTab(),
           const CreditCardsTab(),
           const RecurringTab(),
+          const CategoriesTab(),
         ],
       ),
     );

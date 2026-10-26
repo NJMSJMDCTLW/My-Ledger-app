@@ -213,7 +213,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                             value: c.id,
                             child: Row(
                               children: [
-                                Icon(categoryIcon(c.name), size: 20),
+                                Icon(categoryIcon(c), size: 20),
                                 const SizedBox(width: 12),
                                 Text(c.name),
                               ],
