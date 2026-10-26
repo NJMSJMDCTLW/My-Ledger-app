@@ -7,6 +7,7 @@ import 'package:hello_ledger/presentation/tabs/categories_tab.dart';
 import 'package:hello_ledger/presentation/tabs/credit_cards_tab.dart';
 import 'package:hello_ledger/presentation/recurring_form_page.dart';
 import 'package:hello_ledger/presentation/tabs/home_tab.dart';
+import 'package:hello_ledger/presentation/tabs/rates_tab.dart';
 import 'package:hello_ledger/presentation/tabs/recurring_tab.dart';
 import 'package:hello_ledger/presentation/tabs/stats_tab.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
@@ -27,7 +28,7 @@ class _AppShellState extends State<AppShell> {
   static const _recurring = 4;
   static const _categories = 5;
 
-  static const _titles = ['我的記帳本', '統計', '帳戶', '信用卡', '固定收支', '分類管理'];
+  static const _titles = ['我的記帳本', '統計', '帳戶', '信用卡', '固定收支', '分類管理', '匯率'];
 
   int _index = _home;
 
@@ -114,6 +115,11 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(Icons.category),
             label: Text('分類管理'),
           ),
+          NavigationDrawerDestination(
+            icon: Icon(Icons.currency_exchange_outlined),
+            selectedIcon: Icon(Icons.currency_exchange),
+            label: Text('匯率'),
+          ),
         ],
       ),
       floatingActionButton: _fab,
@@ -126,6 +132,7 @@ class _AppShellState extends State<AppShell> {
           const CreditCardsTab(),
           const RecurringTab(),
           const CategoriesTab(),
+          const RatesTab(),
         ],
       ),
     );

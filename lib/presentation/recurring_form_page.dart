@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -31,6 +32,11 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
   int? _categoryId;
 
   bool get _isEditing => widget.existing != null;
+
+  String _currencyOf(int? accountId) {
+    if (accountId == null) return baseCurrency;
+    return ref.read(hkdConverterProvider).currencyOfAccount(accountId);
+  }
   bool get _isTransfer => _type == TransactionType.transfer;
 
   @override
@@ -166,7 +172,10 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _amount,
-                    decoration: const InputDecoration(labelText: '金額'),
+                    decoration: InputDecoration(
+                      labelText: '金額',
+                      prefixText: currencyInfo(_currencyOf(_accountId)).symbol,
+                    ),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     autofocus: !_isEditing,
@@ -216,6 +225,10 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                       validator: (v) {
                         if (v == null) return '請選擇轉入帳戶';
                         if (v == _accountId) return '不能轉給同一個帳戶';
+                        // 固定轉帳每月自動記，沒辦法每次問實際收到多少，所以只支援同貨幣
+                        if (_currencyOf(v) != _currencyOf(_accountId)) {
+                          return '固定轉帳暫不支援不同貨幣的帳戶';
+                        }
                         return null;
                       },
                     )

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -28,7 +29,9 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
   final _statementDay = TextEditingController();
   final _dueDay = TextEditingController();
   final _last4 = TextEditingController();
+  final _rate = TextEditingController();
   AccountType _type = AccountType.bank;
+  String _currency = baseCurrency;
 
   bool get _isCredit => _type == AccountType.creditCard;
   bool get _isEditing => widget.existing != null;
@@ -41,6 +44,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     if (a != null) {
       _name.text = a.name;
       _type = a.type;
+      _currency = a.currency;
       // 信用卡的欠款存成負數，編輯時顯示成正數
       _balance.text = (a.openingBalance.abs() / 100).toStringAsFixed(2);
       if (a.creditLimit != null) {
@@ -54,7 +58,15 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
 
   @override
   void dispose() {
-    for (final c in [_name, _balance, _limit, _statementDay, _dueDay, _last4]) {
+    for (final c in [
+      _name,
+      _balance,
+      _limit,
+      _statementDay,
+      _dueDay,
+      _last4,
+      _rate,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -83,12 +95,24 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     final companion = AccountsCompanion(
       name: Value(_name.text.trim()),
       type: Value(_type),
+      currency: Value(_currency),
       openingBalance: Value(opening),
       creditLimit: Value(_isCredit ? parseCents(_limit.text) : null),
       statementDay: Value(_isCredit ? int.tryParse(_statementDay.text) : null),
       dueDay: Value(_isCredit ? int.tryParse(_dueDay.text) : null),
       last4: Value(_isCredit && _last4.text.isNotEmpty ? _last4.text : null),
     );
+
+    // 第一次用這個外幣：把使用者填的匯率存起來（之後在「匯率」分頁修改）
+    final rate = double.tryParse(_rate.text.trim());
+    if (_needsRate && rate != null) {
+      await db.into(db.exchangeRates).insertOnConflictUpdate(
+            ExchangeRatesCompanion.insert(
+              currency: _currency,
+              rateToHkd: rate,
+            ),
+          );
+    }
 
     if (_isEditing) {
       final id = widget.existing!.id;
@@ -99,6 +123,12 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     }
     if (mounted) Navigator.pop(context);
   }
+
+  /// 新增外幣帳戶，而且這個外幣還沒設定過匯率時，要請使用者填。
+  bool get _needsRate =>
+      !_isEditing &&
+      _currency != baseCurrency &&
+      !ref.read(hkdConverterProvider).hasRate(_currency);
 
   Future<void> _toggleArchive() async {
     final account = widget.existing!;
@@ -170,10 +200,47 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               onChanged: (v) => setState(() => _type = v!),
             ),
             const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: _currency,
+              decoration: InputDecoration(
+                labelText: '貨幣',
+                helperText: _isEditing ? '已有紀錄的帳戶不能更換貨幣' : null,
+              ),
+              items: [
+                for (final c in supportedCurrencies)
+                  DropdownMenuItem(
+                    value: c.code,
+                    child: Text('${c.code}　${c.name}'),
+                  ),
+              ],
+              // 編輯時不能換貨幣，不然舊的金額會被當成另一種貨幣
+              onChanged:
+                  _isEditing ? null : (v) => setState(() => _currency = v!),
+            ),
+            if (!_isEditing &&
+                _currency != baseCurrency &&
+                !ref.watch(hkdConverterProvider).hasRate(_currency)) ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _rate,
+                decoration: InputDecoration(
+                  labelText: '匯率：1 $_currency = ? HKD',
+                  helperText: '用來把這個帳戶折合成港幣，之後可以在「匯率」分頁修改',
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: (v) {
+                  final r = double.tryParse(v?.trim() ?? '');
+                  return (r == null || r <= 0) ? '請輸入大於 0 的匯率' : null;
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
             TextFormField(
               controller: _balance,
               decoration: InputDecoration(
                 labelText: _isCredit ? '目前欠款' : '期初餘額',
+                prefixText: currencyInfo(_currency).symbol,
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
@@ -183,7 +250,10 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _limit,
-                decoration: const InputDecoration(labelText: '信用額度'),
+                decoration: InputDecoration(
+                  labelText: '信用額度',
+                  prefixText: currencyInfo(_currency).symbol,
+                ),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: _validateMoney,

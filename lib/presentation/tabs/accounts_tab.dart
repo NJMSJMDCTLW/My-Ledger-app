@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -24,6 +25,7 @@ class AccountsTab extends ConsumerWidget {
     final accounts = allAccounts.where((a) => !a.isArchived).toList();
     final archived = allAccounts.where((a) => a.isArchived).toList();
     final balances = ref.watch(balancesProvider);
+    final converter = ref.watch(hkdConverterProvider);
     final theme = Theme.of(context);
 
     return ListView(
@@ -39,10 +41,30 @@ class AccountsTab extends ConsumerWidget {
                         onTap: () => _edit(context, a),
                         leading: AccountIcon(a.type),
                         title: Text(a.name),
-                        subtitle: Text(a.type.label),
-                        trailing: Text(
-                          formatCents(balances[a.id] ?? 0),
-                          style: theme.textTheme.titleSmall,
+                        subtitle: Text(a.currency == baseCurrency
+                            ? a.type.label
+                            : '${a.type.label} · ${a.currency}'),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              formatMoney(balances[a.id] ?? 0, a.currency),
+                              style: theme.textTheme.titleSmall,
+                            ),
+                            // 外幣帳戶附上折合的港幣
+                            if (a.currency != baseCurrency)
+                              Text(
+                                converter.hasRate(a.currency)
+                                    ? '≈ ${formatMoney(converter.toHkd(balances[a.id] ?? 0, a.currency), baseCurrency)}'
+                                    : '尚未設定匯率',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: converter.hasRate(a.currency)
+                                      ? null
+                                      : theme.colorScheme.error,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                   ],

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
+import 'package:hello_ledger/data/hkd_converter.dart';
 import 'package:hello_ledger/data/providers.dart';
+import 'package:hello_ledger/presentation/widgets/hkd_note.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
 import 'package:hello_ledger/presentation/widgets/expense_breakdown.dart';
 import 'package:hello_ledger/presentation/widgets/month_selector.dart';
@@ -23,11 +26,12 @@ class HomeTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final categories = ref.watch(categoriesProvider).value ?? [];
     final allAccounts = ref.watch(allAccountsProvider).value ?? [];
-    final balances = ref.watch(balancesProvider);
     final stats = ref.watch(monthlyStatsProvider);
     final month = ref.watch(selectedMonthProvider);
+    final converter = ref.watch(hkdConverterProvider);
 
-    final total = balances.values.fold<int>(0, (sum, v) => sum + v);
+    // 總資產：各帳戶餘額折成港幣後加總
+    final total = ref.watch(totalAssetsHkdProvider);
     final accountNames = {for (final a in allAccounts) a.id: a.name};
     final categoryById = {for (final c in categories) c.id: c};
 
@@ -59,7 +63,7 @@ class HomeTab extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  formatCents(total),
+                  formatMoney(total, baseCurrency),
                   style: theme.textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onPrimaryContainer,
@@ -69,6 +73,7 @@ class HomeTab extends ConsumerWidget {
             ),
           ),
         ),
+        const HkdNote(),
 
         const MonthSelector(),
         MonthSummary(stats: stats),
@@ -104,10 +109,12 @@ class HomeTab extends ConsumerWidget {
           const Card(child: ListTile(title: Text('這個月還沒有交易')))
         else
           for (final entry in days.entries) ...[
-            _DayHeader(day: entry.key, txs: entry.value),
+            _DayHeader(day: entry.key, txs: entry.value, converter: converter),
             for (final t in entry.value)
               TransactionTile(
                 tx: t,
+                currency: converter.currencyOfAccount(t.accountId),
+                hkdAmount: converter.amountOf(t),
                 title: t.type == TransactionType.transfer
                     ? '轉帳：${accountNames[t.accountId] ?? '?'} → ${accountNames[t.toAccountId] ?? '?'}'
                     : categoryById[t.categoryId]?.name ?? '未分類',
@@ -130,19 +137,25 @@ class HomeTab extends ConsumerWidget {
 
 /// 每天的標題：日期、星期，以及當天的結餘（收入減支出）。
 class _DayHeader extends StatelessWidget {
-  const _DayHeader({required this.day, required this.txs});
+  const _DayHeader({
+    required this.day,
+    required this.txs,
+    required this.converter,
+  });
 
   final DateTime day;
   final List<TransactionRecord> txs;
+  final HkdConverter converter;
 
   static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
 
   @override
   Widget build(BuildContext context) {
+    // 當天結餘一律折成港幣，不同貨幣的交易才能加在一起
     var balance = 0;
     for (final t in txs) {
-      if (t.type == TransactionType.income) balance += t.amount;
-      if (t.type == TransactionType.expense) balance -= t.amount;
+      if (t.type == TransactionType.income) balance += converter.amountOf(t);
+      if (t.type == TransactionType.expense) balance -= converter.amountOf(t);
     }
 
     final style = Theme.of(context).textTheme.bodySmall;

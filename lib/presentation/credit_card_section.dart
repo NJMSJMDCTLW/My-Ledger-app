@@ -76,7 +76,7 @@ class _CardTile extends StatelessWidget {
                   style: theme.textTheme.titleSmall,
                 ),
                 Text(
-                  '欠款 ${formatCents(debt)}',
+                  '欠款 ${formatMoney(debt, account.currency)}',
                   style: theme.textTheme.titleSmall,
                 ),
               ],
@@ -92,7 +92,7 @@ class _CardTile extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '可用額度 ${formatCents(limit - debt)} / ${formatCents(limit)}',
+                '可用額度 ${formatMoney(limit - debt, account.currency)} / ${formatMoney(limit, account.currency)}',
                 style: theme.textTheme.bodySmall,
               ),
             ],

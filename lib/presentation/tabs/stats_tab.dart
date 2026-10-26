@@ -4,6 +4,7 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 import 'package:hello_ledger/presentation/widgets/expense_breakdown.dart';
+import 'package:hello_ledger/presentation/widgets/hkd_note.dart';
 import 'package:hello_ledger/presentation/widgets/month_summary.dart';
 import 'package:hello_ledger/presentation/widgets/monthly_bar_chart.dart';
 import 'package:hello_ledger/presentation/widgets/period_comparison.dart';
@@ -32,6 +33,7 @@ class StatsTab extends ConsumerWidget {
       children: [
         const PeriodSelector(),
         MonthSummary(stats: stats),
+        const HkdNote(),
 
         // 多個月才有：每月平均與長條圖
         if (isMultiMonth) ...[

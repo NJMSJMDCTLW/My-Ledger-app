@@ -18,6 +18,7 @@ class RecurringTab extends ConsumerWidget {
     final rules = ref.watch(recurringRulesProvider).value ?? [];
     final allAccounts = ref.watch(allAccountsProvider).value ?? [];
     final categories = ref.watch(categoriesProvider).value ?? [];
+    final converter = ref.watch(hkdConverterProvider);
 
     if (rules.isEmpty) {
       return const Center(
@@ -47,6 +48,7 @@ class RecurringTab extends ConsumerWidget {
                 ? Icons.swap_horiz
                 : categoryIcon(categoryById[r.categoryId]),
             accountName: accountNames[r.accountId] ?? '?',
+            currency: converter.currencyOfAccount(r.accountId),
           ),
       ],
     );
@@ -59,12 +61,14 @@ class _RuleTile extends ConsumerWidget {
     required this.title,
     required this.icon,
     required this.accountName,
+    required this.currency,
   });
 
   final RecurringRule rule;
   final String title;
   final IconData icon;
   final String accountName;
+  final String currency;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,9 +111,9 @@ class _RuleTile extends ConsumerWidget {
           children: [
             Text(
               switch (rule.type) {
-                TransactionType.expense => '-${formatCents(rule.amount)}',
-                TransactionType.income => '+${formatCents(rule.amount)}',
-                TransactionType.transfer => formatCents(rule.amount),
+                TransactionType.expense => '-${formatMoney(rule.amount, currency)}',
+                TransactionType.income => '+${formatMoney(rule.amount, currency)}',
+                TransactionType.transfer => formatMoney(rule.amount, currency),
               },
               style: TextStyle(
                 fontWeight: FontWeight.bold,

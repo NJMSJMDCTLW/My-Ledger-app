@@ -38,6 +38,10 @@ class Transactions extends Table {
   IntColumn get type => intEnum<TransactionType>()();
   IntColumn get accountId => integer().references(Accounts, #id)();
   IntColumn get toAccountId => integer().nullable().references(Accounts, #id)();
+
+  /// 轉帳時轉入帳戶實際收到的金額（單位：分，用轉入帳戶的貨幣）。
+  /// 兩個帳戶貨幣不同時才會有值；null 代表和 amount 一樣。
+  IntColumn get toAmount => integer().nullable()();
   IntColumn get categoryId => integer().nullable().references(Categories, #id)();
   TextColumn get note => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -66,4 +70,18 @@ class RecurringRules extends Table {
   /// 最近一次已產生的交易日期，避免重複產生。
   DateTimeColumn get lastGenerated => dateTime().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+}
+
+
+/// 匯率：1 單位外幣等於多少港幣。港幣本身固定是 1，不存在這張表裡。
+/// 匯率由使用者手動設定，用來把外幣帳戶折合成港幣。
+@DataClassName('ExchangeRate')
+class ExchangeRates extends Table {
+  /// 貨幣代碼，例如 USD、JPY。
+  TextColumn get currency => text()();
+  RealColumn get rateToHkd => real()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {currency};
 }

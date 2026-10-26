@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
+import 'package:hello_ledger/data/hkd_converter.dart';
 import 'package:hello_ledger/data/recurring_service.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 
@@ -61,7 +62,8 @@ class MonthlyStats {
 final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
   final month = ref.watch(selectedMonthProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
-  return computeMonthlyStats(all, month);
+  return computeMonthlyStats(all, month,
+      converter: ref.watch(hkdConverterProvider));
 });
 
 /// 統計分頁目前選的時間範圍種類（每月、近六個月、一年）。
@@ -87,41 +89,47 @@ final statsRangeProvider = Provider<StatsRange>((ref) {
 final periodStatsProvider = Provider<MonthlyStats>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
-  return computeRangeStats(all, range.start, range.end);
+  return computeRangeStats(all, range.start, range.end,
+      converter: ref.watch(hkdConverterProvider));
 });
 
 /// 「上一期」的統計（上個月、前六個月、去年），用來做比較。
 final previousPeriodStatsProvider = Provider<MonthlyStats>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
-  return computeRangeStats(all, range.previousStart, range.previousEnd);
+  return computeRangeStats(all, range.previousStart, range.previousEnd,
+      converter: ref.watch(hkdConverterProvider));
 });
 
 /// 範圍內每個月的收入與支出，畫長條圖用。
 final periodMonthlyTotalsProvider = Provider<List<MonthTotals>>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
-  return monthlyTotals(all, range);
+  return monthlyTotals(all, range, converter: ref.watch(hkdConverterProvider));
 });
 
 /// 算出某個月份的統計。
 MonthlyStats computeMonthlyStats(
   List<TransactionRecord> all,
-  DateTime month,
-) {
+  DateTime month, {
+  HkdConverter? converter,
+}) {
   return computeRangeStats(
     all,
     DateTime(month.year, month.month),
     DateTime(month.year, month.month + 1),
+    converter: converter,
   );
 }
 
 /// 算出 [start]（含）到 [end]（不含）之間的統計。
+/// 給了 [converter] 就把每筆金額折成港幣再加總；沒給就直接用原本的金額。
 MonthlyStats computeRangeStats(
   List<TransactionRecord> all,
   DateTime start,
-  DateTime end,
-) {
+  DateTime end, {
+  HkdConverter? converter,
+}) {
   final txs =
       all.where((t) => !t.date.isBefore(start) && t.date.isBefore(end)).toList();
 
@@ -129,11 +137,12 @@ MonthlyStats computeRangeStats(
   var expense = 0;
   final byCategory = <int?, int>{};
   for (final t in txs) {
+    final amount = converter?.amountOf(t) ?? t.amount;
     if (t.type == TransactionType.income) {
-      income += t.amount;
+      income += amount;
     } else if (t.type == TransactionType.expense) {
-      expense += t.amount;
-      byCategory[t.categoryId] = (byCategory[t.categoryId] ?? 0) + t.amount;
+      expense += amount;
+      byCategory[t.categoryId] = (byCategory[t.categoryId] ?? 0) + amount;
     }
   }
   final rows = byCategory.entries.toList()
@@ -192,29 +201,45 @@ final transactionsProvider = StreamProvider<List<TransactionRecord>>((ref) {
       .watch();
 });
 
-/// 每個帳戶目前的餘額（單位：分），key 是帳戶 id。
+/// 每個帳戶目前的餘額（單位：分，用該帳戶自己的貨幣），key 是帳戶 id。
+/// 已封存帳戶不在裡面，它的交易就不計入。
 final balancesProvider = Provider<Map<int, int>>((ref) {
   final accounts = ref.watch(accountsProvider).value ?? [];
   final txs = ref.watch(transactionsProvider).value ?? [];
+  return computeBalances(accounts, txs);
+});
 
-  final balances = {for (final a in accounts) a.id: a.openingBalance};
-  // 已封存帳戶不在 balances 裡，它的交易就不計入
-  void add(int? id, int delta) {
-    if (id != null && balances.containsKey(id)) {
-      balances[id] = balances[id]! + delta;
-    }
-  }
+/// 匯率（外幣 -> 港幣），由使用者手動設定。
+final exchangeRatesProvider = StreamProvider<List<ExchangeRate>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.select(db.exchangeRates).watch();
+});
 
-  for (final t in txs) {
-    switch (t.type) {
-      case TransactionType.expense:
-        add(t.accountId, -t.amount);
-      case TransactionType.income:
-        add(t.accountId, t.amount);
-      case TransactionType.transfer:
-        add(t.accountId, -t.amount);
-        add(t.toAccountId, t.amount);
-    }
-  }
-  return balances;
+/// 把各貨幣折成港幣的換算器，帳戶或匯率一變就會更新。
+final hkdConverterProvider = Provider<HkdConverter>((ref) {
+  return HkdConverter.from(
+    accounts: ref.watch(allAccountsProvider).value ?? [],
+    rates: ref.watch(exchangeRatesProvider).value ?? [],
+  );
+});
+
+/// 總資產（港幣，單位：分）：所有使用中帳戶的餘額折成港幣後加總。
+final totalAssetsHkdProvider = Provider<int>((ref) {
+  final accounts = ref.watch(accountsProvider).value ?? [];
+  final balances = ref.watch(balancesProvider);
+  final converter = ref.watch(hkdConverterProvider);
+  return accounts.fold<int>(
+    0,
+    (sum, a) => sum + converter.toHkd(balances[a.id] ?? 0, a.currency),
+  );
+});
+
+/// 使用中的帳戶裡，用到但還沒設定匯率的外幣。有的話折合的港幣金額就不完整。
+final missingRateCurrenciesProvider = Provider<Set<String>>((ref) {
+  final accounts = ref.watch(accountsProvider).value ?? [];
+  final converter = ref.watch(hkdConverterProvider);
+  return {
+    for (final a in accounts)
+      if (!converter.hasRate(a.currency)) a.currency,
+  };
 });

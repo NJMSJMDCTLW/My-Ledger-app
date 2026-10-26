@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/core/note_suggestions.dart';
 import 'package:hello_ledger/data/app_database.dart';
@@ -25,6 +26,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _amount = TextEditingController();
   final _note = TextEditingController();
+  final _toAmount = TextEditingController();
   TransactionType _type = TransactionType.expense;
   DateTime _date = DateTime.now();
   int? _accountId;
@@ -45,6 +47,9 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _categoryId = t.categoryId;
       _amount.text = (t.amount / 100).toStringAsFixed(2);
       _note.text = t.note;
+      if (t.toAmount != null) {
+        _toAmount.text = (t.toAmount! / 100).toStringAsFixed(2);
+      }
     } else {
       // 新增交易：一進來就打開計算機，可以直接輸入金額
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,16 +59,40 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
   }
 
-  Future<void> _openCalculator() async {
-    final result = await showCalculator(context, initial: _amount.text);
+  /// 打開計算機，把結果填進 [target]（預設是金額欄）。
+  Future<void> _openCalculator([TextEditingController? target]) async {
+    final controller = target ?? _amount;
+    final result = await showCalculator(context, initial: controller.text);
     if (result != null) {
-      setState(() => _amount.text = result);
+      setState(() => controller.text = result);
       _formKey.currentState?.validate();
     }
   }
 
+  String _currencyOf(int? accountId) {
+    if (accountId == null) return baseCurrency;
+    return ref.read(hkdConverterProvider).currencyOfAccount(accountId);
+  }
+
+  /// 轉帳的兩個帳戶貨幣不同（要另外填轉入金額）。
+  bool get _isCrossCurrency =>
+      _isTransfer &&
+      _accountId != null &&
+      _toAccountId != null &&
+      _currencyOf(_accountId) != _currencyOf(_toAccountId);
+
+  /// 依目前匯率估算轉入金額（單位：分）。算不出來（沒填金額、沒匯率）回傳 null。
+  int? get _suggestedToAmount {
+    final cents = parseCents(_amount.text);
+    if (cents == null || cents <= 0 || !_isCrossCurrency) return null;
+    return ref
+        .read(hkdConverterProvider)
+        .convert(cents, _currencyOf(_accountId), _currencyOf(_toAccountId));
+  }
+
   @override
   void dispose() {
+    _toAmount.dispose();
     _amount.dispose();
     _note.dispose();
     super.dispose();
@@ -91,6 +120,9 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       type: Value(_type),
       accountId: Value(_accountId!),
       toAccountId: Value(_isTransfer ? _toAccountId : null),
+      // 跨貨幣轉帳：用填的轉入金額，沒填就用匯率估算；其他情況不存
+      toAmount: Value(
+          _isCrossCurrency ? (parseCents(_toAmount.text) ?? _suggestedToAmount) : null),
       categoryId: Value(_isTransfer ? null : _categoryId),
       note: Value(_note.text.trim()),
     );
@@ -190,6 +222,8 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     controller: _amount,
                     decoration: InputDecoration(
                       labelText: '金額',
+                      // 顯示轉出（或記帳）帳戶的貨幣符號
+                      prefixText: currencyInfo(_currencyOf(_accountId)).symbol,
                       suffixIcon: IconButton(
                         tooltip: '計算機',
                         icon: const Icon(Icons.calculate_outlined),
@@ -232,8 +266,39 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                         if (v == _accountId) return '不能轉給同一個帳戶';
                         return null;
                       },
-                    )
-                  else
+                    ),
+                  if (_isCrossCurrency) ...[
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _toAmount,
+                      decoration: InputDecoration(
+                        labelText: '轉入金額（${_currencyOf(_toAccountId)}）',
+                        prefixText:
+                            currencyInfo(_currencyOf(_toAccountId)).symbol,
+                        helperText: _suggestedToAmount == null
+                            ? '兩種貨幣的匯率還沒設定好，請自己填實際收到的金額'
+                            : '依目前匯率約 '
+                                '${formatMoney(_suggestedToAmount!, _currencyOf(_toAccountId))}'
+                                '，留空就用這個金額',
+                        suffixIcon: IconButton(
+                          tooltip: '計算機',
+                          icon: const Icon(Icons.calculate_outlined),
+                          onPressed: () => _openCalculator(_toAmount),
+                        ),
+                      ),
+                      readOnly: true,
+                      onTap: () => _openCalculator(_toAmount),
+                      validator: (v) {
+                        final typed = parseCents(v ?? '');
+                        if (typed != null && typed <= 0) return '轉入金額要大於 0';
+                        if (typed == null && _suggestedToAmount == null) {
+                          return '請填轉入金額';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                  if (!_isTransfer)
                     DropdownButtonFormField<int>(
                       key: ValueKey(categoryType), // 類型改變時重建，清掉舊選項
                       initialValue: _categoryId,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
+import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -12,6 +13,8 @@ class TransactionTile extends StatelessWidget {
     required this.icon,
     required this.accountName,
     required this.onTap,
+    this.currency = baseCurrency,
+    this.hkdAmount,
   });
 
   final TransactionRecord tx;
@@ -19,6 +22,12 @@ class TransactionTile extends StatelessWidget {
   final IconData icon;
   final String accountName;
   final VoidCallback onTap;
+
+  /// 這筆交易所屬帳戶的貨幣；金額用這個貨幣的符號顯示。
+  final String currency;
+
+  /// 外幣交易折合的港幣金額（單位：分）。港幣交易不用給。
+  final int? hkdAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +49,32 @@ class TransactionTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: isTransfer ? null : Text(accountName),
-      trailing: Text(
-        switch (tx.type) {
-          TransactionType.expense => '-${formatCents(tx.amount)}',
-          TransactionType.income => '+${formatCents(tx.amount)}',
-          TransactionType.transfer => formatCents(tx.amount),
-        },
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: switch (tx.type) {
-            TransactionType.expense => AppTheme.expense,
-            TransactionType.income => AppTheme.income,
-            TransactionType.transfer => null,
-          },
-        ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            switch (tx.type) {
+              TransactionType.expense => '-${formatMoney(tx.amount, currency)}',
+              TransactionType.income => '+${formatMoney(tx.amount, currency)}',
+              TransactionType.transfer => formatMoney(tx.amount, currency),
+            },
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: switch (tx.type) {
+                TransactionType.expense => AppTheme.expense,
+                TransactionType.income => AppTheme.income,
+                TransactionType.transfer => null,
+              },
+            ),
+          ),
+          // 外幣再附上折合的港幣
+          if (hkdAmount != null && currency != baseCurrency)
+            Text(
+              '≈ ${formatMoney(hkdAmount!, baseCurrency)}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+        ],
       ),
     );
 

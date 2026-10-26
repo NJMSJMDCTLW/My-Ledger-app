@@ -1,5 +1,6 @@
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
+import 'package:hello_ledger/data/hkd_converter.dart';
 
 /// 統計分頁可以看的時間範圍。
 enum StatsPeriod { month, sixMonths, year }
@@ -102,10 +103,12 @@ class MonthTotals {
 }
 
 /// 把 [range] 內每個月的收入、支出分別加總，沒有交易的月份是 0。
+/// 給了 [converter] 就把每筆金額折成港幣再加總。
 List<MonthTotals> monthlyTotals(
   List<TransactionRecord> all,
-  StatsRange range,
-) {
+  StatsRange range, {
+  HkdConverter? converter,
+}) {
   return [
     for (final m in range.months)
       () {
@@ -113,8 +116,9 @@ List<MonthTotals> monthlyTotals(
         var expense = 0;
         for (final t in all) {
           if (t.date.year != m.year || t.date.month != m.month) continue;
-          if (t.type == TransactionType.income) income += t.amount;
-          if (t.type == TransactionType.expense) expense += t.amount;
+          final amount = converter?.amountOf(t) ?? t.amount;
+          if (t.type == TransactionType.income) income += amount;
+          if (t.type == TransactionType.expense) expense += amount;
         }
         return MonthTotals(m, income, expense);
       }(),
