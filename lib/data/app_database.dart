@@ -13,7 +13,7 @@ class AppDatabase extends _$AppDatabase {
       : super(executor ?? driftDatabase(name: 'ledger'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +35,11 @@ class AppDatabase extends _$AppDatabase {
           if (from == 3) {
             await m.addColumn(exchangeRates, exchangeRates.isManual);
             await customStatement('UPDATE exchange_rates SET is_manual = 1');
+          }
+          // v4 -> v5：交易可以用別的貨幣輸入，保留原始金額與貨幣
+          if (from < 5) {
+            await m.addColumn(transactions, transactions.originalAmount);
+            await m.addColumn(transactions, transactions.originalCurrency);
           }
         },
       );

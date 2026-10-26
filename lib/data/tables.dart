@@ -42,6 +42,12 @@ class Transactions extends Table {
   /// 轉帳時轉入帳戶實際收到的金額（單位：分，用轉入帳戶的貨幣）。
   /// 兩個帳戶貨幣不同時才會有值；null 代表和 amount 一樣。
   IntColumn get toAmount => integer().nullable()();
+
+  /// 使用者輸入的貨幣和金額和帳戶貨幣不同時，保留他輸入的原始值（單位：分）。
+  /// [amount] 是依當時匯率換成帳戶貨幣後的金額，不會再隨匯率改變。
+  /// 兩個欄位同時有值或同時是 null。
+  IntColumn get originalAmount => integer().nullable()();
+  TextColumn get originalCurrency => text().nullable()();
   IntColumn get categoryId => integer().nullable().references(Categories, #id)();
   TextColumn get note => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

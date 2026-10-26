@@ -92,6 +92,21 @@ void main() {
           ''');
           raw.execute(
               "INSERT INTO exchange_rates (currency, rate_to_hkd, updated_at) VALUES ('USD', 7.8, 1790000000)");
+          // 真實的第 3 版資料庫一定有交易表（已經有 to_amount），升級時會繼續往上加欄位
+          raw.execute('''
+            CREATE TABLE transactions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              date INTEGER NOT NULL,
+              amount INTEGER NOT NULL,
+              type INTEGER NOT NULL,
+              account_id INTEGER NOT NULL,
+              to_account_id INTEGER NULL,
+              to_amount INTEGER NULL,
+              category_id INTEGER NULL,
+              note TEXT NOT NULL DEFAULT '',
+              created_at INTEGER NOT NULL DEFAULT 0
+            );
+          ''');
           raw.execute('PRAGMA user_version = 3');
         },
       ),
@@ -103,5 +118,40 @@ void main() {
     expect(rates.single.rateToHkd, 7.8);
     // 使用者自己填過的匯率，升級後要視為手動，第一次自動更新才不會蓋掉
     expect(rates.single.isManual, isTrue);
+  });
+
+  test('從第 4 版升級到第 5 版：舊交易保留，原始金額與貨幣是 null', () async {
+    final db = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('''
+            CREATE TABLE transactions (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              date INTEGER NOT NULL,
+              amount INTEGER NOT NULL,
+              type INTEGER NOT NULL,
+              account_id INTEGER NOT NULL,
+              to_account_id INTEGER NULL,
+              to_amount INTEGER NULL,
+              category_id INTEGER NULL,
+              note TEXT NOT NULL DEFAULT '',
+              created_at INTEGER NOT NULL DEFAULT 0
+            );
+          ''');
+          raw.execute('''
+            INSERT INTO transactions (date, amount, type, account_id, note)
+            VALUES (1790000000, 777, 0, 1, '舊交易')
+          ''');
+          raw.execute('PRAGMA user_version = 4');
+        },
+      ),
+    );
+    addTearDown(db.close);
+
+    final txs = await db.select(db.transactions).get();
+    expect(txs.single.amount, 777);
+    expect(txs.single.note, '舊交易');
+    expect(txs.single.originalAmount, isNull);
+    expect(txs.single.originalCurrency, isNull);
   });
 }

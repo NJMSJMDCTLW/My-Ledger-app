@@ -48,7 +48,14 @@ class TransactionTile extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: isTransfer ? null : Text(accountName),
+      // 用別的貨幣輸入的交易，附上當初輸入的原始金額，例如「現金 · 原幣 US$10.00」
+      subtitle: isTransfer
+          ? null
+          : Text([
+              accountName,
+              if (tx.originalAmount != null && tx.originalCurrency != null)
+                '原幣 ${formatMoney(tx.originalAmount!, tx.originalCurrency!)}',
+            ].join(' · ')),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,

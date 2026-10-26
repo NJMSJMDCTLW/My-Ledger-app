@@ -1057,6 +1057,28 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _originalAmountMeta = const VerificationMeta(
+    'originalAmount',
+  );
+  @override
+  late final GeneratedColumn<int> originalAmount = GeneratedColumn<int>(
+    'original_amount',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalCurrencyMeta = const VerificationMeta(
+    'originalCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> originalCurrency = GeneratedColumn<String>(
+    'original_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _categoryIdMeta = const VerificationMeta(
     'categoryId',
   );
@@ -1102,6 +1124,8 @@ class $TransactionsTable extends Transactions
     accountId,
     toAccountId,
     toAmount,
+    originalAmount,
+    originalCurrency,
     categoryId,
     note,
     createdAt,
@@ -1158,6 +1182,24 @@ class $TransactionsTable extends Transactions
       context.handle(
         _toAmountMeta,
         toAmount.isAcceptableOrUnknown(data['to_amount']!, _toAmountMeta),
+      );
+    }
+    if (data.containsKey('original_amount')) {
+      context.handle(
+        _originalAmountMeta,
+        originalAmount.isAcceptableOrUnknown(
+          data['original_amount']!,
+          _originalAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('original_currency')) {
+      context.handle(
+        _originalCurrencyMeta,
+        originalCurrency.isAcceptableOrUnknown(
+          data['original_currency']!,
+          _originalCurrencyMeta,
+        ),
       );
     }
     if (data.containsKey('category_id')) {
@@ -1217,6 +1259,14 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}to_amount'],
       ),
+      originalAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}original_amount'],
+      ),
+      originalCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_currency'],
+      ),
       categoryId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}category_id'],
@@ -1255,6 +1305,12 @@ class TransactionRecord extends DataClass
   /// 轉帳時轉入帳戶實際收到的金額（單位：分，用轉入帳戶的貨幣）。
   /// 兩個帳戶貨幣不同時才會有值；null 代表和 amount 一樣。
   final int? toAmount;
+
+  /// 使用者輸入的貨幣和金額和帳戶貨幣不同時，保留他輸入的原始值（單位：分）。
+  /// [amount] 是依當時匯率換成帳戶貨幣後的金額，不會再隨匯率改變。
+  /// 兩個欄位同時有值或同時是 null。
+  final int? originalAmount;
+  final String? originalCurrency;
   final int? categoryId;
   final String note;
   final DateTime createdAt;
@@ -1266,6 +1322,8 @@ class TransactionRecord extends DataClass
     required this.accountId,
     this.toAccountId,
     this.toAmount,
+    this.originalAmount,
+    this.originalCurrency,
     this.categoryId,
     required this.note,
     required this.createdAt,
@@ -1288,6 +1346,12 @@ class TransactionRecord extends DataClass
     if (!nullToAbsent || toAmount != null) {
       map['to_amount'] = Variable<int>(toAmount);
     }
+    if (!nullToAbsent || originalAmount != null) {
+      map['original_amount'] = Variable<int>(originalAmount);
+    }
+    if (!nullToAbsent || originalCurrency != null) {
+      map['original_currency'] = Variable<String>(originalCurrency);
+    }
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<int>(categoryId);
     }
@@ -1309,6 +1373,12 @@ class TransactionRecord extends DataClass
       toAmount: toAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(toAmount),
+      originalAmount: originalAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalAmount),
+      originalCurrency: originalCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalCurrency),
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(categoryId),
@@ -1332,6 +1402,8 @@ class TransactionRecord extends DataClass
       accountId: serializer.fromJson<int>(json['accountId']),
       toAccountId: serializer.fromJson<int?>(json['toAccountId']),
       toAmount: serializer.fromJson<int?>(json['toAmount']),
+      originalAmount: serializer.fromJson<int?>(json['originalAmount']),
+      originalCurrency: serializer.fromJson<String?>(json['originalCurrency']),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
       note: serializer.fromJson<String>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -1350,6 +1422,8 @@ class TransactionRecord extends DataClass
       'accountId': serializer.toJson<int>(accountId),
       'toAccountId': serializer.toJson<int?>(toAccountId),
       'toAmount': serializer.toJson<int?>(toAmount),
+      'originalAmount': serializer.toJson<int?>(originalAmount),
+      'originalCurrency': serializer.toJson<String?>(originalCurrency),
       'categoryId': serializer.toJson<int?>(categoryId),
       'note': serializer.toJson<String>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -1364,6 +1438,8 @@ class TransactionRecord extends DataClass
     int? accountId,
     Value<int?> toAccountId = const Value.absent(),
     Value<int?> toAmount = const Value.absent(),
+    Value<int?> originalAmount = const Value.absent(),
+    Value<String?> originalCurrency = const Value.absent(),
     Value<int?> categoryId = const Value.absent(),
     String? note,
     DateTime? createdAt,
@@ -1375,6 +1451,12 @@ class TransactionRecord extends DataClass
     accountId: accountId ?? this.accountId,
     toAccountId: toAccountId.present ? toAccountId.value : this.toAccountId,
     toAmount: toAmount.present ? toAmount.value : this.toAmount,
+    originalAmount: originalAmount.present
+        ? originalAmount.value
+        : this.originalAmount,
+    originalCurrency: originalCurrency.present
+        ? originalCurrency.value
+        : this.originalCurrency,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
     note: note ?? this.note,
     createdAt: createdAt ?? this.createdAt,
@@ -1390,6 +1472,12 @@ class TransactionRecord extends DataClass
           ? data.toAccountId.value
           : this.toAccountId,
       toAmount: data.toAmount.present ? data.toAmount.value : this.toAmount,
+      originalAmount: data.originalAmount.present
+          ? data.originalAmount.value
+          : this.originalAmount,
+      originalCurrency: data.originalCurrency.present
+          ? data.originalCurrency.value
+          : this.originalCurrency,
       categoryId: data.categoryId.present
           ? data.categoryId.value
           : this.categoryId,
@@ -1408,6 +1496,8 @@ class TransactionRecord extends DataClass
           ..write('accountId: $accountId, ')
           ..write('toAccountId: $toAccountId, ')
           ..write('toAmount: $toAmount, ')
+          ..write('originalAmount: $originalAmount, ')
+          ..write('originalCurrency: $originalCurrency, ')
           ..write('categoryId: $categoryId, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
@@ -1424,6 +1514,8 @@ class TransactionRecord extends DataClass
     accountId,
     toAccountId,
     toAmount,
+    originalAmount,
+    originalCurrency,
     categoryId,
     note,
     createdAt,
@@ -1439,6 +1531,8 @@ class TransactionRecord extends DataClass
           other.accountId == this.accountId &&
           other.toAccountId == this.toAccountId &&
           other.toAmount == this.toAmount &&
+          other.originalAmount == this.originalAmount &&
+          other.originalCurrency == this.originalCurrency &&
           other.categoryId == this.categoryId &&
           other.note == this.note &&
           other.createdAt == this.createdAt);
@@ -1452,6 +1546,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
   final Value<int> accountId;
   final Value<int?> toAccountId;
   final Value<int?> toAmount;
+  final Value<int?> originalAmount;
+  final Value<String?> originalCurrency;
   final Value<int?> categoryId;
   final Value<String> note;
   final Value<DateTime> createdAt;
@@ -1463,6 +1559,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
     this.accountId = const Value.absent(),
     this.toAccountId = const Value.absent(),
     this.toAmount = const Value.absent(),
+    this.originalAmount = const Value.absent(),
+    this.originalCurrency = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1475,6 +1573,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
     required int accountId,
     this.toAccountId = const Value.absent(),
     this.toAmount = const Value.absent(),
+    this.originalAmount = const Value.absent(),
+    this.originalCurrency = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1490,6 +1590,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
     Expression<int>? accountId,
     Expression<int>? toAccountId,
     Expression<int>? toAmount,
+    Expression<int>? originalAmount,
+    Expression<String>? originalCurrency,
     Expression<int>? categoryId,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
@@ -1502,6 +1604,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
       if (accountId != null) 'account_id': accountId,
       if (toAccountId != null) 'to_account_id': toAccountId,
       if (toAmount != null) 'to_amount': toAmount,
+      if (originalAmount != null) 'original_amount': originalAmount,
+      if (originalCurrency != null) 'original_currency': originalCurrency,
       if (categoryId != null) 'category_id': categoryId,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
@@ -1516,6 +1620,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
     Value<int>? accountId,
     Value<int?>? toAccountId,
     Value<int?>? toAmount,
+    Value<int?>? originalAmount,
+    Value<String?>? originalCurrency,
     Value<int?>? categoryId,
     Value<String>? note,
     Value<DateTime>? createdAt,
@@ -1528,6 +1634,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
       accountId: accountId ?? this.accountId,
       toAccountId: toAccountId ?? this.toAccountId,
       toAmount: toAmount ?? this.toAmount,
+      originalAmount: originalAmount ?? this.originalAmount,
+      originalCurrency: originalCurrency ?? this.originalCurrency,
       categoryId: categoryId ?? this.categoryId,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
@@ -1560,6 +1668,12 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
     if (toAmount.present) {
       map['to_amount'] = Variable<int>(toAmount.value);
     }
+    if (originalAmount.present) {
+      map['original_amount'] = Variable<int>(originalAmount.value);
+    }
+    if (originalCurrency.present) {
+      map['original_currency'] = Variable<String>(originalCurrency.value);
+    }
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
     }
@@ -1582,6 +1696,8 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRecord> {
           ..write('accountId: $accountId, ')
           ..write('toAccountId: $toAccountId, ')
           ..write('toAmount: $toAmount, ')
+          ..write('originalAmount: $originalAmount, ')
+          ..write('originalCurrency: $originalCurrency, ')
           ..write('categoryId: $categoryId, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
@@ -3317,6 +3433,8 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       required int accountId,
       Value<int?> toAccountId,
       Value<int?> toAmount,
+      Value<int?> originalAmount,
+      Value<String?> originalCurrency,
       Value<int?> categoryId,
       Value<String> note,
       Value<DateTime> createdAt,
@@ -3330,6 +3448,8 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<int> accountId,
       Value<int?> toAccountId,
       Value<int?> toAmount,
+      Value<int?> originalAmount,
+      Value<String?> originalCurrency,
       Value<int?> categoryId,
       Value<String> note,
       Value<DateTime> createdAt,
@@ -3424,6 +3544,16 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<int> get toAmount => $composableBuilder(
     column: $table.toAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get originalAmount => $composableBuilder(
+    column: $table.originalAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalCurrency => $composableBuilder(
+    column: $table.originalCurrency,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3541,6 +3671,16 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get originalAmount => $composableBuilder(
+    column: $table.originalAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalCurrency => $composableBuilder(
+    column: $table.originalCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -3644,6 +3784,16 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<int> get toAmount =>
       $composableBuilder(column: $table.toAmount, builder: (column) => column);
+
+  GeneratedColumn<int> get originalAmount => $composableBuilder(
+    column: $table.originalAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalCurrency => $composableBuilder(
+    column: $table.originalCurrency,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
@@ -3760,6 +3910,8 @@ class $$TransactionsTableTableManager
                 Value<int> accountId = const Value.absent(),
                 Value<int?> toAccountId = const Value.absent(),
                 Value<int?> toAmount = const Value.absent(),
+                Value<int?> originalAmount = const Value.absent(),
+                Value<String?> originalCurrency = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<String> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -3771,6 +3923,8 @@ class $$TransactionsTableTableManager
                 accountId: accountId,
                 toAccountId: toAccountId,
                 toAmount: toAmount,
+                originalAmount: originalAmount,
+                originalCurrency: originalCurrency,
                 categoryId: categoryId,
                 note: note,
                 createdAt: createdAt,
@@ -3784,6 +3938,8 @@ class $$TransactionsTableTableManager
                 required int accountId,
                 Value<int?> toAccountId = const Value.absent(),
                 Value<int?> toAmount = const Value.absent(),
+                Value<int?> originalAmount = const Value.absent(),
+                Value<String?> originalCurrency = const Value.absent(),
                 Value<int?> categoryId = const Value.absent(),
                 Value<String> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -3795,6 +3951,8 @@ class $$TransactionsTableTableManager
                 accountId: accountId,
                 toAccountId: toAccountId,
                 toAmount: toAmount,
+                originalAmount: originalAmount,
+                originalCurrency: originalCurrency,
                 categoryId: categoryId,
                 note: note,
                 createdAt: createdAt,
