@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/category_icons.dart';
 import 'package:hello_ledger/core/money.dart';
+import 'package:hello_ledger/core/note_suggestions.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
+import 'package:hello_ledger/presentation/widgets/calculator_sheet.dart';
 import 'package:intl/intl.dart';
 
 class TransactionFormPage extends ConsumerStatefulWidget {
@@ -43,6 +45,20 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _categoryId = t.categoryId;
       _amount.text = (t.amount / 100).toStringAsFixed(2);
       _note.text = t.note;
+    } else {
+      // 新增交易：一進來就打開計算機，可以直接輸入金額
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final accounts = ref.read(accountsProvider).value ?? [];
+        if (mounted && accounts.isNotEmpty) _openCalculator();
+      });
+    }
+  }
+
+  Future<void> _openCalculator() async {
+    final result = await showCalculator(context, initial: _amount.text);
+    if (result != null) {
+      setState(() => _amount.text = result);
+      _formKey.currentState?.validate();
     }
   }
 
@@ -131,6 +147,14 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     final categories =
         allCategories.where((c) => c.type == categoryType).toList();
 
+    // 備註推薦：來自過去用過的備註，同類別的排前面，打字時會依內容篩選
+    final suggestions = suggestNotes(
+      ref.watch(transactionsProvider).value ?? [],
+      type: _type,
+      categoryId: _categoryId,
+      query: _note.text,
+    ).where((s) => s != _note.text.trim()).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? '編輯交易' : '新增交易'),
@@ -164,10 +188,17 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _amount,
-                    decoration: const InputDecoration(labelText: '金額'),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    autofocus: !_isEditing,
+                    decoration: InputDecoration(
+                      labelText: '金額',
+                      suffixIcon: IconButton(
+                        tooltip: '計算機',
+                        icon: const Icon(Icons.calculate_outlined),
+                        onPressed: _openCalculator,
+                      ),
+                    ),
+                    // 用內建計算機輸入，不跳出系統鍵盤
+                    readOnly: true,
+                    onTap: _openCalculator,
                     validator: (v) {
                       final cents = parseCents(v ?? '');
                       return (cents == null || cents <= 0)
@@ -233,7 +264,26 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   TextFormField(
                     controller: _note,
                     decoration: const InputDecoration(labelText: '備註（選填）'),
+                    onChanged: (_) => setState(() {}), // 重新篩選推薦清單
                   ),
+                  if (suggestions.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (final s in suggestions)
+                          ActionChip(
+                            label: Text(s),
+                            onPressed: () => setState(() {
+                              _note.text = s;
+                              _note.selection = TextSelection.collapsed(
+                                  offset: s.length);
+                            }),
+                          ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   FilledButton(onPressed: _save, child: const Text('儲存')),
                 ],

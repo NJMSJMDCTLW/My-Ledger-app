@@ -33,11 +33,13 @@ class TransactionTile extends StatelessWidget {
         foregroundColor: AppTheme.onMacaron,
         child: Icon(icon, size: 20),
       ),
-      title: Text(title),
-      subtitle: Text([
-        if (!isTransfer) accountName,
-        if (tx.note.isNotEmpty) tx.note,
-      ].join(' · ')),
+      // 有備註就接在類別後面，例如「餐飲 • 晚餐」
+      title: Text(
+        tx.note.isEmpty ? title : '$title • ${tx.note}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: isTransfer ? null : Text(accountName),
       trailing: Text(
         switch (tx.type) {
           TransactionType.expense => '-${formatCents(tx.amount)}',
