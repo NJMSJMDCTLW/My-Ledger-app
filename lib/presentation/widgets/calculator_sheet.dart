@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/calculator.dart';
 
 /// Opens the calculator and returns the amount string (two decimals) when the user presses "Done". Returns null if cancelled or the expression is invalid.
@@ -150,7 +151,7 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
                 _Key(label: '0', onTap: () => _press('0')),
                 _Key(label: '.', onTap: () => _press('.')),
                 _Key(
-                  label: '完成',
+                  label: context.l10n.done,
                   flex: 2,
                   filled: true,
                   onTap: (value != null && value > 0) ? _done : null,

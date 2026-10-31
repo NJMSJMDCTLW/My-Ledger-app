@@ -353,4 +353,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLast4 => 'Enter 4 digits';
+
+  @override
+  String get transfer => 'Transfer';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get calculatorTooltip => 'Calculator';
+
+  @override
+  String get newTransaction => 'New transaction';
+
+  @override
+  String get editTransaction => 'Edit transaction';
+
+  @override
+  String get deleteTransactionTitle => 'Delete this transaction?';
+
+  @override
+  String get deleteCannotUndo => 'This can\'t be undone.';
+
+  @override
+  String get addAccountFirst => 'Add an account first';
+
+  @override
+  String get fieldAmount => 'Amount';
+
+  @override
+  String get fieldAccount => 'Account';
+
+  @override
+  String get fieldFromAccount => 'From account';
+
+  @override
+  String get fieldToAccount => 'To account';
+
+  @override
+  String get fieldCategory => 'Category';
+
+  @override
+  String get fieldDate => 'Date';
+
+  @override
+  String get fieldNoteOptional => 'Note (optional)';
+
+  @override
+  String get errorAmountPositive => 'Enter an amount greater than 0';
+
+  @override
+  String errorMissingRate(String entry, String account) {
+    return '$entry or $account has no exchange rate yet. Set it on the Exchange rates tab first.';
+  }
+
+  @override
+  String get errorConvertedTooSmall => 'The converted amount is too small';
+
+  @override
+  String get errorSelectAccount => 'Select an account';
+
+  @override
+  String get errorSelectToAccount => 'Select the account to transfer to';
+
+  @override
+  String get errorSameAccount => 'You can\'t transfer to the same account';
+
+  @override
+  String get errorSelectCategory => 'Select a category';
+
+  @override
+  String get fieldEntryCurrency => 'Entry currency (optional)';
+
+  @override
+  String entryCurrencySameAs(String currency) {
+    return 'Same as the account ($currency)';
+  }
+
+  @override
+  String get entryCurrencyNoRate =>
+      'No exchange rate yet, so it can\'t be converted';
+
+  @override
+  String entryCurrencyConverted(String amount) {
+    return 'Converts to $amount in the account';
+  }
+
+  @override
+  String get entryCurrencyHint =>
+      'Only needed when paying in another currency. It is converted to the account\'s currency at the current rate.';
+
+  @override
+  String fieldReceivedAmount(String currency) {
+    return 'Amount received ($currency)';
+  }
+
+  @override
+  String get receivedAmountNoRate =>
+      'The exchange rates for these two currencies are not set. Enter the amount that was actually received.';
+
+  @override
+  String receivedAmountEstimate(String amount) {
+    return 'About $amount at the current rate. Leave it empty to use this amount.';
+  }
+
+  @override
+  String get errorReceivedPositive =>
+      'The amount received must be greater than 0';
+
+  @override
+  String get errorReceivedRequired => 'Enter the amount received';
+
+  @override
+  String formatDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
 }

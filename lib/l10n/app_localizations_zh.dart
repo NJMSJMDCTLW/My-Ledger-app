@@ -347,4 +347,121 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorLast4 => '請輸入 4 碼';
+
+  @override
+  String get transfer => '轉帳';
+
+  @override
+  String get delete => '刪除';
+
+  @override
+  String get done => '完成';
+
+  @override
+  String get calculatorTooltip => '計算機';
+
+  @override
+  String get newTransaction => '新增交易';
+
+  @override
+  String get editTransaction => '編輯交易';
+
+  @override
+  String get deleteTransactionTitle => '刪除這筆交易？';
+
+  @override
+  String get deleteCannotUndo => '刪除後無法復原。';
+
+  @override
+  String get addAccountFirst => '請先新增一個帳戶';
+
+  @override
+  String get fieldAmount => '金額';
+
+  @override
+  String get fieldAccount => '帳戶';
+
+  @override
+  String get fieldFromAccount => '轉出帳戶';
+
+  @override
+  String get fieldToAccount => '轉入帳戶';
+
+  @override
+  String get fieldCategory => '類別';
+
+  @override
+  String get fieldDate => '日期';
+
+  @override
+  String get fieldNoteOptional => '備註（選填）';
+
+  @override
+  String get errorAmountPositive => '請輸入大於 0 的金額';
+
+  @override
+  String errorMissingRate(String entry, String account) {
+    return '$entry 或 $account 還沒設定匯率，請先到「匯率」設定';
+  }
+
+  @override
+  String get errorConvertedTooSmall => '換算後金額太小';
+
+  @override
+  String get errorSelectAccount => '請選擇帳戶';
+
+  @override
+  String get errorSelectToAccount => '請選擇轉入帳戶';
+
+  @override
+  String get errorSameAccount => '不能轉給同一個帳戶';
+
+  @override
+  String get errorSelectCategory => '請選擇類別';
+
+  @override
+  String get fieldEntryCurrency => '輸入貨幣（選填）';
+
+  @override
+  String entryCurrencySameAs(String currency) {
+    return '與帳戶相同（$currency）';
+  }
+
+  @override
+  String get entryCurrencyNoRate => '尚未設定匯率，無法換算';
+
+  @override
+  String entryCurrencyConverted(String amount) {
+    return '折合 $amount，記在帳戶裡';
+  }
+
+  @override
+  String get entryCurrencyHint => '用別的貨幣付款時才需要選，會依匯率換成帳戶的貨幣';
+
+  @override
+  String fieldReceivedAmount(String currency) {
+    return '轉入金額（$currency）';
+  }
+
+  @override
+  String get receivedAmountNoRate => '兩種貨幣的匯率還沒設定好，請自己填實際收到的金額';
+
+  @override
+  String receivedAmountEstimate(String amount) {
+    return '依目前匯率約 $amount，留空就用這個金額';
+  }
+
+  @override
+  String get errorReceivedPositive => '轉入金額要大於 0';
+
+  @override
+  String get errorReceivedRequired => '請填轉入金額';
+
+  @override
+  String formatDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
 }

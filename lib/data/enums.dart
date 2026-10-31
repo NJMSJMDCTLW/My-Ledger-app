@@ -17,9 +17,10 @@ extension AccountTypeLabel on AccountType {
 }
 
 extension TransactionTypeLabel on TransactionType {
-  String get label => switch (this) {
-        TransactionType.expense => '支出',
-        TransactionType.income => '收入',
-        TransactionType.transfer => '轉帳',
+  /// The translated name shown in the UI.
+  String label(AppLocalizations l10n) => switch (this) {
+        TransactionType.expense => l10n.expense,
+        TransactionType.income => l10n.income,
+        TransactionType.transfer => l10n.transfer,
       };
 }

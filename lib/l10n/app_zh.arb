@@ -112,5 +112,44 @@
   "fieldCardLast4": "卡號末四碼",
   "errorDayRange": "請輸入 1~31",
   "errorNumber": "請輸入數字",
-  "errorLast4": "請輸入 4 碼"
+  "errorLast4": "請輸入 4 碼",
+
+  "transfer": "轉帳",
+  "delete": "刪除",
+  "done": "完成",
+  "calculatorTooltip": "計算機",
+
+  "newTransaction": "新增交易",
+  "editTransaction": "編輯交易",
+  "deleteTransactionTitle": "刪除這筆交易？",
+  "deleteCannotUndo": "刪除後無法復原。",
+  "addAccountFirst": "請先新增一個帳戶",
+  "fieldAmount": "金額",
+  "fieldAccount": "帳戶",
+  "fieldFromAccount": "轉出帳戶",
+  "fieldToAccount": "轉入帳戶",
+  "fieldCategory": "類別",
+  "fieldDate": "日期",
+  "fieldNoteOptional": "備註（選填）",
+  "errorAmountPositive": "請輸入大於 0 的金額",
+  "errorMissingRate": "{entry} 或 {account} 還沒設定匯率，請先到「匯率」設定",
+  "errorConvertedTooSmall": "換算後金額太小",
+  "errorSelectAccount": "請選擇帳戶",
+  "errorSelectToAccount": "請選擇轉入帳戶",
+  "errorSameAccount": "不能轉給同一個帳戶",
+  "errorSelectCategory": "請選擇類別",
+
+  "fieldEntryCurrency": "輸入貨幣（選填）",
+  "entryCurrencySameAs": "與帳戶相同（{currency}）",
+  "entryCurrencyNoRate": "尚未設定匯率，無法換算",
+  "entryCurrencyConverted": "折合 {amount}，記在帳戶裡",
+  "entryCurrencyHint": "用別的貨幣付款時才需要選，會依匯率換成帳戶的貨幣",
+
+  "fieldReceivedAmount": "轉入金額（{currency}）",
+  "receivedAmountNoRate": "兩種貨幣的匯率還沒設定好，請自己填實際收到的金額",
+  "receivedAmountEstimate": "依目前匯率約 {amount}，留空就用這個金額",
+  "errorReceivedPositive": "轉入金額要大於 0",
+  "errorReceivedRequired": "請填轉入金額",
+
+  "formatDate": "{date}"
 }

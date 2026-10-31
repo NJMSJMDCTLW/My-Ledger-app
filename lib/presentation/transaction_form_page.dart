@@ -12,7 +12,6 @@ import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/widgets/calculator_sheet.dart';
-import 'package:intl/intl.dart';
 
 class TransactionFormPage extends ConsumerStatefulWidget {
   const TransactionFormPage({super.key, this.existing});
@@ -183,16 +182,16 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('刪除這筆交易？'),
-        content: const Text('刪除後無法復原。'),
+        title: Text(context.l10n.deleteTransactionTitle),
+        content: Text(context.l10n.deleteCannotUndo),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('刪除'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -207,6 +206,11 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    // The currency conversion below reads the converter with ref.read, so watch it here:
+    // that keeps it (and the exchange rates) loaded while the form is open, and rebuilds
+    // the form if the rates change.
+    ref.watch(hkdConverterProvider);
+
     // When editing an old transaction, show its account even if that account has been archived
     final ex = widget.existing;
     final accounts = (ref.watch(allAccountsProvider).value ?? [])
@@ -231,18 +235,18 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? '編輯交易' : '新增交易'),
+        title: Text(_isEditing ? context.l10n.editTransaction : context.l10n.newTransaction),
         actions: [
           if (_isEditing)
             IconButton(
-              tooltip: '刪除',
+              tooltip: context.l10n.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
         ],
       ),
       body: accounts.isEmpty
-          ? const Center(child: Text('請先新增一個帳戶'))
+          ? Center(child: Text(context.l10n.addAccountFirst))
           : Form(
               key: _formKey,
               child: ListView(
@@ -251,7 +255,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   SegmentedButton<TransactionType>(
                     segments: [
                       for (final t in TransactionType.values)
-                        ButtonSegment(value: t, label: Text(t.label)),
+                        ButtonSegment(value: t, label: Text(t.label(context.l10n))),
                     ],
                     selected: {_type},
                     onSelectionChanged: (s) => setState(() {
@@ -263,11 +267,11 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   TextFormField(
                     controller: _amount,
                     decoration: InputDecoration(
-                      labelText: '金額',
+                      labelText: context.l10n.fieldAmount,
                       // show the entry currency's symbol (the account's currency if none was picked)
                       prefixText: currencyInfo(_entryCurrencyCode).symbol,
                       suffixIcon: IconButton(
-                        tooltip: '計算機',
+                        tooltip: context.l10n.calculatorTooltip,
                         icon: const Icon(Icons.calculate_outlined),
                         onPressed: _openCalculator,
                       ),
@@ -277,13 +281,15 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     onTap: _openCalculator,
                     validator: (v) {
                       final cents = parseCents(v ?? '');
-                      if (cents == null || cents <= 0) return '請輸入大於 0 的金額';
+                      if (cents == null || cents <= 0) {
+                        return context.l10n.errorAmountPositive;
+                      }
                       if (_isConverting && _resolvedAmount == null) {
-                        return '$_entryCurrencyCode 或 ${_currencyOf(_accountId)} '
-                            '還沒設定匯率，請先到「匯率」設定';
+                        return context.l10n.errorMissingRate(
+                            _entryCurrencyCode, _currencyOf(_accountId));
                       }
                       if (_isConverting && _resolvedAmount!.amount <= 0) {
-                        return '換算後金額太小';
+                        return context.l10n.errorConvertedTooSmall;
                       }
                       return null;
                     },
@@ -291,14 +297,14 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   DropdownButtonFormField<int>(
                     initialValue: _accountId,
                     decoration: InputDecoration(
-                      labelText: _isTransfer ? '轉出帳戶' : '帳戶',
+                      labelText: _isTransfer ? context.l10n.fieldFromAccount : context.l10n.fieldAccount,
                     ),
                     items: [
                       for (final a in accounts)
                         DropdownMenuItem(value: a.id, child: Text(a.name)),
                     ],
                     onChanged: (v) => setState(() => _accountId = v),
-                    validator: (v) => v == null ? '請選擇帳戶' : null,
+                    validator: (v) => v == null ? context.l10n.errorSelectAccount : null,
                   ),
                   // Optional: only needed when paying in another currency; the amount is converted to the account's currency at the current rate
                   if (!_isTransfer) ...[
@@ -307,18 +313,23 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                       key: ValueKey('entry-$_accountId'),
                       initialValue: _entryCurrency,
                       decoration: InputDecoration(
-                        labelText: '輸入貨幣（選填）',
+                        labelText: context.l10n.fieldEntryCurrency,
                         helperText: _isConverting
-                            ? (_resolvedAmount == null
-                                ? '尚未設定匯率，無法換算'
-                                : '折合 ${formatMoney(_resolvedAmount!.amount, _currencyOf(_accountId))}'
-                                    '，記在帳戶裡')
-                            : '用別的貨幣付款時才需要選，會依匯率換成帳戶的貨幣',
+                            ? (_resolvedAmount != null
+                                ? context.l10n.entryCurrencyConverted(
+                                    formatMoney(_resolvedAmount!.amount,
+                                        _currencyOf(_accountId)))
+                                // Only blame the missing rate once an amount is entered
+                                : (parseCents(_amount.text) ?? 0) > 0
+                                    ? context.l10n.entryCurrencyNoRate
+                                    : context.l10n.entryCurrencyHint)
+                            : context.l10n.entryCurrencyHint,
                       ),
                       items: [
                         DropdownMenuItem<String?>(
                           value: null,
-                          child: Text('與帳戶相同（${_currencyOf(_accountId)}）'),
+                          child: Text(context.l10n
+                              .entryCurrencySameAs(_currencyOf(_accountId))),
                         ),
                         for (final c in supportedCurrencies)
                           DropdownMenuItem<String?>(
@@ -332,15 +343,15 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   if (_isTransfer)
                     DropdownButtonFormField<int>(
                       initialValue: _toAccountId,
-                      decoration: const InputDecoration(labelText: '轉入帳戶'),
+                      decoration: InputDecoration(labelText: context.l10n.fieldToAccount),
                       items: [
                         for (final a in accounts)
                           DropdownMenuItem(value: a.id, child: Text(a.name)),
                       ],
                       onChanged: (v) => setState(() => _toAccountId = v),
                       validator: (v) {
-                        if (v == null) return '請選擇轉入帳戶';
-                        if (v == _accountId) return '不能轉給同一個帳戶';
+                        if (v == null) return context.l10n.errorSelectToAccount;
+                        if (v == _accountId) return context.l10n.errorSameAccount;
                         return null;
                       },
                     ),
@@ -349,16 +360,17 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     TextFormField(
                       controller: _toAmount,
                       decoration: InputDecoration(
-                        labelText: '轉入金額（${_currencyOf(_toAccountId)}）',
+                        labelText: context.l10n
+                            .fieldReceivedAmount(_currencyOf(_toAccountId)),
                         prefixText:
                             currencyInfo(_currencyOf(_toAccountId)).symbol,
                         helperText: _suggestedToAmount == null
-                            ? '兩種貨幣的匯率還沒設定好，請自己填實際收到的金額'
-                            : '依目前匯率約 '
-                                '${formatMoney(_suggestedToAmount!, _currencyOf(_toAccountId))}'
-                                '，留空就用這個金額',
+                            ? context.l10n.receivedAmountNoRate
+                            : context.l10n.receivedAmountEstimate(formatMoney(
+                                _suggestedToAmount!,
+                                _currencyOf(_toAccountId))),
                         suffixIcon: IconButton(
-                          tooltip: '計算機',
+                          tooltip: context.l10n.calculatorTooltip,
                           icon: const Icon(Icons.calculate_outlined),
                           onPressed: () => _openCalculator(_toAmount),
                         ),
@@ -367,9 +379,9 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                       onTap: () => _openCalculator(_toAmount),
                       validator: (v) {
                         final typed = parseCents(v ?? '');
-                        if (typed != null && typed <= 0) return '轉入金額要大於 0';
+                        if (typed != null && typed <= 0) return context.l10n.errorReceivedPositive;
                         if (typed == null && _suggestedToAmount == null) {
-                          return '請填轉入金額';
+                          return context.l10n.errorReceivedRequired;
                         }
                         return null;
                       },
@@ -379,7 +391,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     DropdownButtonFormField<int>(
                       key: ValueKey(categoryType), // rebuild when the type changes to clear the old choice
                       initialValue: _categoryId,
-                      decoration: const InputDecoration(labelText: '類別'),
+                      decoration: InputDecoration(labelText: context.l10n.fieldCategory),
                       items: [
                         for (final c in categories)
                           DropdownMenuItem(
@@ -394,18 +406,18 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                           ),
                       ],
                       onChanged: (v) => setState(() => _categoryId = v),
-                      validator: (v) => v == null ? '請選擇類別' : null,
+                      validator: (v) => v == null ? context.l10n.errorSelectCategory : null,
                     ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('日期'),
-                    subtitle: Text(DateFormat('yyyy/MM/dd').format(_date)),
+                    title: Text(context.l10n.fieldDate),
+                    subtitle: Text(context.l10n.formatDate(_date)),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: _pickDate,
                   ),
                   TextFormField(
                     controller: _note,
-                    decoration: const InputDecoration(labelText: '備註（選填）'),
+                    decoration: InputDecoration(labelText: context.l10n.fieldNoteOptional),
                     onChanged: (_) => setState(() {}), // refilter the suggestions
                   ),
                   if (suggestions.isNotEmpty) ...[
@@ -427,7 +439,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  FilledButton(onPressed: _save, child: const Text('儲存')),
+                  FilledButton(onPressed: _save, child: Text(context.l10n.save)),
                 ],
               ),
             ),

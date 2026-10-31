@@ -679,6 +679,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter 4 digits'**
   String get errorLast4;
+
+  /// No description provided for @transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transfer;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @calculatorTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get calculatorTooltip;
+
+  /// No description provided for @newTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'New transaction'**
+  String get newTransaction;
+
+  /// No description provided for @editTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transaction'**
+  String get editTransaction;
+
+  /// No description provided for @deleteTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transaction?'**
+  String get deleteTransactionTitle;
+
+  /// No description provided for @deleteCannotUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get deleteCannotUndo;
+
+  /// No description provided for @addAccountFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account first'**
+  String get addAccountFirst;
+
+  /// No description provided for @fieldAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get fieldAmount;
+
+  /// No description provided for @fieldAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get fieldAccount;
+
+  /// No description provided for @fieldFromAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'From account'**
+  String get fieldFromAccount;
+
+  /// No description provided for @fieldToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'To account'**
+  String get fieldToAccount;
+
+  /// No description provided for @fieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get fieldCategory;
+
+  /// No description provided for @fieldDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get fieldDate;
+
+  /// No description provided for @fieldNoteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get fieldNoteOptional;
+
+  /// No description provided for @errorAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than 0'**
+  String get errorAmountPositive;
+
+  /// Shown when an amount cannot be converted because a currency has no exchange rate. The placeholders are currency codes.
+  ///
+  /// In en, this message translates to:
+  /// **'{entry} or {account} has no exchange rate yet. Set it on the Exchange rates tab first.'**
+  String errorMissingRate(String entry, String account);
+
+  /// No description provided for @errorConvertedTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'The converted amount is too small'**
+  String get errorConvertedTooSmall;
+
+  /// No description provided for @errorSelectAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an account'**
+  String get errorSelectAccount;
+
+  /// No description provided for @errorSelectToAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the account to transfer to'**
+  String get errorSelectToAccount;
+
+  /// No description provided for @errorSameAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t transfer to the same account'**
+  String get errorSameAccount;
+
+  /// No description provided for @errorSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a category'**
+  String get errorSelectCategory;
+
+  /// No description provided for @fieldEntryCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry currency (optional)'**
+  String get fieldEntryCurrency;
+
+  /// No description provided for @entryCurrencySameAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as the account ({currency})'**
+  String entryCurrencySameAs(String currency);
+
+  /// No description provided for @entryCurrencyNoRate.
+  ///
+  /// In en, this message translates to:
+  /// **'No exchange rate yet, so it can\'t be converted'**
+  String get entryCurrencyNoRate;
+
+  /// No description provided for @entryCurrencyConverted.
+  ///
+  /// In en, this message translates to:
+  /// **'Converts to {amount} in the account'**
+  String entryCurrencyConverted(String amount);
+
+  /// No description provided for @entryCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only needed when paying in another currency. It is converted to the account\'s currency at the current rate.'**
+  String get entryCurrencyHint;
+
+  /// No description provided for @fieldReceivedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount received ({currency})'**
+  String fieldReceivedAmount(String currency);
+
+  /// No description provided for @receivedAmountNoRate.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange rates for these two currencies are not set. Enter the amount that was actually received.'**
+  String get receivedAmountNoRate;
+
+  /// No description provided for @receivedAmountEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'About {amount} at the current rate. Leave it empty to use this amount.'**
+  String receivedAmountEstimate(String amount);
+
+  /// No description provided for @errorReceivedPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount received must be greater than 0'**
+  String get errorReceivedPositive;
+
+  /// No description provided for @errorReceivedRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount received'**
+  String get errorReceivedRequired;
+
+  /// A full date in the locale's short numeric format, e.g. 10/31/2026 or 2026/10/31.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String formatDate(DateTime date);
 }
 
 class _AppLocalizationsDelegate
