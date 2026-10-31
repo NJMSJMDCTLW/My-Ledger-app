@@ -1,4 +1,4 @@
-/// App 支援的貨幣。資料庫裡存的是代碼（例如 'USD'）。
+/// The currencies the app supports. The database stores the code (e.g. 'USD').
 class CurrencyInfo {
   const CurrencyInfo(this.code, this.name, this.symbol);
 
@@ -7,7 +7,7 @@ class CurrencyInfo {
   final String symbol;
 }
 
-/// 本位幣：所有統計與總資產最後都折算成港幣。
+/// Base currency: all statistics and the total balance are ultimately converted to Hong Kong dollars.
 const baseCurrency = 'HKD';
 
 const List<CurrencyInfo> supportedCurrencies = [
@@ -25,7 +25,7 @@ const List<CurrencyInfo> supportedCurrencies = [
   CurrencyInfo('THB', '泰銖', '฿'),
 ];
 
-/// 找不到的代碼（理論上不會發生）就用代碼本身當名稱和符號。
+/// An unknown code (should not happen) falls back to using the code itself as name and symbol.
 CurrencyInfo currencyInfo(String code) {
   for (final c in supportedCurrencies) {
     if (c.code == code) return c;

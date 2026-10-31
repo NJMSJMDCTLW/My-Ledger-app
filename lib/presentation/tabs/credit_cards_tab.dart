@@ -4,7 +4,7 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/credit_card_section.dart';
 
-/// 信用卡分頁：欠款、可用額度、結帳日與繳款日。
+/// The credit cards tab: debt, available credit, statement day and due day.
 class CreditCardsTab extends ConsumerWidget {
   const CreditCardsTab({super.key});
 

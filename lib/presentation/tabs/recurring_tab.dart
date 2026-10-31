@@ -9,7 +9,7 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/recurring_form_page.dart';
 
-/// 固定收支分頁：每月自動記錄的收入、支出與轉帳。
+/// The recurring tab: income, expenses and transfers that are recorded automatically every month.
 class RecurringTab extends ConsumerWidget {
   const RecurringTab({super.key});
 
@@ -133,7 +133,7 @@ class _RuleTile extends ConsumerWidget {
                       ..where((r) => r.id.equals(rule.id)))
                     .write(RecurringRulesCompanion(
                   isActive: Value(v),
-                  // 恢復時不補記暫停期間漏掉的，從今天之後才繼續產生
+                  // when resuming, do not backfill what was missed while paused; start generating again from today
                   lastGenerated: v
                       ? Value(DateTime(now.year, now.month, now.day))
                       : const Value.absent(),

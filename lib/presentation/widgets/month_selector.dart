@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:intl/intl.dart';
 
-/// 「< 2026 年 10 月 >」月份切換列。
+/// The month switcher row, e.g. "< October 2026 >".
 class MonthSelector extends ConsumerWidget {
   const MonthSelector({super.key});
 

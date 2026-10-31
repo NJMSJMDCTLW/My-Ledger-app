@@ -4,8 +4,8 @@ import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 
 void main() {
-  test('從第 2 版升級到第 3 版：舊資料保留，新欄位與匯率表可以用', () async {
-    // 手動建出第 2 版的資料庫（transactions 還沒有 to_amount，也沒有 exchange_rates）
+  test('Upgrade from version 2 to 3: old data is kept, and the new column and rates table work', () async {
+    // Build a version 2 database by hand (transactions has no to_amount yet, and there is no exchange_rates table)
     final db = AppDatabase(
       NativeDatabase.memory(
         setup: (raw) {
@@ -48,7 +48,7 @@ void main() {
     );
     addTearDown(db.close);
 
-    // 舊資料還在，新欄位是 null
+    // Old data is still there, and the new column is null
     final accounts = await db.select(db.accounts).get();
     expect(accounts.single.name, '現金');
     expect(accounts.single.currency, 'HKD');
@@ -59,7 +59,7 @@ void main() {
     expect(txs.single.note, '午餐');
     expect(txs.single.toAmount, isNull);
 
-    // 新的匯率表可以用
+    // The new rates table works
     await db.into(db.exchangeRates).insert(
           ExchangeRatesCompanion.insert(currency: 'USD', rateToHkd: 7.8),
         );
@@ -67,7 +67,7 @@ void main() {
     expect(rates.single.currency, 'USD');
     expect(rates.single.rateToHkd, 7.8);
 
-    // 新欄位可以寫入
+    // The new column can be written
     await db.into(db.transactions).insert(
           TransactionsCompanion.insert(
             date: DateTime(2026, 10, 1),
@@ -78,11 +78,11 @@ void main() {
         );
   });
 
-  test('從第 3 版升級到第 4 版：原本的匯率保留，並標成手動', () async {
+  test('Upgrade from version 3 to 4: existing rates are kept and marked manual', () async {
     final db = AppDatabase(
       NativeDatabase.memory(
         setup: (raw) {
-          // 第 3 版的匯率表：還沒有 is_manual 欄位
+          // The version 3 rates table: no is_manual column yet
           raw.execute('''
             CREATE TABLE exchange_rates (
               currency TEXT NOT NULL PRIMARY KEY,
@@ -92,7 +92,7 @@ void main() {
           ''');
           raw.execute(
               "INSERT INTO exchange_rates (currency, rate_to_hkd, updated_at) VALUES ('USD', 7.8, 1790000000)");
-          // 真實的第 3 版資料庫一定有交易表（已經有 to_amount），升級時會繼續往上加欄位
+          // A real version 3 database always has the transactions table (already with to_amount), and the upgrade keeps adding columns to it
           raw.execute('''
             CREATE TABLE transactions (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,11 +116,11 @@ void main() {
     final rates = await db.select(db.exchangeRates).get();
     expect(rates.single.currency, 'USD');
     expect(rates.single.rateToHkd, 7.8);
-    // 使用者自己填過的匯率，升級後要視為手動，第一次自動更新才不會蓋掉
+    // A rate the user entered themselves counts as manual after the upgrade, so the first automatic update does not overwrite it
     expect(rates.single.isManual, isTrue);
   });
 
-  test('從第 4 版升級到第 5 版：舊交易保留，原始金額與貨幣是 null', () async {
+  test('Upgrade from version 4 to 5: old transactions are kept, and the original amount and currency are null', () async {
     final db = AppDatabase(
       NativeDatabase.memory(
         setup: (raw) {

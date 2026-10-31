@@ -16,9 +16,9 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(reminderSyncProvider); // 讓繳款提醒隨帳戶資料自動更新
-    ref.watch(recurringSyncProvider); // 啟動時補上到期的固定收支
-    ref.watch(rateStartupSyncProvider); // 需要的話自動更新外幣匯率
+    ref.watch(reminderSyncProvider); // keep the due-date reminders in sync with the account data
+    ref.watch(recurringSyncProvider); // on startup, create any recurring transactions that are due
+    ref.watch(rateStartupSyncProvider); // update foreign-currency exchange rates automatically when needed
 
     return MaterialApp(
       title: '我的記帳本',

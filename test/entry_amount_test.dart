@@ -40,13 +40,13 @@ TransactionRecord existingTx({
 }
 
 void main() {
-  // 帳戶 1 是港幣，帳戶 2 是美元
+  // Account 1 is HKD, account 2 is USD
   final converter = HkdConverter.from(
     accounts: [account(1, 'HKD'), account(2, 'USD')],
     rates: [rate('USD', 7.8), rate('JPY', 0.05)],
   );
 
-  test('輸入貨幣和帳戶一樣：不換算，沒有原始值', () {
+  test('Entry currency equals the account currency: no conversion, no original value', () {
     final r = resolveEntryAmount(
       enteredCents: 5000,
       entryCurrency: 'HKD',
@@ -58,7 +58,7 @@ void main() {
     expect(r.originalCurrency, isNull);
   });
 
-  test('用美元付款但記在港幣帳戶：依匯率換成港幣，並保留原始值', () {
+  test('Paying in USD but recording to an HKD account: converted to HKD at the rate, keeping the original value', () {
     final r = resolveEntryAmount(
       enteredCents: 1000, // US$10
       entryCurrency: 'USD',
@@ -70,7 +70,7 @@ void main() {
     expect(r.originalCurrency, 'USD');
   });
 
-  test('用日圓付款記在美元帳戶：兩種外幣互換', () {
+  test('Paying in JPY and recording to a USD account: two foreign currencies converted', () {
     final r = resolveEntryAmount(
       enteredCents: 156000, // JP¥1,560 = HK$78 = US$10
       entryCurrency: 'JPY',
@@ -81,7 +81,7 @@ void main() {
     expect(r.originalCurrency, 'JPY');
   });
 
-  test('沒有設定匯率就換算不了', () {
+  test('Cannot convert when no rate is set', () {
     expect(
       resolveEntryAmount(
         enteredCents: 1000,
@@ -93,8 +93,8 @@ void main() {
     );
   });
 
-  test('編輯時輸入沒變：沿用原本的金額，不會因為匯率變了而跑掉', () {
-    // 當時匯率是 7.0，記成 HK$70；現在匯率是 7.8
+  test('Editing with unchanged input: keeps the stored amount, so it does not drift when the rate changes', () {
+    // The rate back then was 7.0, recorded as HK$70; the rate is 7.8 now
     final r = resolveEntryAmount(
       enteredCents: 1000,
       entryCurrency: 'USD',
@@ -109,7 +109,7 @@ void main() {
     expect(r.amount, 7000);
   });
 
-  test('編輯時改了金額或換了帳戶：重新依目前匯率換算', () {
+  test('Editing the amount or switching account: converts again at the current rate', () {
     final changedAmount = resolveEntryAmount(
       enteredCents: 2000,
       entryCurrency: 'USD',
@@ -131,6 +131,6 @@ void main() {
           originalAmount: 1000,
           originalCurrency: 'JPY'),
     )!;
-    expect(changedAccount.amount, 50); // 1000 分日圓 = 10 JPY = HK$0.5
+    expect(changedAccount.amount, 50); // 1000 cents of JPY = 10 JPY = HK$0.5
   });
 }

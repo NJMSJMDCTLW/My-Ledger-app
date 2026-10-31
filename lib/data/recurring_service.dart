@@ -2,13 +2,13 @@ import 'package:drift/drift.dart';
 import 'package:hello_ledger/core/billing_dates.dart';
 import 'package:hello_ledger/data/app_database.dart';
 
-/// 替每條啟用中的固定收支規則，補上「已到期但還沒產生」的交易。
+/// For each active recurring rule, creates the transactions that are "due but not yet generated".
 ///
-/// 規則：從開始日期那個月起，每個月的 dayOfMonth 號（沒有那天就用月底）
-/// 只要 >= 開始日期、<= 今天、且比 lastGenerated 新，就產生一筆。
-/// 很久沒開 App 時會一次補上所有漏掉的月份。重複執行不會重複產生。
+/// Rule: starting from the month of the start date, on day dayOfMonth of each month (or the last day if the month lacks it),
+/// a transaction is created if the date is >= the start date, <= today, and newer than lastGenerated.
+/// After a long time without opening the app, all missed months are filled in at once. Running it again never creates duplicates.
 ///
-/// 回傳這次新產生了幾筆交易。
+/// Returns how many transactions were newly created this time.
 Future<int> generateDueTransactions(AppDatabase db, {DateTime? now}) {
   final current = now ?? DateTime.now();
   final today = DateTime(current.year, current.month, current.day);

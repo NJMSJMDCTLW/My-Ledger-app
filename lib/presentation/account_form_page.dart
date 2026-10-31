@@ -12,10 +12,10 @@ import 'package:hello_ledger/data/rate_service.dart';
 class AccountFormPage extends ConsumerStatefulWidget {
   const AccountFormPage({super.key, this.existing, this.initialType});
 
-  /// 新增時預設選哪種類型（例如從信用卡分頁進來就是信用卡）。
+  /// Default account type when adding (e.g. coming from the credit card tab selects credit card).
   final AccountType? initialType;
 
-  /// 有值代表編輯這個帳戶；null 代表新增。
+  /// Non-null means editing this account; null means adding a new one.
   final Account? existing;
 
   @override
@@ -46,7 +46,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
       _name.text = a.name;
       _type = a.type;
       _currency = a.currency;
-      // 信用卡的欠款存成負數，編輯時顯示成正數
+      // A credit card's debt is stored as a negative number; show it as positive when editing
       _balance.text = (a.openingBalance.abs() / 100).toStringAsFixed(2);
       if (a.creditLimit != null) {
         _limit.text = (a.creditLimit! / 100).toStringAsFixed(2);
@@ -90,7 +90,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     final db = ref.read(databaseProvider);
 
     var opening = parseCents(_balance.text) ?? 0;
-    // 信用卡的欠款用負數表示，所以使用者輸入「欠款」時轉成負數
+    // A credit card's debt is stored as a negative number, so the "debt" the user typed is turned negative
     if (_isCredit) opening = -opening.abs();
 
     final companion = AccountsCompanion(
@@ -104,10 +104,10 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
       last4: Value(_isCredit && _last4.text.isNotEmpty ? _last4.text : null),
     );
 
-    // 第一次用這個外幣：把使用者填的匯率存起來（之後在「匯率」分頁修改）
+    // First use of this foreign currency: save the rate the user entered (editable later on the "Rates" tab)
     final rate = double.tryParse(_rate.text.trim());
     if (_needsRate && rate != null) {
-      // 使用者自己填的，標成手動，自動更新不會蓋掉
+      // Entered by the user, so mark it manual; automatic updates will not overwrite it
       await setManualRate(db, _currency, rate);
     }
 
@@ -121,7 +121,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     if (mounted) Navigator.pop(context);
   }
 
-  /// 新增外幣帳戶，而且這個外幣還沒設定過匯率時，要請使用者填。
+  /// When adding a foreign-currency account whose currency has no rate yet, the user has to enter one.
   bool get _needsRate =>
       !_isEditing &&
       _currency != baseCurrency &&
@@ -210,12 +210,12 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
                     child: Text('${c.code}　${c.name}'),
                   ),
               ],
-              // 編輯時不能換貨幣，不然舊的金額會被當成另一種貨幣
+              // The currency cannot change when editing, or old amounts would be read as another currency
               onChanged: _isEditing
                   ? null
                   : (v) {
                       setState(() => _currency = v!);
-                      // 這個外幣還沒有匯率就先試著自動抓；抓不到再請使用者自己填
+                      // If this currency has no rate yet, try fetching it automatically first; ask the user only if that fails
                       if (_needsRate) {
                         ref.read(rateUpdaterProvider.notifier).refresh();
                       }

@@ -8,11 +8,11 @@ class Accounts extends Table {
   IntColumn get type => intEnum<AccountType>()();
   TextColumn get currency => text().withDefault(const Constant('HKD'))();
 
-  /// 期初餘額，單位是「分」。信用卡的欠款用負數表示。
+  /// Opening balance, in cents. A credit card's debt is stored as a negative number.
   IntColumn get openingBalance => integer().withDefault(const Constant(0))();
   BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
 
-  // 以下只有信用卡才會用到
+  // The fields below are only used by credit cards
   IntColumn get creditLimit => integer().nullable()();
   IntColumn get statementDay => integer().nullable()();
   IntColumn get dueDay => integer().nullable()();
@@ -33,19 +33,19 @@ class Transactions extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime()();
 
-  /// 金額一律存正整數，單位是「分」。收入或支出由 type 決定。
+  /// Amounts are always stored as positive integers, in cents. Whether it is income or expense is decided by type.
   IntColumn get amount => integer()();
   IntColumn get type => intEnum<TransactionType>()();
   IntColumn get accountId => integer().references(Accounts, #id)();
   IntColumn get toAccountId => integer().nullable().references(Accounts, #id)();
 
-  /// 轉帳時轉入帳戶實際收到的金額（單位：分，用轉入帳戶的貨幣）。
-  /// 兩個帳戶貨幣不同時才會有值；null 代表和 amount 一樣。
+  /// For a transfer, the amount the destination account actually receives (in cents, in the destination account's currency).
+  /// Only set when the two accounts have different currencies; null means the same as amount.
   IntColumn get toAmount => integer().nullable()();
 
-  /// 使用者輸入的貨幣和金額和帳戶貨幣不同時，保留他輸入的原始值（單位：分）。
-  /// [amount] 是依當時匯率換成帳戶貨幣後的金額，不會再隨匯率改變。
-  /// 兩個欄位同時有值或同時是 null。
+  /// When the currency the user entered differs from the account's currency, keeps the original value they entered (in cents).
+  /// [amount] is the amount converted to the account's currency at the rate of that time and never changes again with the rate.
+  /// The two columns are either both set or both null.
   IntColumn get originalAmount => integer().nullable()();
   TextColumn get originalCurrency => text().nullable()();
   IntColumn get categoryId => integer().nullable().references(Categories, #id)();
@@ -53,41 +53,41 @@ class Transactions extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// 固定收支的規則（例如每月 5 號的房租）。
-/// App 啟動時，會替每條規則補上已到期但還沒產生的交易。
+/// A recurring rule (for example, rent on the 5th of every month).
+/// When the app starts, each rule gets any due-but-not-yet-generated transactions created.
 @DataClassName('RecurringRule')
 class RecurringRules extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get type => intEnum<TransactionType>()();
 
-  /// 金額一律存正整數，單位是「分」。
+  /// Amounts are always stored as positive integers, in cents.
   IntColumn get amount => integer()();
   IntColumn get accountId => integer().references(Accounts, #id)();
   IntColumn get toAccountId => integer().nullable().references(Accounts, #id)();
   IntColumn get categoryId => integer().nullable().references(Categories, #id)();
   TextColumn get note => text().withDefault(const Constant(''))();
 
-  /// 每月幾號（1~31）。該月沒有這一天就用月底。
+  /// Day of the month (1-31). If the month lacks that day, the last day of the month is used.
   IntColumn get dayOfMonth => integer()();
 
-  /// 從這天起才開始產生交易。
+  /// Transactions are only generated from this date on.
   DateTimeColumn get startDate => dateTime()();
 
-  /// 最近一次已產生的交易日期，避免重複產生。
+  /// The date of the most recently generated transaction, to avoid generating duplicates.
   DateTimeColumn get lastGenerated => dateTime().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
 }
 
 
-/// 匯率：1 單位外幣等於多少港幣。港幣本身固定是 1，不存在這張表裡。
-/// 匯率由使用者手動設定，用來把外幣帳戶折合成港幣。
+/// Exchange rate: how many HKD one unit of a foreign currency is worth. HKD itself is always 1 and is not stored in this table.
+/// Rates are either set by the user or updated automatically, and are used to convert foreign-currency accounts to HKD.
 @DataClassName('ExchangeRate')
 class ExchangeRates extends Table {
-  /// 貨幣代碼，例如 USD、JPY。
+  /// Currency code, e.g. USD, JPY.
   TextColumn get currency => text()();
   RealColumn get rateToHkd => real()();
 
-  /// true 代表使用者自己填的匯率，自動更新時不會被蓋掉。
+  /// True means the user entered this rate by hand, so automatic updates never overwrite it.
   BoolColumn get isManual => boolean().withDefault(const Constant(false))();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 

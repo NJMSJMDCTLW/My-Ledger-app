@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// 溫暖的馬卡龍色調。
+/// A warm, macaron-colored theme.
 class AppTheme {
-  // 主色：蜜桃粉
+  // Primary color: peach pink
   static const Color _seed = Color(0xFFF2A5A0);
 
-  /// 馬卡龍色盤，共 12 色，預設的 11 個類別各拿到一個不重複的顏色：
-  /// 粉、蜜桃、奶油黃、薄荷、天空藍、薰衣草、蘭花粉、開心果、
-  /// 長春花藍、青綠、焦糖、珊瑚。
+  /// The macaron palette, 12 colors, so each of the 11 default categories gets a unique color:
+  /// pink, peach, butter yellow, mint, sky blue, lavender, orchid pink, pistachio,
+  /// periwinkle blue, teal, caramel, coral.
   static const List<Color> macaron = [
     Color(0xFFF7A8B8),
     Color(0xFFFFC9A3),
@@ -23,19 +23,19 @@ class AppTheme {
     Color(0xFFF6A59A),
   ];
 
-  /// 同一個類別在整個 App 裡永遠是同一個顏色（類別超過 12 個才會開始重複）。
+  /// A category always has the same color across the whole app (colors only start repeating past 12 categories).
   static Color categoryColor(int? categoryId) {
     if (categoryId == null) return const Color(0xFFD9CFC7);
     return macaron[categoryId % macaron.length];
   }
 
-  /// 色盤都是淺色，上面的文字統一用深咖啡色才看得清楚。
+  /// All palette colors are light, so text on top of them uses a dark brown to stay readable.
   static const Color onMacaron = Color(0xFF5A4038);
 
   static const Color expense = Color(0xFFE0707F);
   static const Color income = Color(0xFF5DAE8B);
 
-  /// 結餘的顏色：正數綠色、負數紅色、剛好 0 用預設色（回傳 null）。
+  /// Color for a balance: green when positive, red when negative, default (null) when exactly 0.
   static Color? balanceColor(int cents) {
     if (cents > 0) return income;
     if (cents < 0) return expense;
@@ -50,7 +50,7 @@ class AppTheme {
     var scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
     if (isLight) {
       scheme = scheme.copyWith(
-        surface: const Color(0xFFFFF8F2), // 奶油白
+        surface: const Color(0xFFFFF8F2), // cream white
         surfaceContainerLowest: Colors.white,
         surfaceContainerHighest: const Color(0xFFFCE9DF),
       );

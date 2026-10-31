@@ -7,7 +7,7 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/category_form_page.dart';
 
-/// 分類管理分頁：支出與收入的分類，可以新增、改名、換圖示、刪除。
+/// The category management tab: expense and income categories, which can be added, renamed, given a new icon, or deleted.
 class CategoriesTab extends ConsumerWidget {
   const CategoriesTab({super.key});
 

@@ -54,33 +54,33 @@ void main() {
   );
 
   group('HkdConverter', () {
-    test('港幣不用換算，外幣乘上匯率並四捨五入', () {
+    test('HKD needs no conversion; foreign amounts are multiplied by the rate and rounded', () {
       expect(converter.toHkd(10000, 'HKD'), 10000);
       expect(converter.toHkd(10000, 'USD'), 78000); // 100 USD = 780 HKD
       expect(converter.toHkd(100000, 'JPY'), 5200); // 1000 JPY = 52 HKD
     });
 
-    test('沒設定匯率的外幣當作 0，並且 hasRate 為 false', () {
+    test('A foreign currency with no rate counts as 0 and hasRate is false', () {
       expect(converter.hasRate('EUR'), isFalse);
       expect(converter.toHkd(10000, 'EUR'), 0);
       expect(converter.hasRate('HKD'), isTrue);
     });
 
-    test('兩種外幣互相換算', () {
+    test('Converting between two foreign currencies', () {
       // 100 USD = 780 HKD = 15000 JPY
       expect(converter.convert(10000, 'USD', 'JPY'), 1500000);
       expect(converter.convert(10000, 'USD', 'USD'), 10000);
       expect(converter.convert(10000, 'USD', 'EUR'), isNull);
     });
 
-    test('交易金額用所屬帳戶的貨幣折算', () {
+    test('A transaction amount is converted using its account currency', () {
       expect(converter.amountOf(tx(2, 10000)), 78000);
       expect(converter.amountOf(tx(1, 10000)), 10000);
     });
   });
 
   group('computeBalances', () {
-    test('收入、支出、同幣別轉帳', () {
+    test('Income, expense and same-currency transfers', () {
       final b = computeBalances(
         [account(1, 'HKD', opening: 1000), account(4, 'HKD')],
         [
@@ -93,8 +93,8 @@ void main() {
       expect(b[4], 200);
     });
 
-    test('跨貨幣轉帳：轉入帳戶收到 toAmount', () {
-      // 從港幣帳戶轉 780 HKD 到美元帳戶，收到 100 USD
+    test('Cross-currency transfer: the destination account receives toAmount', () {
+      // Transfer 780 HKD from an HKD account to a USD account, which receives 100 USD
       final b = computeBalances(
         [account(1, 'HKD', opening: 100000), account(2, 'USD')],
         [
@@ -106,7 +106,7 @@ void main() {
       expect(b[2], 10000);
     });
 
-    test('沒有 toAmount 就和轉出金額一樣；已封存帳戶不計入', () {
+    test('Without toAmount it equals the amount sent; archived accounts are not counted', () {
       final b = computeBalances(
         [account(1, 'HKD', opening: 1000)],
         [tx(1, 100, type: TransactionType.transfer, toAccountId: 99)],
@@ -115,28 +115,28 @@ void main() {
     });
   });
 
-  group('統計折成港幣', () {
+  group('Statistics converted to HKD', () {
     final all = [
       tx(1, 10000), // 100 HKD
       tx(2, 1000), // 10 USD = 78 HKD
       tx(2, 2000, type: TransactionType.income), // 20 USD = 156 HKD
     ];
 
-    test('有給換算器：外幣折成港幣再加總', () {
+    test('With a converter: foreign amounts are converted to HKD, then summed', () {
       final s = computeMonthlyStats(all, DateTime(2026, 10),
           converter: converter);
       expect(s.expense, 10000 + 7800);
       expect(s.income, 15600);
     });
 
-    test('沒給換算器：維持原本的數字（相容舊行為）', () {
+    test('Without a converter: the original numbers are kept (backward compatible)', () {
       final s = computeMonthlyStats(all, DateTime(2026, 10));
       expect(s.expense, 11000);
     });
   });
 
   group('formatMoney', () {
-    test('加上貨幣符號，負數的負號在最前面', () {
+    test('Adds the currency symbol, with the minus sign in front for negatives', () {
       expect(formatMoney(12345, 'HKD'), 'HK\$123.45');
       expect(formatMoney(12345, 'USD'), 'US\$123.45');
       expect(formatMoney(-12345, 'JPY'), '-JP¥123.45');

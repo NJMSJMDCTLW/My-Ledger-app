@@ -5,7 +5,7 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:intl/intl.dart';
 
-/// 首頁的信用卡區塊：欠款、可用額度、下次結帳日與繳款日。
+/// The credit card section: debt, available credit, and the next statement and due dates.
 class CreditCardSection extends StatelessWidget {
   const CreditCardSection({
     super.key,
@@ -55,7 +55,7 @@ class _CardTile extends StatelessWidget {
         : nextOccurrence(account.dueDay!, today);
     final dueDays = due == null ? null : daysBetween(today, due);
 
-    // 有欠款、且 7 天內要繳款，就標成警示色
+    // Highlight in the warning color when there is debt and the due date is within 7 days
     final urgent = debt > 0 && dueDays != null && dueDays <= 7;
     final warnColor = theme.colorScheme.error;
     final fmt = DateFormat('M/d');

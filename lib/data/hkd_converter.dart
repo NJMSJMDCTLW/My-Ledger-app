@@ -2,21 +2,21 @@ import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 
-/// 把各種貨幣的金額折算成港幣。
+/// Converts amounts in various currencies to Hong Kong dollars.
 ///
-/// 用的是「目前」設定的匯率，不會記錄歷史匯率，所以改了匯率之後，
-/// 過去外幣交易折合的港幣金額也會跟著變。
-/// 還沒設定匯率的外幣，折算結果當作 0（用 [hasRate] 可以先檢查）。
+/// It uses the *current* rates and keeps no rate history, so changing a rate also changes the HKD value
+/// of past foreign-currency transactions.
+/// A foreign currency with no rate set converts to 0 (check first with [hasRate]).
 class HkdConverter {
   const HkdConverter({
     this.rates = const {},
     this.accountCurrency = const {},
   });
 
-  /// 貨幣代碼 -> 1 單位外幣等於多少港幣。
+  /// Currency code -> how many HKD one unit of that currency is worth.
   final Map<String, double> rates;
 
-  /// 帳戶 id -> 該帳戶的貨幣。
+  /// Account id -> that account's currency.
   final Map<int, String> accountCurrency;
 
   factory HkdConverter.from({
@@ -29,7 +29,7 @@ class HkdConverter {
     );
   }
 
-  /// 1 單位 [currency] 等於多少港幣。港幣是 1，沒設定的外幣是 null。
+  /// How many HKD one unit of [currency] is worth. HKD is 1; a foreign currency with no rate is null.
   double? rateOf(String currency) =>
       currency == baseCurrency ? 1.0 : rates[currency];
 
@@ -38,14 +38,14 @@ class HkdConverter {
   String currencyOfAccount(int accountId) =>
       accountCurrency[accountId] ?? baseCurrency;
 
-  /// [cents]（用 [currency] 計）折成港幣的「分」。沒有匯率回傳 0。
+  /// [cents] (in [currency]) converted to HKD cents. Returns 0 if there is no rate.
   int toHkd(int cents, String currency) {
     final rate = rateOf(currency);
     if (rate == null) return 0;
     return (cents * rate).round();
   }
 
-  /// 把 [cents]（用 [from] 計）換成 [to] 貨幣。任一邊沒有匯率回傳 null。
+  /// Converts [cents] (in [from]) to the [to] currency. Returns null if either side has no rate.
   int? convert(int cents, String from, String to) {
     if (from == to) return cents;
     final fromRate = rateOf(from);
@@ -54,15 +54,15 @@ class HkdConverter {
     return (cents * fromRate / toRate).round();
   }
 
-  /// 一筆交易的金額折成港幣（用它所屬帳戶的貨幣）。
+  /// A transaction's amount converted to HKD (using its account's currency).
   int amountOf(TransactionRecord t) =>
       toHkd(t.amount, currencyOfAccount(t.accountId));
 }
 
-/// 每個帳戶目前的餘額（單位：分，用該帳戶自己的貨幣），key 是帳戶 id。
+/// Each account's current balance (in cents, in that account's own currency), keyed by account id.
 ///
-/// 跨貨幣轉帳時，轉入帳戶收到的是 [TransactionRecord.toAmount]（沒有就跟轉出金額一樣）。
-/// 不在 [accounts] 裡的帳戶（例如已封存）不會計入。
+/// For a cross-currency transfer, the destination account receives [TransactionRecord.toAmount] (or the same as the amount sent if null).
+/// Accounts not in [accounts] (e.g. archived ones) are not counted.
 Map<int, int> computeBalances(
   List<Account> accounts,
   List<TransactionRecord> txs,

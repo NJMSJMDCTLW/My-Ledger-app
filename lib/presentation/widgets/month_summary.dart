@@ -3,7 +3,7 @@ import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 
-/// 當月收入（綠）、支出（紅）、結餘（正數綠色、負數紅色）。
+/// This month's income (green), expense (red), and balance (green when positive, red when negative).
 class MonthSummary extends StatelessWidget {
   const MonthSummary({super.key, required this.stats});
 

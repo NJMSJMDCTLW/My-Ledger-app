@@ -1,12 +1,12 @@
 import 'dart:math';
 
-/// 某年某月的第 [day] 號。該月沒有這一天（例如 2 月 31 號）就用月底。
+/// The [day]th of the given month. If the month has no such day (e.g. Feb 31), use the last day of the month.
 DateTime dayInMonth(int year, int month, int day) {
   final lastDay = DateTime(year, month + 1, 0).day;
   return DateTime(year, month, min(day, lastDay));
 }
 
-/// 從 [today] 起（含今天）下一次出現「每月 [day] 號」的日期。
+/// The next date, starting from [today] (inclusive), that falls on day [day] of a month.
 DateTime nextOccurrence(int day, DateTime today) {
   final t = DateTime(today.year, today.month, today.day);
   final thisMonth = dayInMonth(t.year, t.month, day);
@@ -15,7 +15,7 @@ DateTime nextOccurrence(int day, DateTime today) {
       : thisMonth;
 }
 
-/// 兩個日期相差幾天（用 UTC 算，避免日光節約時間造成誤差）。
+/// Number of days between two dates (computed in UTC to avoid daylight-saving errors).
 int daysBetween(DateTime from, DateTime to) {
   return DateTime.utc(to.year, to.month, to.day)
       .difference(DateTime.utc(from.year, from.month, from.day))

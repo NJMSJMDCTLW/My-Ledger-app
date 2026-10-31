@@ -12,7 +12,7 @@ import 'package:hello_ledger/presentation/tabs/recurring_tab.dart';
 import 'package:hello_ledger/presentation/tabs/stats_tab.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
 
-/// 外框：左上角三橫按鈕打開側邊欄，用側邊欄切換分頁。
+/// The outer frame: the hamburger button at the top left opens the drawer, which switches between tabs.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -36,7 +36,7 @@ class _AppShellState extends State<AppShell> {
     Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
   }
 
-  /// 每個分頁右下角的按鈕：首頁記一筆，帳戶、信用卡、固定收支、分類管理分頁各自新增；統計不需要。
+  /// The button at the bottom right of each tab: record a transaction on Home; add an account, credit card, recurring rule or category on the other tabs; Statistics has none.
   Widget? get _fab => switch (_index) {
         _home => FloatingActionButton.extended(
             onPressed: () => _open(const TransactionFormPage()),
@@ -75,7 +75,7 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: _index,
         onDestinationSelected: (i) {
           setState(() => _index = i);
-          Navigator.pop(context); // 選完自動收起側邊欄
+          Navigator.pop(context); // close the drawer automatically after choosing
         },
         children: const [
           Padding(

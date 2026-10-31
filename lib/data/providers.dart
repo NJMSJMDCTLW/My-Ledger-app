@@ -14,13 +14,13 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   return db;
 });
 
-/// 所有帳戶（含已封存），用來顯示歷史交易的帳戶名稱。
+/// All accounts (including archived ones), used to show account names on historical transactions.
 final allAccountsProvider = StreamProvider<List<Account>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.select(db.accounts).watch();
 });
 
-/// 目前選定的月份（首頁與統計分頁共用）。
+/// The currently selected month (shared by the home and statistics tabs).
 class SelectedMonth extends Notifier<DateTime> {
   @override
   DateTime build() {
@@ -28,7 +28,7 @@ class SelectedMonth extends Notifier<DateTime> {
     return DateTime(now.year, now.month);
   }
 
-  /// 前後移動幾個月；不能超過這個月（沒有未來的紀錄可看）。
+  /// Moves forward or back by some months; it cannot go past the current month (there are no future records to view).
   void shift(int months) {
     final now = DateTime.now();
     final thisMonth = DateTime(now.year, now.month);
@@ -40,7 +40,7 @@ class SelectedMonth extends Notifier<DateTime> {
 final selectedMonthProvider =
     NotifierProvider<SelectedMonth, DateTime>(SelectedMonth.new);
 
-/// 選定月份的統計。
+/// Statistics for the selected month.
 class MonthlyStats {
   const MonthlyStats({
     required this.txs,
@@ -49,12 +49,12 @@ class MonthlyStats {
     required this.categoryRows,
   });
 
-  /// 這個月的所有交易（含轉帳），新的在前面。
+  /// All transactions in this month (including transfers), newest first.
   final List<TransactionRecord> txs;
   final int income;
   final int expense;
 
-  /// 支出類別（類別 id，金額），金額大的在前面。
+  /// Expense categories as (category id, amount), largest amount first.
   final List<MapEntry<int?, int>> categoryRows;
 
   int get balance => income - expense;
@@ -67,7 +67,7 @@ final monthlyStatsProvider = Provider<MonthlyStats>((ref) {
       converter: ref.watch(hkdConverterProvider));
 });
 
-/// 統計分頁目前選的時間範圍種類（每月、近六個月、一年）。
+/// The kind of time range selected on the statistics tab (monthly, last six months, or one year).
 class SelectedStatsPeriod extends Notifier<StatsPeriod> {
   @override
   StatsPeriod build() => StatsPeriod.month;
@@ -78,7 +78,7 @@ class SelectedStatsPeriod extends Notifier<StatsPeriod> {
 final statsPeriodProvider =
     NotifierProvider<SelectedStatsPeriod, StatsPeriod>(SelectedStatsPeriod.new);
 
-/// 統計分頁目前的時間範圍：由種類加上共用的月份算出來。
+/// The current time range on the statistics tab: derived from the kind plus the shared month.
 final statsRangeProvider = Provider<StatsRange>((ref) {
   return statsRangeFor(
     ref.watch(statsPeriodProvider),
@@ -86,7 +86,7 @@ final statsRangeProvider = Provider<StatsRange>((ref) {
   );
 });
 
-/// 統計分頁範圍內的統計。
+/// Statistics for the range on the statistics tab.
 final periodStatsProvider = Provider<MonthlyStats>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
@@ -94,7 +94,7 @@ final periodStatsProvider = Provider<MonthlyStats>((ref) {
       converter: ref.watch(hkdConverterProvider));
 });
 
-/// 「上一期」的統計（上個月、前六個月、去年），用來做比較。
+/// Statistics for the "previous period" (last month, the previous six months, or last year), used for comparison.
 final previousPeriodStatsProvider = Provider<MonthlyStats>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
@@ -102,14 +102,14 @@ final previousPeriodStatsProvider = Provider<MonthlyStats>((ref) {
       converter: ref.watch(hkdConverterProvider));
 });
 
-/// 範圍內每個月的收入與支出，畫長條圖用。
+/// Income and expense for each month in the range, used to draw the bar chart.
 final periodMonthlyTotalsProvider = Provider<List<MonthTotals>>((ref) {
   final range = ref.watch(statsRangeProvider);
   final all = ref.watch(transactionsProvider).value ?? [];
   return monthlyTotals(all, range, converter: ref.watch(hkdConverterProvider));
 });
 
-/// 算出某個月份的統計。
+/// Computes the statistics for one month.
 MonthlyStats computeMonthlyStats(
   List<TransactionRecord> all,
   DateTime month, {
@@ -123,8 +123,8 @@ MonthlyStats computeMonthlyStats(
   );
 }
 
-/// 算出 [start]（含）到 [end]（不含）之間的統計。
-/// 給了 [converter] 就把每筆金額折成港幣再加總；沒給就直接用原本的金額。
+/// Computes statistics from [start] (inclusive) to [end] (exclusive).
+/// With a [converter], each amount is converted to HKD before summing; without one, the original amounts are used.
 MonthlyStats computeRangeStats(
   List<TransactionRecord> all,
   DateTime start,
@@ -164,22 +164,22 @@ final recurringRulesProvider = StreamProvider<List<RecurringRule>>((ref) {
       .watch();
 });
 
-/// 固定收支規則一有變動（包含 App 剛啟動），就補上到期的交易。
-/// 產生交易後 lastGenerated 會更新，規則串流再發一次，但第二次不會再產生新的，所以不會無限循環。
+/// Whenever the recurring rules change (including right after the app starts), creates any due transactions.
+/// Creating transactions updates lastGenerated, so the rules stream emits again, but the second pass creates nothing new, so there is no infinite loop.
 final recurringSyncProvider = Provider<void>((ref) {
   final rules = ref.watch(recurringRulesProvider).value;
   if (rules == null) return;
   generateDueTransactions(ref.read(databaseProvider));
 });
 
-/// 帳戶一有變動就重新排程信用卡繳款提醒。在 App 最上層 watch 它即可。
+/// Reschedules the credit card due-date reminders whenever accounts change. Just watch it at the top of the app.
 final reminderSyncProvider = Provider<void>((ref) {
   final accounts = ref.watch(allAccountsProvider).value;
   if (accounts == null) return;
   NotificationService.instance.rescheduleCreditCardReminders(accounts);
 });
 
-/// 使用中的帳戶（未封存）。
+/// Active (non-archived) accounts.
 final accountsProvider = Provider<AsyncValue<List<Account>>>((ref) {
   return ref
       .watch(allAccountsProvider)
@@ -191,7 +191,7 @@ final categoriesProvider = StreamProvider<List<Category>>((ref) {
   return db.select(db.categories).watch();
 });
 
-/// 所有交易，新的在前面。
+/// All transactions, newest first.
 final transactionsProvider = StreamProvider<List<TransactionRecord>>((ref) {
   final db = ref.watch(databaseProvider);
   return (db.select(db.transactions)
@@ -202,21 +202,21 @@ final transactionsProvider = StreamProvider<List<TransactionRecord>>((ref) {
       .watch();
 });
 
-/// 每個帳戶目前的餘額（單位：分，用該帳戶自己的貨幣），key 是帳戶 id。
-/// 已封存帳戶不在裡面，它的交易就不計入。
+/// Each account's current balance (in cents, in that account's own currency), keyed by account id.
+/// Archived accounts are not included, so their transactions are not counted.
 final balancesProvider = Provider<Map<int, int>>((ref) {
   final accounts = ref.watch(accountsProvider).value ?? [];
   final txs = ref.watch(transactionsProvider).value ?? [];
   return computeBalances(accounts, txs);
 });
 
-/// 匯率（外幣 -> 港幣），由使用者手動設定。
+/// Exchange rates (foreign currency -> HKD), set by the user manually or updated automatically.
 final exchangeRatesProvider = StreamProvider<List<ExchangeRate>>((ref) {
   final db = ref.watch(databaseProvider);
   return db.select(db.exchangeRates).watch();
 });
 
-/// 把各貨幣折成港幣的換算器，帳戶或匯率一變就會更新。
+/// A converter that turns each currency into HKD; it updates whenever accounts or rates change.
 final hkdConverterProvider = Provider<HkdConverter>((ref) {
   return HkdConverter.from(
     accounts: ref.watch(allAccountsProvider).value ?? [],
@@ -224,7 +224,7 @@ final hkdConverterProvider = Provider<HkdConverter>((ref) {
   );
 });
 
-/// 總資產（港幣，單位：分）：所有使用中帳戶的餘額折成港幣後加總。
+/// Total balance (in HKD cents): the balances of all active accounts converted to HKD and summed.
 final totalAssetsHkdProvider = Provider<int>((ref) {
   final accounts = ref.watch(accountsProvider).value ?? [];
   final balances = ref.watch(balancesProvider);
@@ -235,7 +235,7 @@ final totalAssetsHkdProvider = Provider<int>((ref) {
   );
 });
 
-/// 使用中的帳戶裡，用到但還沒設定匯率的外幣。有的話折合的港幣金額就不完整。
+/// Foreign currencies used by active accounts that have no rate set yet. If any exist, the HKD amounts are incomplete.
 final missingRateCurrenciesProvider = Provider<Set<String>>((ref) {
   final accounts = ref.watch(accountsProvider).value ?? [];
   final converter = ref.watch(hkdConverterProvider);
@@ -245,7 +245,7 @@ final missingRateCurrenciesProvider = Provider<Set<String>>((ref) {
   };
 });
 
-/// 匯率自動更新的狀態，匯率分頁用來顯示「更新中」「上次更新」「失敗原因」。
+/// State of the automatic exchange-rate update, used by the rates tab to show "updating", "last updated", and the failure reason.
 class RateUpdateState {
   const RateUpdateState({
     this.isLoading = false,
@@ -255,10 +255,10 @@ class RateUpdateState {
 
   final bool isLoading;
 
-  /// 上一次更新失敗的原因；成功或還沒更新過是 null。
+  /// Why the last update failed; null if it succeeded or has not run yet.
   final String? error;
 
-  /// 這次開著 App 期間，最近一次成功更新的時間。
+  /// When the most recent successful update happened during this app session.
   final DateTime? lastSuccess;
 }
 
@@ -266,7 +266,7 @@ class RateUpdater extends Notifier<RateUpdateState> {
   @override
   RateUpdateState build() => const RateUpdateState();
 
-  /// 去抓最新匯率並更新。成功回傳 true；失敗（沒網路等）回傳 false，原因在 state.error。
+  /// Fetches the latest rates and updates them. Returns true on success; returns false on failure (e.g. offline), with the reason in state.error.
   Future<bool> refresh() async {
     if (state.isLoading) return false;
     state = RateUpdateState(isLoading: true, lastSuccess: state.lastSuccess);
@@ -290,8 +290,8 @@ class RateUpdater extends Notifier<RateUpdateState> {
 final rateUpdaterProvider =
     NotifierProvider<RateUpdater, RateUpdateState>(RateUpdater.new);
 
-/// 開啟 App（以及帳戶有變動）時，需要的話自動更新匯率。在 App 最上層 watch 它即可。
-/// 沒網路等失敗都靜靜略過，不打擾使用者；失敗原因會留在 [rateUpdaterProvider]。
+/// When the app opens (and when accounts change), updates the exchange rates automatically if needed. Just watch it at the top of the app.
+/// Failures such as being offline are skipped silently without bothering the user; the reason stays in [rateUpdaterProvider].
 final rateStartupSyncProvider = FutureProvider<void>((ref) async {
   final accounts = (await ref.watch(allAccountsProvider.future))
       .where((a) => !a.isArchived)

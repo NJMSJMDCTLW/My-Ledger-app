@@ -4,7 +4,7 @@ import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 
-/// 每個月的收入（綠）與支出（紅）長條圖。點長條會顯示金額。
+/// Bar chart of income (green) and expense (red) for each month. Tapping a bar shows its amount.
 class MonthlyBarChart extends StatelessWidget {
   const MonthlyBarChart({
     super.key,
@@ -14,7 +14,7 @@ class MonthlyBarChart extends StatelessWidget {
 
   final List<MonthTotals> totals;
 
-  /// 月份很多（一年 12 個）時，底下只寫數字，不加「月」字。
+  /// With many months (12 in a year), label with just the number and omit the month word.
   final bool compactLabels;
 
   @override

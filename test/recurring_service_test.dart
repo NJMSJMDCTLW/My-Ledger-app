@@ -42,15 +42,15 @@ void main() {
     return rows.map((t) => t.date).toList();
   }
 
-  test('補上開始日期之後所有已到期的月份', () async {
+  test('Fills in every due month after the start date', () async {
     await addRule(day: 5, start: DateTime(2026, 8, 20));
-    // 8/20 開始 -> 8/5 在開始之前不算；9/5、10/5 已到期；11/5 還沒到
+    // Starting 8/20: 8/5 is before the start and does not count; 9/5 and 10/5 are due; 11/5 is not yet
     final n = await generateDueTransactions(db, now: DateTime(2026, 10, 26));
     expect(n, 2);
     expect(await generatedDates(), [DateTime(2026, 9, 5), DateTime(2026, 10, 5)]);
   });
 
-  test('重複執行不會重複產生', () async {
+  test('Running again does not create duplicates', () async {
     await addRule(day: 5, start: DateTime(2026, 9, 1));
     final now = DateTime(2026, 10, 26);
     expect(await generateDueTransactions(db, now: now), 2);
@@ -58,14 +58,14 @@ void main() {
     expect((await generatedDates()).length, 2);
   });
 
-  test('隔了幾個月再開 App 會補上漏掉的', () async {
+  test('Opening the app after several months fills in the missed ones', () async {
     await addRule(day: 5, start: DateTime(2026, 9, 1));
     await generateDueTransactions(db, now: DateTime(2026, 10, 26));
     final n = await generateDueTransactions(db, now: DateTime(2027, 1, 10));
     expect(n, 3); // 11/5、12/5、1/5
   });
 
-  test('31 號遇到小月改在月底', () async {
+  test('Day 31 falls back to the last day in shorter months', () async {
     await addRule(day: 31, start: DateTime(2026, 1, 1));
     await generateDueTransactions(db, now: DateTime(2026, 3, 31));
     expect(await generatedDates(), [
@@ -75,13 +75,13 @@ void main() {
     ]);
   });
 
-  test('當天剛好到期就會產生，還沒到就不會', () async {
+  test('Generated on the exact due day, not before', () async {
     await addRule(day: 26, start: DateTime(2026, 10, 1));
     expect(await generateDueTransactions(db, now: DateTime(2026, 10, 25)), 0);
     expect(await generateDueTransactions(db, now: DateTime(2026, 10, 26)), 1);
   });
 
-  test('暫停中的規則不產生', () async {
+  test('A paused rule generates nothing', () async {
     await addRule(day: 5, start: DateTime(2026, 9, 1), active: false);
     expect(await generateDueTransactions(db, now: DateTime(2026, 10, 26)), 0);
   });

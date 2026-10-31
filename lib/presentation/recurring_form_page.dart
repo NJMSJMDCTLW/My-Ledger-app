@@ -9,11 +9,11 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:intl/intl.dart';
 
-/// 新增或編輯一條固定收支規則。
+/// Add or edit a recurring rule.
 class RecurringFormPage extends ConsumerStatefulWidget {
   const RecurringFormPage({super.key, this.existing});
 
-  /// 有值代表編輯這條規則；null 代表新增。
+  /// Non-null means editing this rule; null means adding a new one.
   final RecurringRule? existing;
 
   @override
@@ -126,7 +126,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
   @override
   Widget build(BuildContext context) {
     final ex = widget.existing;
-    // 編輯時，即使規則用的帳戶已封存也要能顯示
+    // When editing, show the account even if the rule's account has been archived
     final accounts = (ref.watch(allAccountsProvider).value ?? [])
         .where((a) =>
             !a.isArchived || a.id == ex?.accountId || a.id == ex?.toAccountId)
@@ -166,7 +166,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                     selected: {_type},
                     onSelectionChanged: (s) => setState(() {
                       _type = s.first;
-                      _categoryId = null; // 收入/支出的類別不同，切換時清掉
+                      _categoryId = null; // income and expense have different categories, so clear it when switching
                     }),
                   ),
                   const SizedBox(height: 16),
@@ -225,7 +225,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                       validator: (v) {
                         if (v == null) return '請選擇轉入帳戶';
                         if (v == _accountId) return '不能轉給同一個帳戶';
-                        // 固定轉帳每月自動記，沒辦法每次問實際收到多少，所以只支援同貨幣
+                        // A recurring transfer is recorded automatically every month and cannot ask how much was actually received each time, so only same-currency accounts are supported
                         if (_currencyOf(v) != _currencyOf(_accountId)) {
                           return '固定轉帳暫不支援不同貨幣的帳戶';
                         }
@@ -234,7 +234,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                     )
                   else
                     DropdownButtonFormField<int>(
-                      key: ValueKey(categoryType), // 類型改變時重建，清掉舊選項
+                      key: ValueKey(categoryType), // rebuild when the type changes to clear the old choice
                       initialValue: _categoryId,
                       decoration: const InputDecoration(labelText: '類別'),
                       items: [

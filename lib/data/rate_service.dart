@@ -6,12 +6,12 @@ import 'package:drift/drift.dart';
 import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/data/app_database.dart';
 
-/// 匯率資料來源：ExchangeRate-API 的免費公開端點（不需要金鑰，每天更新一次）。
-/// 使用條款要求註明來源，所以匯率分頁會顯示 [rateSourceName]。
+/// Exchange-rate source: the free open endpoint of ExchangeRate-API (no key needed, updated once a day).
+/// Its terms require attribution, so the rates tab shows [rateSourceName].
 const rateSourceUrl = 'https://open.er-api.com/v6/latest/$baseCurrency';
 const rateSourceName = 'ExchangeRate-API (exchangerate-api.com)';
 
-/// 抓匯率失敗（沒網路、伺服器錯誤、格式不對）。[message] 可以直接顯示給使用者。
+/// Fetching rates failed (offline, server error, bad format). [message] can be shown to the user directly.
 class RateFetchException implements Exception {
   const RateFetchException(this.message);
 
@@ -21,10 +21,10 @@ class RateFetchException implements Exception {
   String toString() => message;
 }
 
-/// 取得匯率原始 JSON 的函式。測試時可以換成假的，不用真的連網路。
+/// A function that returns the raw rates JSON. Tests can swap in a fake one so no real network is used.
 typedef RateFetcher = Future<String> Function();
 
-/// 真的連到網路抓匯率。
+/// Actually fetches the rates over the network.
 Future<String> fetchRatesFromNetwork() async {
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
   try {
@@ -52,10 +52,10 @@ Future<String> fetchRatesFromNetwork() async {
   }
 }
 
-/// 解析匯率 JSON，回傳「貨幣代碼 -> 1 單位外幣等於多少港幣」。
+/// Parses the rates JSON and returns "currency code -> how many HKD one unit of it is worth".
 ///
-/// 服務回傳的是「1 港幣可以換多少外幣」，所以要取倒數。
-/// 數字不合理（缺少、0、負數）的貨幣會被略過。
+/// The service returns "how much of a currency 1 HKD buys", so each value is inverted.
+/// Currencies with an unreasonable number (missing, 0, or negative) are skipped.
 Map<String, double> parseRatesResponse(String body) {
   final Object? decoded;
   try {
@@ -79,10 +79,10 @@ Map<String, double> parseRatesResponse(String body) {
   return result;
 }
 
-/// 更新所有支援的外幣匯率，回傳更新了幾種。
+/// Updates the rates of all supported foreign currencies and returns how many were updated.
 ///
-/// 使用者手動設定的匯率（isManual）不會被覆蓋。
-/// 沒抓到的貨幣維持原本的值。抓失敗會丟出 [RateFetchException]，資料庫不動。
+/// Rates the user set manually (isManual) are never overwritten.
+/// Currencies that were not fetched keep their previous value. A failed fetch throws [RateFetchException] and leaves the database untouched.
 Future<int> updateExchangeRates(
   AppDatabase db, {
   RateFetcher? fetch,
@@ -117,7 +117,7 @@ Future<int> updateExchangeRates(
   return updated;
 }
 
-/// 使用者自己填的匯率：標成手動，之後自動更新不會蓋掉。
+/// A rate the user entered: marked manual, so automatic updates will not overwrite it.
 Future<void> setManualRate(AppDatabase db, String currency, double rate) {
   return db.into(db.exchangeRates).insertOnConflictUpdate(
         ExchangeRatesCompanion.insert(
@@ -129,17 +129,17 @@ Future<void> setManualRate(AppDatabase db, String currency, double rate) {
       );
 }
 
-/// 把某個匯率改回自動更新（下次更新時會換成最新的）。
+/// Switches a rate back to automatic updates (it is replaced with the latest one on the next update).
 Future<void> useAutomaticRate(AppDatabase db, String currency) {
   return (db.update(db.exchangeRates)..where((r) => r.currency.equals(currency)))
       .write(const ExchangeRatesCompanion(isManual: Value(false)));
 }
 
-/// App 啟動時要不要自動去抓匯率。
+/// Whether to fetch the rates automatically when the app starts.
 ///
-/// 只有用得到外幣的時候才抓（沒有外幣帳戶就不連網路）：
-/// 有外幣還沒有匯率，或自動更新的匯率已經超過 [maxAge] 沒更新。
-/// 手動設定的匯率不算。
+/// Only fetch when a foreign currency is actually in use (no foreign-currency accounts means no network use):
+/// a foreign currency has no rate yet, or its automatic rate has not been updated for more than [maxAge].
+/// Manually set rates do not count.
 bool shouldAutoUpdate({
   required List<ExchangeRate> rates,
   required Set<String> currenciesInUse,

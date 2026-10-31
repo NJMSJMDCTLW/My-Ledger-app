@@ -2,7 +2,7 @@ import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/hkd_converter.dart';
 
-/// 統計分頁可以看的時間範圍。
+/// The time ranges the statistics tab can show.
 enum StatsPeriod { month, sixMonths, year }
 
 extension StatsPeriodLabel on StatsPeriod {
@@ -12,14 +12,14 @@ extension StatsPeriodLabel on StatsPeriod {
         StatsPeriod.year => '一年',
       };
 
-  /// 比較對象的名稱，用在「上月」「前六個月」「去年」這類文字。
+  /// Name of the comparison target, used in text like "last month", "the previous six months", "last year".
   String get previousName => switch (this) {
         StatsPeriod.month => '上月',
         StatsPeriod.sixMonths => '前六個月',
         StatsPeriod.year => '去年',
       };
 
-  /// 按左右箭頭時，一次移動幾個月。
+  /// How many months the left/right arrows move at a time.
   int get stepMonths => switch (this) {
         StatsPeriod.month => 1,
         StatsPeriod.sixMonths => 6,
@@ -27,7 +27,7 @@ extension StatsPeriodLabel on StatsPeriod {
       };
 }
 
-/// 一個統計範圍，以及用來比較的「上一期」範圍。日期都是月初，[end] 不含。
+/// A statistics range, plus the "previous period" range used for comparison. Dates are month starts; [end] is exclusive.
 class StatsRange {
   const StatsRange({
     required this.start,
@@ -41,14 +41,14 @@ class StatsRange {
   final DateTime previousStart;
   final DateTime previousEnd;
 
-  /// 範圍內的每個月（月初）。
+  /// Every month in the range (as month starts).
   List<DateTime> get months => _monthsBetween(start, end);
 }
 
-/// 以 [anchor]（某月月初）為基準算出範圍：
-/// - 每月：就是那一個月。
-/// - 近六個月：以 [anchor] 為最後一個月，往前共六個月。
-/// - 一年：[anchor] 所在的那一整個日曆年（1 月到 12 月）。
+/// Computes the range relative to [anchor] (the start of some month):
+/// - Monthly: just that one month.
+/// - Last six months: [anchor] is the last month, going back six months in total.
+/// - One year: the whole calendar year that [anchor] falls in (January to December).
 StatsRange statsRangeFor(StatsPeriod period, DateTime anchor) {
   final a = DateTime(anchor.year, anchor.month);
   switch (period) {
@@ -86,14 +86,14 @@ List<DateTime> _monthsBetween(DateTime start, DateTime end) {
   return result;
 }
 
-/// 計算「月平均」要除以幾個月：範圍內已經開始的月份（不含還沒到的未來月份），至少 1。
+/// How many months to divide by for a "monthly average": months in the range that have started (excluding future months), at least 1.
 int elapsedMonthCount(StatsRange range, DateTime now) {
   final thisMonth = DateTime(now.year, now.month);
   final count = range.months.where((m) => !m.isAfter(thisMonth)).length;
   return count < 1 ? 1 : count;
 }
 
-/// 某個月的收入與支出（單位：分），畫長條圖用。轉帳不算。
+/// Income and expense for one month (in cents), used to draw the bar chart. Transfers are not counted.
 class MonthTotals {
   const MonthTotals(this.month, this.income, this.expense);
 
@@ -102,8 +102,8 @@ class MonthTotals {
   final int expense;
 }
 
-/// 把 [range] 內每個月的收入、支出分別加總，沒有交易的月份是 0。
-/// 給了 [converter] 就把每筆金額折成港幣再加總。
+/// Sums income and expense separately for each month in [range]; a month with no transactions is 0.
+/// With a [converter], each amount is converted to HKD before summing.
 List<MonthTotals> monthlyTotals(
   List<TransactionRecord> all,
   StatsRange range, {

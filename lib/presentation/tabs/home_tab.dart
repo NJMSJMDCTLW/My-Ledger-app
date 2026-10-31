@@ -15,8 +15,8 @@ import 'package:hello_ledger/presentation/widgets/month_selector.dart';
 import 'package:hello_ledger/presentation/widgets/month_summary.dart';
 import 'package:hello_ledger/presentation/widgets/transaction_tile.dart';
 
-/// 首頁：總資產、當月收支、簡單的支出圓餅圖、依日期分組的交易。
-/// 詳細的類別資料在「統計」分頁，由 [onOpenStats] 切過去。
+/// Home: total balance, this month's income and expense, a simple expense pie chart, and transactions grouped by day.
+/// The detailed category breakdown is on the "Statistics" tab, reached through [onOpenStats].
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key, required this.onOpenStats});
 
@@ -30,12 +30,12 @@ class HomeTab extends ConsumerWidget {
     final month = ref.watch(selectedMonthProvider);
     final converter = ref.watch(hkdConverterProvider);
 
-    // 總資產：各帳戶餘額折成港幣後加總
+    // Total balance: each account's balance converted to HKD and summed
     final total = ref.watch(totalAssetsHkdProvider);
     final accountNames = {for (final a in allAccounts) a.id: a.name};
     final categoryById = {for (final c in categories) c.id: c};
 
-    // 依日期分組，保持新的在前面
+    // Group by day, keeping the newest first
     final days = <DateTime, List<TransactionRecord>>{};
     for (final t in stats.txs) {
       final day = DateTime(t.date.year, t.date.month, t.date.day);
@@ -47,7 +47,7 @@ class HomeTab extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 96),
       children: [
-        // 總資產
+        // Total balance
         Card(
           color: theme.colorScheme.primaryContainer,
           child: Padding(
@@ -78,7 +78,7 @@ class HomeTab extends ConsumerWidget {
         const MonthSelector(),
         MonthSummary(stats: stats),
 
-        // 支出圓餅圖（只有圖，詳細資料到「統計」分頁看）
+        // Expense pie chart (chart only; details are on the "Statistics" tab)
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 8, 0),
           child: Row(
@@ -94,13 +94,13 @@ class HomeTab extends ConsumerWidget {
           ),
         ),
         ExpenseBreakdown(
-          key: ValueKey(month), // 換月份時重置選取狀態
+          key: ValueKey(month), // reset the selection when the month changes
           rows: stats.categoryRows,
           total: stats.expense,
           categories: categories,
         ),
 
-        // 每日交易
+        // Daily transactions
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 16, 4),
           child: Text('交易紀錄', style: theme.textTheme.titleMedium),
@@ -135,7 +135,7 @@ class HomeTab extends ConsumerWidget {
   }
 }
 
-/// 每天的標題：日期、星期，以及當天的結餘（收入減支出）。
+/// The heading for each day: the date, the weekday, and that day's balance (income minus expense).
 class _DayHeader extends StatelessWidget {
   const _DayHeader({
     required this.day,
@@ -151,7 +151,7 @@ class _DayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 當天結餘一律折成港幣，不同貨幣的交易才能加在一起
+    // Always convert the day's balance to HKD, so transactions in different currencies can be added together
     var balance = 0;
     for (final t in txs) {
       if (t.type == TransactionType.income) balance += converter.amountOf(t);

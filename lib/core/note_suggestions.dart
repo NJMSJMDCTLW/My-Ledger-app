@@ -1,12 +1,12 @@
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 
-/// 從過去的交易整理出備註推薦清單，依類別分組：只推薦「同一個類別」用過的備註。
+/// Builds the note suggestion list from past transactions, grouped by category: only notes used in the *same category* are suggested.
 ///
-/// - 收入、支出要先選好類別（[categoryId]）才有推薦，沒選類別回傳空清單。
-/// - 轉帳沒有類別，所以推薦所有轉帳用過的備註。
-/// - 排序：用過越多次的越前面，次數一樣則越近用過的越前面。
-/// - [query] 有字的話，只留下包含該文字的備註（不分大小寫）。
+/// - For income and expense a category ([categoryId]) must be picked first; with no category the list is empty.
+/// - Transfers have no category, so every note used on a transfer is suggested.
+/// - Order: notes used more often come first; ties go to the most recently used.
+/// - If [query] is non-empty, only notes containing that text are kept (case-insensitive).
 List<String> suggestNotes(
   List<TransactionRecord> transactions, {
   required TransactionType type,

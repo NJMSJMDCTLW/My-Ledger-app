@@ -1,9 +1,9 @@
-/// 計算機用的四則運算，支援 + − × ÷、小數、先乘除後加減。
+/// Four-function arithmetic for the calculator: + − × ÷, decimals, multiplication/division before addition/subtraction.
 ///
-/// 算式不完整（空的、結尾是運算符號）時會忽略結尾的符號；
-/// 除以 0 或格式錯誤回傳 null。
+/// An incomplete expression (empty, or ending in an operator) ignores the trailing operator;
+/// division by zero or a malformed expression returns null.
 double? evaluateExpression(String expression) {
-  // 統一符號，並去掉結尾多餘的運算符號（例如使用者打到「12+」）
+  // Normalize symbols and strip trailing operators (e.g. the user typed "12+")
   var s = expression
       .replaceAll('×', '*')
       .replaceAll('÷', '/')
@@ -14,14 +14,14 @@ double? evaluateExpression(String expression) {
   }
   if (s.isEmpty) return null;
 
-  // 切成數字與運算符號
-  final tokens = <Object>[]; // double 或 String（運算符號）
+  // Split into numbers and operators
+  final tokens = <Object>[]; // double or String (an operator)
   final buffer = StringBuffer();
   for (var i = 0; i < s.length; i++) {
     final ch = s[i];
     if ('+-*/'.contains(ch)) {
       if (buffer.isEmpty) {
-        // 開頭的負號：併入數字
+        // A leading minus sign belongs to the number
         if (ch == '-' && (tokens.isEmpty || tokens.last is String)) {
           buffer.write(ch);
           continue;
@@ -42,7 +42,7 @@ double? evaluateExpression(String expression) {
   if (last == null) return null;
   tokens.add(last);
 
-  // 先處理乘除
+  // Handle multiplication and division first
   final addSub = <Object>[tokens.first];
   for (var i = 1; i < tokens.length; i += 2) {
     final op = tokens[i] as String;
@@ -58,7 +58,7 @@ double? evaluateExpression(String expression) {
     }
   }
 
-  // 再處理加減
+  // Then addition and subtraction
   var result = addSub.first as double;
   for (var i = 1; i < addSub.length; i += 2) {
     final right = addSub[i + 1] as double;
@@ -67,7 +67,7 @@ double? evaluateExpression(String expression) {
   return result;
 }
 
-/// 把算式結果轉成輸入框要用的字串，固定兩位小數（避免 0.1+0.2 這類浮點誤差）。
+/// Turns an expression result into the string for the input field, always two decimals (avoids floating-point errors like 0.1+0.2).
 String formatCalculatorResult(double value) {
   return ((value * 100).round() / 100).toStringAsFixed(2);
 }

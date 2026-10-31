@@ -1,7 +1,7 @@
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/hkd_converter.dart';
 
-/// 一筆交易最後要存的金額：帳戶貨幣的金額，以及（貨幣不同時）使用者輸入的原始值。
+/// The amount a transaction is finally stored with: the amount in the account's currency, plus (when the currencies differ) the original value the user entered.
 class EntryAmount {
   const EntryAmount({
     required this.amount,
@@ -9,20 +9,20 @@ class EntryAmount {
     this.originalCurrency,
   });
 
-  /// 帳戶貨幣的金額（單位：分），餘額與統計都用這個。
+  /// Amount in the account's currency (in cents); balances and statistics use this.
   final int amount;
 
-  /// 使用者輸入的原始金額與貨幣；輸入的貨幣和帳戶相同時是 null。
+  /// The original amount and currency the user entered; null when the entry currency equals the account's.
   final int? originalAmount;
   final String? originalCurrency;
 }
 
-/// 把使用者輸入的金額（用 [entryCurrency] 計）換成帳戶貨幣的金額。
+/// Converts the amount the user entered (in [entryCurrency]) to an amount in the account's currency.
 ///
-/// - 輸入貨幣和帳戶貨幣一樣：直接用，不用換算。
-/// - 不一樣：依「目前」匯率換算。有匯率沒設定就回傳 null。
-/// - 編輯舊交易時，如果輸入的貨幣、金額、帳戶都沒變，沿用原本換算好的金額，
-///   這樣只是改個備註不會因為匯率變了而讓金額跟著跑掉。
+/// - Entry currency equals the account currency: used as is, no conversion.
+/// - Otherwise: converted at the *current* rate. Returns null if a rate is missing.
+/// - When editing an existing transaction and the entry currency, amount and account are all unchanged, the
+///   previously converted amount is kept, so editing just a note does not shift the amount because the rate changed.
 EntryAmount? resolveEntryAmount({
   required int enteredCents,
   required String entryCurrency,

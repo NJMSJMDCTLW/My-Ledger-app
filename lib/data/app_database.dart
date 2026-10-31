@@ -22,21 +22,21 @@ class AppDatabase extends _$AppDatabase {
           await _seedCategories();
         },
         onUpgrade: (m, from, to) async {
-          // v1 -> v2：新增固定收支的資料表，原本的資料不動
+          // v1 -> v2: add the recurring rules table; existing data is untouched
           if (from < 2) await m.createTable(recurringRules);
-          // v2 -> v3：多貨幣。新增匯率表，以及轉帳的「轉入金額」欄位
+          // v2 -> v3: multi-currency. Add the exchange rates table and the transfer "to amount" column
           if (from < 3) {
-            // 這張表是照最新的樣子建的，已經包含 v4 的 isManual 欄位
+            // This table is created in its latest shape, so it already includes the v4 isManual column
             await m.createTable(exchangeRates);
             await m.addColumn(transactions, transactions.toAmount);
           }
-          // v3 -> v4：匯率可以自動更新。v3 的匯率都是使用者自己填的，標成手動，
-          // 這樣第一次自動更新時不會把它們蓋掉
+          // v3 -> v4: exchange rates can update automatically. The v3 rates were all entered by the user, so mark them manual
+          // so the first automatic update does not overwrite them
           if (from == 3) {
             await m.addColumn(exchangeRates, exchangeRates.isManual);
             await customStatement('UPDATE exchange_rates SET is_manual = 1');
           }
-          // v4 -> v5：交易可以用別的貨幣輸入，保留原始金額與貨幣
+          // v4 -> v5: a transaction can be entered in another currency; keep the original amount and currency
           if (from < 5) {
             await m.addColumn(transactions, transactions.originalAmount);
             await m.addColumn(transactions, transactions.originalCurrency);

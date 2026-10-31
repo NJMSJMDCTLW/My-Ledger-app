@@ -10,8 +10,8 @@ import 'package:hello_ledger/presentation/widgets/monthly_bar_chart.dart';
 import 'package:hello_ledger/presentation/widgets/period_comparison.dart';
 import 'package:hello_ledger/presentation/widgets/period_selector.dart';
 
-/// 統計分頁：可以看每月、近六個月、一年。
-/// 內容有收支總覽、每月長條圖（多個月才有）、和上一期的比較、支出圓餅圖與類別明細。
+/// The statistics tab: monthly, last six months, or one year.
+/// It shows the income/expense overview, a monthly bar chart (multi-month views only), a comparison with the previous period, the expense pie chart and the category breakdown.
 class StatsTab extends ConsumerWidget {
   const StatsTab({super.key});
 
@@ -35,7 +35,7 @@ class StatsTab extends ConsumerWidget {
         MonthSummary(stats: stats),
         const HkdNote(),
 
-        // 多個月才有：每月平均與長條圖
+        // Multi-month views only: monthly averages and the bar chart
         if (isMultiMonth) ...[
           Card(
             child: Padding(
@@ -96,7 +96,7 @@ class StatsTab extends ConsumerWidget {
           total: stats.expense,
           categories: categories,
           showList: true,
-          // 上一期完全沒有紀錄就不顯示類別比較，避免每個類別都標「新增」
+          // If the previous period has no records at all, skip the category comparison so every category is not marked "new"
           previousByCategory: previous.txs.isEmpty
               ? null
               : {for (final r in previous.categoryRows) r.key: r.value},
@@ -108,7 +108,7 @@ class StatsTab extends ConsumerWidget {
 
   static String _comparisonTitle(StatsPeriod period, StatsRange range) {
     final prevStart = range.previousStart;
-    // previousEnd 不含，所以上一期的最後一個月是它的前一個月
+    // previousEnd is exclusive, so the last month of the previous period is the month before it
     final prevLast = DateTime(range.previousEnd.year, range.previousEnd.month - 1);
     return switch (period) {
       StatsPeriod.month => '與上個月比較（${prevStart.month} 月）',

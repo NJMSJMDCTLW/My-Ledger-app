@@ -6,11 +6,11 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/presentation/widgets/delta_text.dart';
 
-/// 支出類別的圓餅圖。[showList] 為 true 時，下方多一份詳細的類別清單。
-/// [rows] 是（類別 id，金額），要先由大到小排好。
+/// Pie chart of expense categories. When [showList] is true, a detailed category list follows below.
+/// [rows] are (category id, amount) and must already be sorted from largest to smallest.
 ///
-/// 給了 [previousByCategory]（上個月各類別的支出）時，清單每個類別會顯示和上個月的比較，
-/// 上個月有花、這個月完全沒花的類別也會列在最後面。
+/// When [previousByCategory] (last period's expense per category) is given, each category in the list shows its comparison with that period,
+/// and categories with spending last period but none this period are listed at the end.
 class ExpenseBreakdown extends StatefulWidget {
   const ExpenseBreakdown({
     super.key,
@@ -28,7 +28,7 @@ class ExpenseBreakdown extends StatefulWidget {
   final bool showList;
   final Map<int?, int>? previousByCategory;
 
-  /// 比較對象的名稱，例如「上月」「前六個月」「去年」。
+  /// Name of the comparison target, e.g. "last month", "the previous six months", "last year".
   final String previousName;
 
   @override
@@ -36,7 +36,7 @@ class ExpenseBreakdown extends StatefulWidget {
 }
 
 class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
-  int? _touched; // 被點到的區塊
+  int? _touched; // the section that was tapped
 
   Category? _categoryOf(int? id) {
     for (final c in widget.categories) {
@@ -47,7 +47,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
 
   String? _nameOf(int? id) => _categoryOf(id)?.name;
 
-  /// 清單用的列：這個月有花的類別，加上「上個月有花、這個月沒花」的類別（金額 0）。
+  /// Rows for the list: categories with spending this period, plus categories with spending last period but none this period (amount 0).
   List<MapEntry<int?, int>> get _listRows {
     final prev = widget.previousByCategory;
     if (prev == null) return widget.rows;
@@ -71,7 +71,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
     final touched =
         (_touched != null && _touched! < rows.length) ? rows[_touched!] : null;
 
-    // 沒有任何可顯示的東西（這個月沒花錢，也沒有要比較的上月類別）
+    // Nothing to show at all (no spending this period and no previous-period categories to compare)
     if (rows.isEmpty && !(widget.showList && listRows.isNotEmpty)) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 48),
@@ -102,7 +102,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                           value: rows[i].value.toDouble(),
                           color: AppTheme.categoryColor(rows[i].key),
                           radius: i == _touched ? 52 : 44,
-                          // 太小的區塊不放文字，避免擠在一起
+                          // no text on very small sections, to avoid crowding
                           title: rows[i].value / total >= 0.06
                               ? '${(rows[i].value / total * 100).round()}%'
                               : '',
@@ -124,7 +124,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                     ),
                   ),
                 ),
-                // 圓心：預設顯示總支出，點某個區塊就顯示該類別
+                // Center: shows the total expense by default, or that category when a section is tapped
                 IgnorePointer(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

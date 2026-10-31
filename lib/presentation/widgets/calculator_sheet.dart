@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/calculator.dart';
 
-/// 打開計算機，回傳使用者按「完成」時的金額字串（兩位小數）。取消或算式無效回傳 null。
+/// Opens the calculator and returns the amount string (two decimals) when the user presses "Done". Returns null if cancelled or the expression is invalid.
 Future<String?> showCalculator(BuildContext context, {String initial = ''}) {
   return showModalBottomSheet<String>(
     context: context,
@@ -25,7 +25,7 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
 
   late String _expr = _initialExpression(widget.initial);
 
-  /// 帶入原本的金額；0 或空的就從空白開始。
+  /// Brings in the existing amount; 0 or empty starts from blank.
   static String _initialExpression(String initial) {
     final value = double.tryParse(initial);
     if (value == null || value == 0) return '';
@@ -37,7 +37,7 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
   bool get _endsWithOperator =>
       _expr.isNotEmpty && _operators.contains(_expr[_expr.length - 1]);
 
-  /// 目前正在輸入的那個數字（最後一個運算符號之後的部分）。
+  /// The number currently being typed (the part after the last operator).
   String get _currentNumber {
     var i = _expr.length;
     while (i > 0 && !_operators.contains(_expr[i - 1])) {
@@ -57,9 +57,9 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
           if (_expr.isNotEmpty) _expr = _expr.substring(0, _expr.length - 1);
         case '+' || '−' || '×' || '÷':
           if (_expr.isEmpty) {
-            if (key == '−') _expr = key; // 允許負數開頭
+            if (key == '−') _expr = key; // allow a leading negative sign
           } else if (_endsWithOperator) {
-            // 連按兩個符號，後面的取代前面的
+            // pressing two operators in a row replaces the earlier one with the later one
             _expr = _expr.substring(0, _expr.length - 1) + key;
           } else {
             _expr += key;
@@ -71,8 +71,8 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
         case '=':
           final v = _value;
           if (v != null) _expr = _trim(formatCalculatorResult(v));
-        default: // 數字
-          // 小數最多兩位
+        default: // a digit
+          // at most two decimal places
           final cur = _currentNumber;
           if (cur.contains('.') && cur.split('.').last.length >= 2) return;
           _expr += key;
@@ -101,7 +101,7 @@ class _CalculatorSheetState extends State<_CalculatorSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 顯示區
+            // display area
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -23,10 +23,10 @@ class TransactionTile extends StatelessWidget {
   final String accountName;
   final VoidCallback onTap;
 
-  /// 這筆交易所屬帳戶的貨幣；金額用這個貨幣的符號顯示。
+  /// The currency of the account this transaction belongs to; the amount is shown with this currency's symbol.
   final String currency;
 
-  /// 外幣交易折合的港幣金額（單位：分）。港幣交易不用給。
+  /// The HKD amount a foreign-currency transaction converts to (in cents). Not needed for HKD transactions.
   final int? hkdAmount;
 
   @override
@@ -42,13 +42,13 @@ class TransactionTile extends StatelessWidget {
         foregroundColor: AppTheme.onMacaron,
         child: Icon(icon, size: 20),
       ),
-      // 有備註就接在類別後面，例如「餐飲 • 晚餐」
+      // If there is a note, append it after the category, e.g. "Food • Dinner"
       title: Text(
         tx.note.isEmpty ? title : '$title • ${tx.note}',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      // 用別的貨幣輸入的交易，附上當初輸入的原始金額，例如「現金 · 原幣 US$10.00」
+      // For a transaction entered in another currency, add the original amount, e.g. "Cash · original US$10.00"
       subtitle: isTransfer
           ? null
           : Text([
@@ -75,7 +75,7 @@ class TransactionTile extends StatelessWidget {
               },
             ),
           ),
-          // 外幣再附上折合的港幣
+          // for foreign currency, also show the HKD equivalent
           if (hkdAmount != null && currency != baseCurrency)
             Text(
               '≈ ${formatMoney(hkdAmount!, baseCurrency)}',
@@ -85,7 +85,7 @@ class TransactionTile extends StatelessWidget {
       ),
     );
 
-    // 每一筆都有自己的邊框
+    // every transaction gets its own border
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       shape: RoundedRectangleBorder(

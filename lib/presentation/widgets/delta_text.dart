@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/money.dart';
 
-/// 和上一期比較的文字，例如「▲ 120.00 (+25%)」。
+/// Text comparing with the previous period, e.g. "▲ 120.00 (+25%)".
 ///
-/// [higherIsBad] 為 true 時（支出），增加是紅色、減少是綠色；
-/// 為 false 時（收入、結餘）剛好相反。
+/// When [higherIsBad] is true (expenses), an increase is red and a decrease is green;
+/// when false (income, balance) it is the other way round.
 class DeltaText extends StatelessWidget {
   const DeltaText({
     super.key,
@@ -21,16 +21,16 @@ class DeltaText extends StatelessWidget {
   final int previous;
   final bool higherIsBad;
 
-  /// 是否顯示差額金額；列表空間小的地方只顯示百分比。
+  /// Whether to show the difference amount; places with little room show only the percentage.
   final bool showAmount;
 
-  /// 比較對象的名稱，例如「上月」「前六個月」「去年」。
+  /// Name of the comparison target, e.g. "last month", "the previous six months", "last year".
   final String previousName;
 
-  /// 上一期是 0、這一期有金額時顯示的字（類別明細會用「新增」）。沒給就用「○○無資料」。
+  /// Text shown when the previous period is 0 and this period has an amount (the category breakdown uses "new"). Defaults to "no data for ...".
   final String? noPreviousLabel;
 
-  /// 計算比較結果的文字。上一期是 0 時沒有百分比可算。
+  /// Builds the comparison text. When the previous period is 0 there is no percentage to compute.
   static String describe(
     int current,
     int previous, {

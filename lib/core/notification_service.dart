@@ -5,7 +5,7 @@ import 'package:hello_ledger/data/enums.dart';
 import 'package:intl/intl.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-/// 信用卡繳款提醒：在繳款日前 3 天與當天早上 9 點通知。
+/// Credit card due-date reminders: notifications 3 days before the due date and on the due date at 9:00.
 class NotificationService {
   NotificationService._();
   static final instance = NotificationService._();
@@ -23,7 +23,7 @@ class NotificationService {
     );
   }
 
-  /// 依目前的信用卡重新排程。先全部取消再重排，所以改繳款日、封存都會正確。
+  /// Reschedules based on the current credit cards. Everything is cancelled and rescheduled, so changing a due day or archiving a card stays correct.
   Future<void> rescheduleCreditCardReminders(List<Account> accounts) async {
     await _plugin.cancelAll();
 
@@ -31,7 +31,7 @@ class NotificationService {
         a.type == AccountType.creditCard && !a.isArchived && a.dueDay != null);
     if (cards.isEmpty) return;
 
-    // Android 13 以上要使用者同意才能發通知，已同意的話不會再跳視窗
+    // Android 13+ needs the user's consent to post notifications; no dialog is shown again once granted
     await _plugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
@@ -49,7 +49,7 @@ class NotificationService {
         final due = dayInMonth(month.year, month.month, card.dueDay!);
         final threeDaysBefore = due.subtract(const Duration(days: 3));
 
-        // id：每張卡每個月兩個，不會跟別張卡重複
+        // id: two per card per month, so it never collides with another card
         final baseId = card.id * 100 + k * 2;
         await _schedule(
           id: baseId,
@@ -74,13 +74,13 @@ class NotificationService {
     required String body,
     required DateTime now,
   }) async {
-    if (!at.isAfter(now)) return; // 已經過去的不排
+    if (!at.isAfter(now)) return; // do not schedule times already in the past
 
     await _plugin.zonedSchedule(
       id: id,
       title: '信用卡繳款提醒',
       body: body,
-      // 本機時間轉成同一個時間點的 UTC，不需要另外查時區
+      // Convert local time to the same instant in UTC, so no time zone lookup is needed
       scheduledDate: tz.TZDateTime.from(at, tz.UTC),
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
@@ -90,7 +90,7 @@ class NotificationService {
           priority: Priority.high,
         ),
       ),
-      // 不需要「精確鬧鐘」權限，可能有幾分鐘誤差
+      // Does not need the "exact alarm" permission; it may be off by a few minutes
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }

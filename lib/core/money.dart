@@ -3,17 +3,17 @@ import 'package:intl/intl.dart';
 
 final _fmt = NumberFormat('#,##0.00');
 
-/// 把「分」轉成顯示字串，例如 12345 -> 123.45
+/// Converts cents to a display string, e.g. 12345 -> 123.45
 String formatCents(int cents) => _fmt.format(cents / 100);
 
-/// 加上貨幣符號，例如 12345、USD -> US$123.45。負數把負號放在符號前面：-US$123.45。
+/// Adds a currency symbol, e.g. 12345, USD -> US$123.45. A negative puts the minus sign before the symbol: -US$123.45.
 String formatMoney(int cents, String currency) {
   final symbol = currencyInfo(currency).symbol;
   final text = '$symbol${_fmt.format(cents.abs() / 100)}';
   return cents < 0 ? '-$text' : text;
 }
 
-/// 把使用者輸入的字串轉成「分」。格式不對回傳 null。
+/// Converts a string the user typed into cents. Returns null if the format is invalid.
 int? parseCents(String input) {
   final value = double.tryParse(input.trim().replaceAll(',', ''));
   if (value == null) return null;

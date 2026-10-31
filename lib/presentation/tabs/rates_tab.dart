@@ -6,7 +6,7 @@ import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/rate_service.dart';
 import 'package:intl/intl.dart';
 
-/// 匯率分頁：外幣折合港幣用的匯率。預設自動更新，也可以自己填（填了就不會被自動更新蓋掉）。
+/// The rates tab: exchange rates used to convert foreign currencies to HKD. They update automatically by default, or you can enter one yourself (and it will not be overwritten by automatic updates).
 class RatesTab extends ConsumerWidget {
   const RatesTab({super.key});
 
@@ -19,7 +19,7 @@ class RatesTab extends ConsumerWidget {
     final accounts = ref.watch(accountsProvider).value ?? [];
     final inUse = {for (final a in accounts) a.currency};
 
-    // 使用中的外幣排前面，其餘照原本順序
+    // Currencies in use come first; the rest keep their original order
     final foreign = supportedCurrencies
         .where((c) => c.code != baseCurrency)
         .toList()
@@ -51,7 +51,7 @@ class RatesTab extends ConsumerWidget {
   }
 }
 
-/// 最上面的卡片：說明、立即更新按鈕、更新狀態。
+/// The card at the top: explanation, the update-now button, and the update status.
 class _UpdateCard extends ConsumerWidget {
   const _UpdateCard();
 
@@ -145,8 +145,8 @@ class _RateTile extends ConsumerWidget {
     final controller = TextEditingController(
       text: rate == null ? '' : _plain(rate!.rateToHkd),
     );
-    // 回傳 double 代表手動設定這個匯率；回傳 null 代表取消；
-    // 回傳 -1 代表「改回自動」
+    // Returns a double to set this rate manually; null means cancelled;
+    // -1 means "switch back to automatic"
     final result = await showDialog<double>(
       context: context,
       builder: (context) {
@@ -219,7 +219,7 @@ class _RateTile extends ConsumerWidget {
     }
   }
 
-  /// 去掉多餘的 0，例如 7.8000 -> 7.8
+  /// Removes trailing zeros, e.g. 7.8000 -> 7.8
   static String _plain(double v) {
     final s = v.toStringAsFixed(6);
     return s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');

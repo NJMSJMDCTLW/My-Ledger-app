@@ -15,7 +15,7 @@ import 'package:intl/intl.dart';
 class TransactionFormPage extends ConsumerStatefulWidget {
   const TransactionFormPage({super.key, this.existing});
 
-  /// 有值代表編輯這筆交易；null 代表新增。
+  /// Non-null means editing this transaction; null means adding a new one.
   final TransactionRecord? existing;
 
   @override
@@ -34,7 +34,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
   int? _toAccountId;
   int? _categoryId;
 
-  /// 使用者選的輸入貨幣；null 代表和帳戶貨幣相同（選填，預設就是 null）。
+  /// The input currency the user picked; null means the same as the account's currency (optional, null by default).
   String? _entryCurrency;
 
   bool get _isEditing => widget.existing != null;
@@ -49,7 +49,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _accountId = t.accountId;
       _toAccountId = t.toAccountId;
       _categoryId = t.categoryId;
-      // 當初用別的貨幣輸入的，編輯時顯示原始金額與貨幣
+      // If it was originally entered in another currency, show the original amount and currency when editing
       if (t.originalAmount != null && t.originalCurrency != null) {
         _entryCurrency = t.originalCurrency;
         _amount.text = (t.originalAmount! / 100).toStringAsFixed(2);
@@ -61,7 +61,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         _toAmount.text = (t.toAmount! / 100).toStringAsFixed(2);
       }
     } else {
-      // 新增交易：一進來就打開計算機，可以直接輸入金額
+      // New transaction: open the calculator right away so the amount can be typed immediately
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final accounts = ref.read(accountsProvider).value ?? [];
         if (mounted && accounts.isNotEmpty) _openCalculator();
@@ -69,7 +69,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     }
   }
 
-  /// 打開計算機，把結果填進 [target]（預設是金額欄）。
+  /// Opens the calculator and puts the result into [target] (the amount field by default).
   Future<void> _openCalculator([TextEditingController? target]) async {
     final controller = target ?? _amount;
     final result = await showCalculator(context, initial: controller.text);
@@ -84,18 +84,18 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     return ref.read(hkdConverterProvider).currencyOfAccount(accountId);
   }
 
-  /// 金額實際是用哪個貨幣輸入的：有選就用選的，沒選就是帳戶的貨幣。轉帳一律用帳戶的貨幣。
+  /// The currency the amount was actually entered in: the chosen one if any, otherwise the account's currency. Transfers always use the account's currency.
   String get _entryCurrencyCode => _isTransfer
       ? _currencyOf(_accountId)
       : (_entryCurrency ?? _currencyOf(_accountId));
 
-  /// 輸入貨幣和帳戶貨幣不同，需要換算。
+  /// The entry currency differs from the account's currency, so a conversion is needed.
   bool get _isConverting =>
       !_isTransfer &&
       _accountId != null &&
       _entryCurrencyCode != _currencyOf(_accountId);
 
-  /// 依目前輸入算出要存的金額；帳戶還沒選、金額沒填、或沒有匯率可換算時回傳 null。
+  /// The amount to store, computed from the current input; null if no account is chosen, no amount is entered, or there is no rate to convert with.
   EntryAmount? get _resolvedAmount {
     final cents = parseCents(_amount.text);
     if (cents == null || cents <= 0 || _accountId == null) return null;
@@ -108,14 +108,14 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
   }
 
-  /// 轉帳的兩個帳戶貨幣不同（要另外填轉入金額）。
+  /// The two accounts of a transfer have different currencies (the received amount must be entered separately).
   bool get _isCrossCurrency =>
       _isTransfer &&
       _accountId != null &&
       _toAccountId != null &&
       _currencyOf(_accountId) != _currencyOf(_toAccountId);
 
-  /// 依目前匯率估算轉入金額（單位：分）。算不出來（沒填金額、沒匯率）回傳 null。
+  /// Estimates the received amount (in cents) from the current rates. Returns null if it cannot be computed (no amount, or no rate).
   int? get _suggestedToAmount {
     final cents = parseCents(_amount.text);
     if (cents == null || cents <= 0 || !_isCrossCurrency) return null;
@@ -148,7 +148,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     if (!_formKey.currentState!.validate()) return;
     final db = ref.read(databaseProvider);
 
-    // 轉帳固定用帳戶貨幣；收入、支出可能用別的貨幣輸入，換算後才存
+    // A transfer always uses the account's currency; income and expense may be entered in another currency and are converted before storing
     final entered = parseCents(_amount.text)!;
     final resolved = _isTransfer ? null : _resolvedAmount;
 
@@ -160,7 +160,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       type: Value(_type),
       accountId: Value(_accountId!),
       toAccountId: Value(_isTransfer ? _toAccountId : null),
-      // 跨貨幣轉帳：用填的轉入金額，沒填就用匯率估算；其他情況不存
+      // Cross-currency transfer: use the received amount if entered, otherwise estimate it from the rates; store nothing in other cases
       toAmount: Value(
           _isCrossCurrency ? (parseCents(_toAmount.text) ?? _suggestedToAmount) : null),
       categoryId: Value(_isTransfer ? null : _categoryId),
@@ -205,7 +205,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 編輯舊交易時，即使它用的帳戶已封存也要能顯示
+    // When editing an old transaction, show its account even if that account has been archived
     final ex = widget.existing;
     final accounts = (ref.watch(allAccountsProvider).value ?? [])
         .where((a) =>
@@ -219,7 +219,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     final categories =
         allCategories.where((c) => c.type == categoryType).toList();
 
-    // 備註推薦：來自過去用過的備註，同類別的排前面，打字時會依內容篩選
+    // Note suggestions: from notes used before, same-category ones first, filtered by what is typed
     final suggestions = suggestNotes(
       ref.watch(transactionsProvider).value ?? [],
       type: _type,
@@ -254,7 +254,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     selected: {_type},
                     onSelectionChanged: (s) => setState(() {
                       _type = s.first;
-                      _categoryId = null; // 收入/支出的類別不同，切換時清掉
+                      _categoryId = null; // income and expense have different categories, so clear it when switching
                     }),
                   ),
                   const SizedBox(height: 16),
@@ -262,7 +262,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     controller: _amount,
                     decoration: InputDecoration(
                       labelText: '金額',
-                      // 顯示輸入貨幣的符號（沒特別選就是帳戶的貨幣）
+                      // show the entry currency's symbol (the account's currency if none was picked)
                       prefixText: currencyInfo(_entryCurrencyCode).symbol,
                       suffixIcon: IconButton(
                         tooltip: '計算機',
@@ -270,7 +270,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                         onPressed: _openCalculator,
                       ),
                     ),
-                    // 用內建計算機輸入，不跳出系統鍵盤
+                    // use the built-in calculator instead of the system keyboard
                     readOnly: true,
                     onTap: _openCalculator,
                     validator: (v) {
@@ -298,7 +298,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     onChanged: (v) => setState(() => _accountId = v),
                     validator: (v) => v == null ? '請選擇帳戶' : null,
                   ),
-                  // 選填：用別的貨幣付款時才需要選，系統會依匯率換成帳戶的貨幣
+                  // Optional: only needed when paying in another currency; the amount is converted to the account's currency at the current rate
                   if (!_isTransfer) ...[
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String?>(
@@ -375,7 +375,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   ],
                   if (!_isTransfer)
                     DropdownButtonFormField<int>(
-                      key: ValueKey(categoryType), // 類型改變時重建，清掉舊選項
+                      key: ValueKey(categoryType), // rebuild when the type changes to clear the old choice
                       initialValue: _categoryId,
                       decoration: const InputDecoration(labelText: '類別'),
                       items: [
@@ -404,7 +404,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                   TextFormField(
                     controller: _note,
                     decoration: const InputDecoration(labelText: '備註（選填）'),
-                    onChanged: (_) => setState(() {}), // 重新篩選推薦清單
+                    onChanged: (_) => setState(() {}), // refilter the suggestions
                   ),
                   if (suggestions.isNotEmpty) ...[
                     const SizedBox(height: 8),

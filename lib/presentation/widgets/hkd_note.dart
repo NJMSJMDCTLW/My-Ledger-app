@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/data/providers.dart';
 
-/// 有外幣帳戶時，提醒金額已折合成港幣；外幣還沒設定匯率時，改成警告。
-/// 全部都是港幣帳戶就什麼都不顯示。
+/// When there are foreign-currency accounts, reminds that amounts are converted to HKD; if a foreign currency has no rate yet, it becomes a warning.
+/// Shows nothing when all accounts are in HKD.
 class HkdNote extends ConsumerWidget {
   const HkdNote({super.key});
 

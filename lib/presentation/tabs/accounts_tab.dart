@@ -8,7 +8,7 @@ import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/account_form_page.dart';
 import 'package:hello_ledger/presentation/widgets/account_icon.dart';
 
-/// 帳戶分頁：所有帳戶與餘額，以及已封存的帳戶。
+/// The accounts tab: all accounts with their balances, plus archived accounts.
 class AccountsTab extends ConsumerWidget {
   const AccountsTab({super.key});
 
@@ -52,7 +52,7 @@ class AccountsTab extends ConsumerWidget {
                               formatMoney(balances[a.id] ?? 0, a.currency),
                               style: theme.textTheme.titleSmall,
                             ),
-                            // 外幣帳戶附上折合的港幣
+                            // for a foreign-currency account, also show the HKD equivalent
                             if (a.currency != baseCurrency)
                               Text(
                                 converter.hasRate(a.currency)

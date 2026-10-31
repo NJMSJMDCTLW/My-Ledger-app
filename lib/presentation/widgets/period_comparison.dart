@@ -3,8 +3,8 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/widgets/delta_text.dart';
 
-/// 「與上一期比較」卡片：收入、支出、結餘各自的這期、上期與差額。
-/// [title] 例如「與上個月比較（9 月）」，[previousName] 例如「上月」「前六個月」「去年」。
+/// The "compared with the previous period" card: income, expense and balance, each with this period, the previous period, and the difference.
+/// [title] is e.g. "Compared with last month (September)"; [previousName] is e.g. "last month", "the previous six months", "last year".
 class PeriodComparison extends StatelessWidget {
   const PeriodComparison({
     super.key,

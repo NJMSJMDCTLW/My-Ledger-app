@@ -7,14 +7,14 @@ import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 
-/// 新增或編輯分類：名稱加上從推薦清單挑一個圖示。
+/// Add or edit a category: a name plus an icon picked from the recommended list.
 class CategoryFormPage extends ConsumerStatefulWidget {
   const CategoryFormPage({super.key, this.existing, this.initialType});
 
-  /// 有值代表編輯這個分類；null 代表新增。
+  /// Non-null means editing this category; null means adding a new one.
   final Category? existing;
 
-  /// 新增時預設的類型（從哪一區按新增就帶哪一種）。
+  /// Default type when adding (whichever section the add button was pressed in).
   final CategoryType? initialType;
 
   @override
@@ -66,7 +66,7 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
 
     if (_isEditing) {
       final id = widget.existing!.id;
-      // 類型不能改（舊交易已經用這個分類記了收入或支出），所以只更新名稱與圖示
+      // The type cannot change (old transactions already recorded income or expense with this category), so only the name and icon are updated
       await (db.update(db.categories)..where((c) => c.id.equals(id))).write(
         CategoriesCompanion(name: Value(name), icon: Value(_iconKey)),
       );
@@ -86,7 +86,7 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
     final db = ref.read(databaseProvider);
     final id = widget.existing!.id;
 
-    // 已經有交易或固定收支在用的分類不能刪，不然那些紀錄會變成沒有分類
+    // A category already used by transactions or recurring rules cannot be deleted, or those records would end up with no category
     final txCount = (await (db.select(db.transactions)
               ..where((t) => t.categoryId.equals(id)))
             .get())
@@ -177,7 +177,7 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
                 ButtonSegment(value: CategoryType.income, label: Text('收入')),
               ],
               selected: {_type},
-              // 編輯時不能換類型
+              // The type cannot be changed when editing
               onSelectionChanged: _isEditing
                   ? null
                   : (s) => setState(() => _type = s.first),
