@@ -1,0 +1,9 @@
+{
+  "@@locale": "zh",
+
+  "appTitle": "我的記帳本",
+  "settings": "設定",
+  "language": "語言",
+  "languageFollowSystem": "跟隨系統",
+  "languageFollowSystemHint": "手機設為中文時使用繁體中文，其他語言則使用英文。"
+}

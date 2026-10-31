@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/presentation/account_form_page.dart';
 import 'package:hello_ledger/presentation/category_form_page.dart';
@@ -9,6 +10,7 @@ import 'package:hello_ledger/presentation/recurring_form_page.dart';
 import 'package:hello_ledger/presentation/tabs/home_tab.dart';
 import 'package:hello_ledger/presentation/tabs/rates_tab.dart';
 import 'package:hello_ledger/presentation/tabs/recurring_tab.dart';
+import 'package:hello_ledger/presentation/tabs/settings_tab.dart';
 import 'package:hello_ledger/presentation/tabs/stats_tab.dart';
 import 'package:hello_ledger/presentation/transaction_form_page.dart';
 
@@ -27,10 +29,18 @@ class _AppShellState extends State<AppShell> {
   static const _creditCards = 3;
   static const _recurring = 4;
   static const _categories = 5;
+  static const _settings = 7;
 
-  static const _titles = ['我的記帳本', '統計', '帳戶', '信用卡', '固定收支', '分類管理', '匯率'];
+  // Tab titles that are not translated yet. Home and Settings use l10n (see _title).
+  static const _titles = ['', '統計', '帳戶', '信用卡', '固定收支', '分類管理', '匯率'];
 
   int _index = _home;
+
+  String _title(BuildContext context) => switch (_index) {
+        _home => context.l10n.appTitle,
+        _settings => context.l10n.settings,
+        _ => _titles[_index],
+      };
 
   void _open(Widget page) {
     Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
@@ -70,55 +80,60 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_index])),
+      appBar: AppBar(title: Text(_title(context))),
       drawer: NavigationDrawer(
         selectedIndex: _index,
         onDestinationSelected: (i) {
           setState(() => _index = i);
           Navigator.pop(context); // close the drawer automatically after choosing
         },
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(28, 24, 16, 16),
+            padding: const EdgeInsets.fromLTRB(28, 24, 16, 16),
             child: Text(
-              '我的記帳本',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              context.l10n.appTitle,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: Text('首頁'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.pie_chart_outline),
             selectedIcon: Icon(Icons.pie_chart),
             label: Text('統計'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.account_balance_wallet_outlined),
             selectedIcon: Icon(Icons.account_balance_wallet),
             label: Text('帳戶'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.credit_card_outlined),
             selectedIcon: Icon(Icons.credit_card),
             label: Text('信用卡'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.event_repeat_outlined),
             selectedIcon: Icon(Icons.event_repeat),
             label: Text('固定收支'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.category_outlined),
             selectedIcon: Icon(Icons.category),
             label: Text('分類管理'),
           ),
-          NavigationDrawerDestination(
+          const NavigationDrawerDestination(
             icon: Icon(Icons.currency_exchange_outlined),
             selectedIcon: Icon(Icons.currency_exchange),
             label: Text('匯率'),
+          ),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: Text(context.l10n.settings),
           ),
         ],
       ),
@@ -133,6 +148,7 @@ class _AppShellState extends State<AppShell> {
           const RecurringTab(),
           const CategoriesTab(),
           const RatesTab(),
+          const SettingsTab(),
         ],
       ),
     );

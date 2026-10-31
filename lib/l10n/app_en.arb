@@ -1,0 +1,28 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "My Ledger",
+  "@appTitle": {
+    "description": "The name of the app, shown in the app bar and the navigation drawer."
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Title of the settings tab and its entry in the navigation drawer."
+  },
+
+  "language": "Language",
+  "@language": {
+    "description": "Heading of the language section in the settings tab."
+  },
+
+  "languageFollowSystem": "Follow system",
+  "@languageFollowSystem": {
+    "description": "Language option that uses the phone's language."
+  },
+
+  "languageFollowSystemHint": "Uses Traditional Chinese when the phone is set to Chinese, and English otherwise.",
+  "@languageFollowSystemHint": {
+    "description": "Explains how the Follow system language option picks a language."
+  }
+}
