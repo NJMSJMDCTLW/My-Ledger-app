@@ -158,4 +158,199 @@ class AppLocalizationsEn extends AppLocalizations {
   String comparisonNoData(String previous) {
     return 'No data for $previous';
   }
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get archive => 'Archive';
+
+  @override
+  String get unarchive => 'Unarchive';
+
+  @override
+  String get accountTypeBank => 'Bank account';
+
+  @override
+  String get accountTypeCash => 'Cash';
+
+  @override
+  String get accountTypeCreditCard => 'Credit card';
+
+  @override
+  String get accountTypeEWallet => 'E-wallet';
+
+  @override
+  String get currencyNameHKD => 'Hong Kong dollar';
+
+  @override
+  String get currencyNameUSD => 'US dollar';
+
+  @override
+  String get currencyNameCNY => 'Chinese yuan';
+
+  @override
+  String get currencyNameTWD => 'New Taiwan dollar';
+
+  @override
+  String get currencyNameJPY => 'Japanese yen';
+
+  @override
+  String get currencyNameKRW => 'South Korean won';
+
+  @override
+  String get currencyNameEUR => 'Euro';
+
+  @override
+  String get currencyNameGBP => 'British pound';
+
+  @override
+  String get currencyNameSGD => 'Singapore dollar';
+
+  @override
+  String get currencyNameAUD => 'Australian dollar';
+
+  @override
+  String get currencyNameCAD => 'Canadian dollar';
+
+  @override
+  String get currencyNameTHB => 'Thai baht';
+
+  @override
+  String get accountsEmpty =>
+      'No accounts yet. Tap the button at the bottom right to add one.';
+
+  @override
+  String get archivedAccounts => 'Archived accounts';
+
+  @override
+  String get rateNotSet => 'No exchange rate set';
+
+  @override
+  String get creditCardsEmpty =>
+      'No credit cards yet. Tap the button at the bottom right to add one.';
+
+  @override
+  String creditDebt(String amount) {
+    return 'Debt $amount';
+  }
+
+  @override
+  String creditAvailable(String available, String limit) {
+    return 'Available $available / $limit';
+  }
+
+  @override
+  String get statementDayNotSet => 'Statement day: not set';
+
+  @override
+  String nextStatement(DateTime date, String when) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Next statement: $dateString ($when)';
+  }
+
+  @override
+  String get dueDayNotSet => 'Due day: not set';
+
+  @override
+  String nextPayment(DateTime date, String when) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Next payment: $dateString ($when)';
+  }
+
+  @override
+  String get payReminder => '⚠ Remember to pay';
+
+  @override
+  String daysFromNow(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'in $days days',
+      one: 'tomorrow',
+      zero: 'today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addAccount => 'Add account';
+
+  @override
+  String get editAccount => 'Edit account';
+
+  @override
+  String get archiveAccountTitle => 'Archive this account?';
+
+  @override
+  String get archiveAccountMessage =>
+      'Once archived, it no longer appears in the account list or the total balance, and it can\'t be picked when recording. Past transactions are kept, and you can unarchive it at any time.';
+
+  @override
+  String get fieldName => 'Name';
+
+  @override
+  String get nameRequired => 'Enter a name';
+
+  @override
+  String get fieldAccountType => 'Type';
+
+  @override
+  String get fieldCurrency => 'Currency';
+
+  @override
+  String get currencyLockedHint =>
+      'An account that already has records can\'t change its currency.';
+
+  @override
+  String rateFieldLabel(String currency) {
+    return 'Exchange rate: 1 $currency = ? HKD';
+  }
+
+  @override
+  String get rateFetching => 'Getting the latest rate automatically…';
+
+  @override
+  String get rateFetchFailedHint =>
+      'Couldn\'t get it automatically. Tap the button on the right to retry, or enter it yourself. You can change it later on the Exchange rates tab.';
+
+  @override
+  String get rateFetchTooltip => 'Get the latest rate automatically';
+
+  @override
+  String get rateInvalid => 'Enter a rate greater than 0';
+
+  @override
+  String get fieldCurrentDebt => 'Current debt';
+
+  @override
+  String get fieldOpeningBalance => 'Opening balance';
+
+  @override
+  String get fieldCreditLimit => 'Credit limit';
+
+  @override
+  String get fieldStatementDay => 'Statement day (day of month)';
+
+  @override
+  String get fieldDueDay => 'Due day (day of month)';
+
+  @override
+  String get fieldCardLast4 => 'Last 4 digits of the card number';
+
+  @override
+  String get errorDayRange => 'Enter 1 to 31';
+
+  @override
+  String get errorNumber => 'Enter a number';
+
+  @override
+  String get errorLast4 => 'Enter 4 digits';
 }

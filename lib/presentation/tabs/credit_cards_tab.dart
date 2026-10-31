@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/credit_card_section.dart';
@@ -16,7 +17,7 @@ class CreditCardsTab extends ConsumerWidget {
     final balances = ref.watch(balancesProvider);
 
     if (cards.isEmpty) {
-      return const Center(child: Text('還沒有信用卡，點右下角新增'));
+      return Center(child: Text(context.l10n.creditCardsEmpty));
     }
 
     return ListView(

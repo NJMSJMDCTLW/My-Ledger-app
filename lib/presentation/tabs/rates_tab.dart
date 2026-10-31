@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/currency_names.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/rate_service.dart';
@@ -153,7 +155,7 @@ class _RateTile extends ConsumerWidget {
         String? error;
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: Text('${currency.code} ${currency.name}'),
+            title: Text('${currency.code} ${currencyName(context.l10n, currency.code)}'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +246,7 @@ class _RateTile extends ConsumerWidget {
         leading: CircleAvatar(
           child: Text(currency.symbol, style: const TextStyle(fontSize: 12)),
         ),
-        title: Text('${currency.code}　${currency.name}'),
+        title: Text('${currency.code}　${currencyName(context.l10n, currency.code)}'),
         subtitle: Text(
           missing
               ? (inUse ? '尚未設定匯率（有帳戶在使用）' : '尚未設定')

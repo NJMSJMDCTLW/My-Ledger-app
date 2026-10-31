@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/currency_names.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -76,13 +78,13 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
   String? _validateDay(String? v) {
     if (v == null || v.isEmpty) return null;
     final n = int.tryParse(v);
-    if (n == null || n < 1 || n > 31) return '請輸入 1~31';
+    if (n == null || n < 1 || n > 31) return context.l10n.errorDayRange;
     return null;
   }
 
   String? _validateMoney(String? v) {
     if (v == null || v.trim().isEmpty) return null;
-    return parseCents(v) == null ? '請輸入數字' : null;
+    return parseCents(v) == null ? context.l10n.errorNumber : null;
   }
 
   Future<void> _save() async {
@@ -135,17 +137,16 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
       final ok = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('封存這個帳戶？'),
-          content: const Text('封存後不會出現在帳戶清單與總資產，也不能再選來記帳。'
-              '歷史交易會保留，隨時可以取消封存。'),
+          title: Text(context.l10n.archiveAccountTitle),
+          content: Text(context.l10n.archiveAccountMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(context.l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('封存'),
+              child: Text(context.l10n.archive),
             ),
           ],
         ),
@@ -163,11 +164,11 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? '編輯帳戶' : '新增帳戶'),
+        title: Text(_isEditing ? context.l10n.editAccount : context.l10n.addAccount),
         actions: [
           if (_isEditing)
             IconButton(
-              tooltip: widget.existing!.isArchived ? '取消封存' : '封存',
+              tooltip: widget.existing!.isArchived ? context.l10n.unarchive : context.l10n.archive,
               icon: Icon(widget.existing!.isArchived
                   ? Icons.unarchive_outlined
                   : Icons.archive_outlined),
@@ -182,17 +183,17 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
           children: [
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: '名稱'),
+              decoration: InputDecoration(labelText: context.l10n.fieldName),
               maxLength: 50,
               validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? '請輸入名稱' : null,
+                  (v == null || v.trim().isEmpty) ? context.l10n.nameRequired : null,
             ),
             DropdownButtonFormField<AccountType>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: '類型'),
+              decoration: InputDecoration(labelText: context.l10n.fieldAccountType),
               items: [
                 for (final t in AccountType.values)
-                  DropdownMenuItem(value: t, child: Text(t.label)),
+                  DropdownMenuItem(value: t, child: Text(t.label(context.l10n))),
               ],
               onChanged: (v) => setState(() => _type = v!),
             ),
@@ -200,14 +201,14 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
             DropdownButtonFormField<String>(
               initialValue: _currency,
               decoration: InputDecoration(
-                labelText: '貨幣',
-                helperText: _isEditing ? '已有紀錄的帳戶不能更換貨幣' : null,
+                labelText: context.l10n.fieldCurrency,
+                helperText: _isEditing ? context.l10n.currencyLockedHint : null,
               ),
               items: [
                 for (final c in supportedCurrencies)
                   DropdownMenuItem(
                     value: c.code,
-                    child: Text('${c.code}　${c.name}'),
+                    child: Text('${c.code}　${currencyName(context.l10n, c.code)}'),
                   ),
               ],
               // The currency cannot change when editing, or old amounts would be read as another currency
@@ -228,12 +229,12 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               TextFormField(
                 controller: _rate,
                 decoration: InputDecoration(
-                  labelText: '匯率：1 $_currency = ? HKD',
+                  labelText: context.l10n.rateFieldLabel(_currency),
                   helperText: ref.watch(rateUpdaterProvider).isLoading
-                      ? '正在自動取得最新匯率…'
-                      : '自動取得失敗，可以按右邊的按鈕重試，或自己填寫。之後可以在「匯率」分頁修改',
+                      ? context.l10n.rateFetching
+                      : context.l10n.rateFetchFailedHint,
                   suffixIcon: IconButton(
-                    tooltip: '自動取得最新匯率',
+                    tooltip: context.l10n.rateFetchTooltip,
                     icon: const Icon(Icons.cloud_download_outlined),
                     onPressed: ref.watch(rateUpdaterProvider).isLoading
                         ? null
@@ -246,7 +247,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
                   final r = double.tryParse(v?.trim() ?? '');
-                  return (r == null || r <= 0) ? '請輸入大於 0 的匯率' : null;
+                  return (r == null || r <= 0) ? context.l10n.rateInvalid : null;
                 },
               ),
             ],
@@ -254,7 +255,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
             TextFormField(
               controller: _balance,
               decoration: InputDecoration(
-                labelText: _isCredit ? '目前欠款' : '期初餘額',
+                labelText: _isCredit ? context.l10n.fieldCurrentDebt : context.l10n.fieldOpeningBalance,
                 prefixText: currencyInfo(_currency).symbol,
               ),
               keyboardType:
@@ -266,7 +267,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               TextFormField(
                 controller: _limit,
                 decoration: InputDecoration(
-                  labelText: '信用額度',
+                  labelText: context.l10n.fieldCreditLimit,
                   prefixText: currencyInfo(_currency).symbol,
                 ),
                 keyboardType:
@@ -276,33 +277,33 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _statementDay,
-                decoration: const InputDecoration(labelText: '結帳日（每月幾號）'),
+                decoration: InputDecoration(labelText: context.l10n.fieldStatementDay),
                 keyboardType: TextInputType.number,
                 validator: _validateDay,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _dueDay,
-                decoration: const InputDecoration(labelText: '繳款日（每月幾號）'),
+                decoration: InputDecoration(labelText: context.l10n.fieldDueDay),
                 keyboardType: TextInputType.number,
                 validator: _validateDay,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _last4,
-                decoration: const InputDecoration(labelText: '卡號末四碼'),
+                decoration: InputDecoration(labelText: context.l10n.fieldCardLast4),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(4),
                 ],
                 validator: (v) => (v != null && v.isNotEmpty && v.length != 4)
-                    ? '請輸入 4 碼'
+                    ? context.l10n.errorLast4
                     : null,
               ),
             ],
             const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: const Text('儲存')),
+            FilledButton(onPressed: _save, child: Text(context.l10n.save)),
           ],
         ),
       ),

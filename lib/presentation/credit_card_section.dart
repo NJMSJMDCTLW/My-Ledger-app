@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/billing_dates.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
-import 'package:intl/intl.dart';
 
 /// The credit card section: debt, available credit, and the next statement and due dates.
 class CreditCardSection extends StatelessWidget {
@@ -25,7 +25,7 @@ class CreditCardSection extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 16, 4),
-          child: Text('信用卡', style: Theme.of(context).textTheme.titleMedium),
+          child: Text(context.l10n.navCreditCards, style: Theme.of(context).textTheme.titleMedium),
         ),
         for (final c in cards)
           _CardTile(account: c, balance: balances[c.id] ?? 0),
@@ -58,7 +58,6 @@ class _CardTile extends StatelessWidget {
     // Highlight in the warning color when there is debt and the due date is within 7 days
     final urgent = debt > 0 && dueDays != null && dueDays <= 7;
     final warnColor = theme.colorScheme.error;
-    final fmt = DateFormat('M/d');
 
     return Card(
       child: Padding(
@@ -76,7 +75,7 @@ class _CardTile extends StatelessWidget {
                   style: theme.textTheme.titleSmall,
                 ),
                 Text(
-                  '欠款 ${formatMoney(debt, account.currency)}',
+                  context.l10n.creditDebt(formatMoney(debt, account.currency)),
                   style: theme.textTheme.titleSmall,
                 ),
               ],
@@ -92,22 +91,32 @@ class _CardTile extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '可用額度 ${formatMoney(limit - debt, account.currency)} / ${formatMoney(limit, account.currency)}',
+                context.l10n.creditAvailable(
+                  formatMoney(limit - debt, account.currency),
+                  formatMoney(limit, account.currency),
+                ),
                 style: theme.textTheme.bodySmall,
               ),
             ],
             const SizedBox(height: 8),
             Text(
               statement == null
-                  ? '結帳日：未設定'
-                  : '下次結帳：${fmt.format(statement)}'
-                      '（${daysLabel(daysBetween(today, statement))}）',
+                  ? context.l10n.statementDayNotSet
+                  : context.l10n.nextStatement(
+                      statement,
+                      context.l10n.daysFromNow(daysBetween(today, statement)),
+                    ),
             ),
             Text(
               due == null
-                  ? '繳款日：未設定'
-                  : '下次繳款：${fmt.format(due)}（${daysLabel(dueDays!)}）'
-                      '${urgent ? ' ⚠ 記得繳款' : ''}',
+                  ? context.l10n.dueDayNotSet
+                  : [
+                      context.l10n.nextPayment(
+                        due,
+                        context.l10n.daysFromNow(dueDays!),
+                      ),
+                      if (urgent) context.l10n.payReminder,
+                    ].join(' '),
               style: urgent
                   ? TextStyle(color: warnColor, fontWeight: FontWeight.bold)
                   : null,

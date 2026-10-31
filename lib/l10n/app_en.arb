@@ -134,5 +134,101 @@
     "placeholders": {
       "previous": {"type": "String"}
     }
-  }
+  },
+
+  "save": "Save",
+  "cancel": "Cancel",
+  "archive": "Archive",
+  "unarchive": "Unarchive",
+
+  "accountTypeBank": "Bank account",
+  "accountTypeCash": "Cash",
+  "accountTypeCreditCard": "Credit card",
+  "accountTypeEWallet": "E-wallet",
+
+  "currencyNameHKD": "Hong Kong dollar",
+  "currencyNameUSD": "US dollar",
+  "currencyNameCNY": "Chinese yuan",
+  "currencyNameTWD": "New Taiwan dollar",
+  "currencyNameJPY": "Japanese yen",
+  "currencyNameKRW": "South Korean won",
+  "currencyNameEUR": "Euro",
+  "currencyNameGBP": "British pound",
+  "currencyNameSGD": "Singapore dollar",
+  "currencyNameAUD": "Australian dollar",
+  "currencyNameCAD": "Canadian dollar",
+  "currencyNameTHB": "Thai baht",
+
+  "accountsEmpty": "No accounts yet. Tap the button at the bottom right to add one.",
+  "archivedAccounts": "Archived accounts",
+  "rateNotSet": "No exchange rate set",
+  "creditCardsEmpty": "No credit cards yet. Tap the button at the bottom right to add one.",
+
+  "creditDebt": "Debt {amount}",
+  "@creditDebt": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "creditAvailable": "Available {available} / {limit}",
+  "@creditAvailable": {
+    "description": "Available credit on a credit card, out of its total limit.",
+    "placeholders": {
+      "available": {"type": "String"},
+      "limit": {"type": "String"}
+    }
+  },
+  "statementDayNotSet": "Statement day: not set",
+  "nextStatement": "Next statement: {date} ({when})",
+  "@nextStatement": {
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "Md"},
+      "when": {"type": "String"}
+    }
+  },
+  "dueDayNotSet": "Due day: not set",
+  "nextPayment": "Next payment: {date} ({when})",
+  "@nextPayment": {
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "Md"},
+      "when": {"type": "String"}
+    }
+  },
+  "payReminder": "⚠ Remember to pay",
+  "daysFromNow": "{days, plural, =0{today} =1{tomorrow} other{in {days} days}}",
+  "@daysFromNow": {
+    "description": "How far away a date is, e.g. 'today', 'tomorrow', 'in 3 days'.",
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+
+  "addAccount": "Add account",
+  "editAccount": "Edit account",
+  "archiveAccountTitle": "Archive this account?",
+  "archiveAccountMessage": "Once archived, it no longer appears in the account list or the total balance, and it can't be picked when recording. Past transactions are kept, and you can unarchive it at any time.",
+  "fieldName": "Name",
+  "nameRequired": "Enter a name",
+  "fieldAccountType": "Type",
+  "fieldCurrency": "Currency",
+  "currencyLockedHint": "An account that already has records can't change its currency.",
+  "rateFieldLabel": "Exchange rate: 1 {currency} = ? HKD",
+  "@rateFieldLabel": {
+    "placeholders": {
+      "currency": {"type": "String"}
+    }
+  },
+  "rateFetching": "Getting the latest rate automatically…",
+  "rateFetchFailedHint": "Couldn't get it automatically. Tap the button on the right to retry, or enter it yourself. You can change it later on the Exchange rates tab.",
+  "rateFetchTooltip": "Get the latest rate automatically",
+  "rateInvalid": "Enter a rate greater than 0",
+  "fieldCurrentDebt": "Current debt",
+  "fieldOpeningBalance": "Opening balance",
+  "fieldCreditLimit": "Credit limit",
+  "fieldStatementDay": "Statement day (day of month)",
+  "fieldDueDay": "Due day (day of month)",
+  "fieldCardLast4": "Last 4 digits of the card number",
+  "errorDayRange": "Enter 1 to 31",
+  "errorNumber": "Enter a number",
+  "errorLast4": "Enter 4 digits"
 }

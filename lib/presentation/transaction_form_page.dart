@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/category_icons.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/currency_names.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/entry_amount.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/core/note_suggestions.dart';
@@ -321,7 +323,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                         for (final c in supportedCurrencies)
                           DropdownMenuItem<String?>(
                             value: c.code,
-                            child: Text('${c.code}　${c.name}'),
+                            child: Text('${c.code}　${currencyName(context.l10n, c.code)}'),
                           ),
                       ],
                       onChanged: (v) => setState(() => _entryCurrency = v),

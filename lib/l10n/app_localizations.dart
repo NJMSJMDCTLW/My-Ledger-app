@@ -349,6 +349,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No data for {previous}'**
   String comparisonNoData(String previous);
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archive;
+
+  /// No description provided for @unarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get unarchive;
+
+  /// No description provided for @accountTypeBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account'**
+  String get accountTypeBank;
+
+  /// No description provided for @accountTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get accountTypeCash;
+
+  /// No description provided for @accountTypeCreditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get accountTypeCreditCard;
+
+  /// No description provided for @accountTypeEWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'E-wallet'**
+  String get accountTypeEWallet;
+
+  /// No description provided for @currencyNameHKD.
+  ///
+  /// In en, this message translates to:
+  /// **'Hong Kong dollar'**
+  String get currencyNameHKD;
+
+  /// No description provided for @currencyNameUSD.
+  ///
+  /// In en, this message translates to:
+  /// **'US dollar'**
+  String get currencyNameUSD;
+
+  /// No description provided for @currencyNameCNY.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese yuan'**
+  String get currencyNameCNY;
+
+  /// No description provided for @currencyNameTWD.
+  ///
+  /// In en, this message translates to:
+  /// **'New Taiwan dollar'**
+  String get currencyNameTWD;
+
+  /// No description provided for @currencyNameJPY.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese yen'**
+  String get currencyNameJPY;
+
+  /// No description provided for @currencyNameKRW.
+  ///
+  /// In en, this message translates to:
+  /// **'South Korean won'**
+  String get currencyNameKRW;
+
+  /// No description provided for @currencyNameEUR.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get currencyNameEUR;
+
+  /// No description provided for @currencyNameGBP.
+  ///
+  /// In en, this message translates to:
+  /// **'British pound'**
+  String get currencyNameGBP;
+
+  /// No description provided for @currencyNameSGD.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore dollar'**
+  String get currencyNameSGD;
+
+  /// No description provided for @currencyNameAUD.
+  ///
+  /// In en, this message translates to:
+  /// **'Australian dollar'**
+  String get currencyNameAUD;
+
+  /// No description provided for @currencyNameCAD.
+  ///
+  /// In en, this message translates to:
+  /// **'Canadian dollar'**
+  String get currencyNameCAD;
+
+  /// No description provided for @currencyNameTHB.
+  ///
+  /// In en, this message translates to:
+  /// **'Thai baht'**
+  String get currencyNameTHB;
+
+  /// No description provided for @accountsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet. Tap the button at the bottom right to add one.'**
+  String get accountsEmpty;
+
+  /// No description provided for @archivedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived accounts'**
+  String get archivedAccounts;
+
+  /// No description provided for @rateNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'No exchange rate set'**
+  String get rateNotSet;
+
+  /// No description provided for @creditCardsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No credit cards yet. Tap the button at the bottom right to add one.'**
+  String get creditCardsEmpty;
+
+  /// No description provided for @creditDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt {amount}'**
+  String creditDebt(String amount);
+
+  /// Available credit on a credit card, out of its total limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {available} / {limit}'**
+  String creditAvailable(String available, String limit);
+
+  /// No description provided for @statementDayNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement day: not set'**
+  String get statementDayNotSet;
+
+  /// No description provided for @nextStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Next statement: {date} ({when})'**
+  String nextStatement(DateTime date, String when);
+
+  /// No description provided for @dueDayNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Due day: not set'**
+  String get dueDayNotSet;
+
+  /// No description provided for @nextPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Next payment: {date} ({when})'**
+  String nextPayment(DateTime date, String when);
+
+  /// No description provided for @payReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠ Remember to pay'**
+  String get payReminder;
+
+  /// How far away a date is, e.g. 'today', 'tomorrow', 'in 3 days'.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{today} =1{tomorrow} other{in {days} days}}'**
+  String daysFromNow(int days);
+
+  /// No description provided for @addAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get addAccount;
+
+  /// No description provided for @editAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get editAccount;
+
+  /// No description provided for @archiveAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this account?'**
+  String get archiveAccountTitle;
+
+  /// No description provided for @archiveAccountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Once archived, it no longer appears in the account list or the total balance, and it can\'t be picked when recording. Past transactions are kept, and you can unarchive it at any time.'**
+  String get archiveAccountMessage;
+
+  /// No description provided for @fieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldName;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get nameRequired;
+
+  /// No description provided for @fieldAccountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get fieldAccountType;
+
+  /// No description provided for @fieldCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get fieldCurrency;
+
+  /// No description provided for @currencyLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An account that already has records can\'t change its currency.'**
+  String get currencyLockedHint;
+
+  /// No description provided for @rateFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rate: 1 {currency} = ? HKD'**
+  String rateFieldLabel(String currency);
+
+  /// No description provided for @rateFetching.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the latest rate automatically…'**
+  String get rateFetching;
+
+  /// No description provided for @rateFetchFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get it automatically. Tap the button on the right to retry, or enter it yourself. You can change it later on the Exchange rates tab.'**
+  String get rateFetchFailedHint;
+
+  /// No description provided for @rateFetchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Get the latest rate automatically'**
+  String get rateFetchTooltip;
+
+  /// No description provided for @rateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a rate greater than 0'**
+  String get rateInvalid;
+
+  /// No description provided for @fieldCurrentDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Current debt'**
+  String get fieldCurrentDebt;
+
+  /// No description provided for @fieldOpeningBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get fieldOpeningBalance;
+
+  /// No description provided for @fieldCreditLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit'**
+  String get fieldCreditLimit;
+
+  /// No description provided for @fieldStatementDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement day (day of month)'**
+  String get fieldStatementDay;
+
+  /// No description provided for @fieldDueDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Due day (day of month)'**
+  String get fieldDueDay;
+
+  /// No description provided for @fieldCardLast4.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 digits of the card number'**
+  String get fieldCardLast4;
+
+  /// No description provided for @errorDayRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 1 to 31'**
+  String get errorDayRange;
+
+  /// No description provided for @errorNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number'**
+  String get errorNumber;
+
+  /// No description provided for @errorLast4.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 4 digits'**
+  String get errorLast4;
 }
 
 class _AppLocalizationsDelegate

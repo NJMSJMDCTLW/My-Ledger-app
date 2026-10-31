@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -33,7 +34,7 @@ class AccountsTab extends ConsumerWidget {
       children: [
         Card(
           child: accounts.isEmpty
-              ? const ListTile(title: Text('還沒有帳戶，點右下角新增'))
+              ? ListTile(title: Text(context.l10n.accountsEmpty))
               : Column(
                   children: [
                     for (final a in accounts)
@@ -42,8 +43,8 @@ class AccountsTab extends ConsumerWidget {
                         leading: AccountIcon(a.type),
                         title: Text(a.name),
                         subtitle: Text(a.currency == baseCurrency
-                            ? a.type.label
-                            : '${a.type.label} · ${a.currency}'),
+                            ? a.type.label(context.l10n)
+                            : '${a.type.label(context.l10n)} · ${a.currency}'),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -57,7 +58,7 @@ class AccountsTab extends ConsumerWidget {
                               Text(
                                 converter.hasRate(a.currency)
                                     ? '≈ ${formatMoney(converter.toHkd(balances[a.id] ?? 0, a.currency), baseCurrency)}'
-                                    : '尚未設定匯率',
+                                    : context.l10n.rateNotSet,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: converter.hasRate(a.currency)
                                       ? null
@@ -73,7 +74,7 @@ class AccountsTab extends ConsumerWidget {
         if (archived.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 20, 16, 4),
-            child: Text('已封存帳戶', style: theme.textTheme.titleMedium),
+            child: Text(context.l10n.archivedAccounts, style: theme.textTheme.titleMedium),
           ),
           Card(
             child: Column(
@@ -83,7 +84,7 @@ class AccountsTab extends ConsumerWidget {
                     onTap: () => _edit(context, a),
                     leading: AccountIcon(a.type),
                     title: Text(a.name),
-                    subtitle: Text(a.type.label),
+                    subtitle: Text(a.type.label(context.l10n)),
                     textColor: theme.disabledColor,
                   ),
               ],

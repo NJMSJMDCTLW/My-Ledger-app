@@ -22,8 +22,3 @@ int daysBetween(DateTime from, DateTime to) {
       .inDays;
 }
 
-String daysLabel(int days) => switch (days) {
-      0 => '今天',
-      1 => '明天',
-      _ => '$days 天後',
-    };
