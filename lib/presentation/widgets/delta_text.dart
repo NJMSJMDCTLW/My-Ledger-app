@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 
 /// Text comparing with the previous period, e.g. "▲ 120.00 (+25%)".
 ///
@@ -13,7 +15,7 @@ class DeltaText extends StatelessWidget {
     required this.previous,
     required this.higherIsBad,
     this.showAmount = true,
-    this.previousName = '上月',
+    this.previousName,
     this.noPreviousLabel,
   });
 
@@ -24,23 +26,26 @@ class DeltaText extends StatelessWidget {
   /// Whether to show the difference amount; places with little room show only the percentage.
   final bool showAmount;
 
-  /// Name of the comparison target, e.g. "last month", "the previous six months", "last year".
-  final String previousName;
+  /// Already-translated name of the comparison target, e.g. "last month", "the previous six
+  /// months", "last year". Defaults to "last month".
+  final String? previousName;
 
   /// Text shown when the previous period is 0 and this period has an amount (the category breakdown uses "new"). Defaults to "no data for ...".
   final String? noPreviousLabel;
 
   /// Builds the comparison text. When the previous period is 0 there is no percentage to compute.
   static String describe(
+    AppLocalizations l10n,
     int current,
     int previous, {
     bool showAmount = true,
-    String previousName = '上月',
+    String? previousName,
     String? noPreviousLabel,
   }) {
+    final name = previousName ?? l10n.periodLastMonth;
     final diff = current - previous;
-    if (diff == 0) return '與$previousName持平';
-    if (previous == 0) return noPreviousLabel ?? '$previousName無資料';
+    if (diff == 0) return l10n.comparisonSame(name);
+    if (previous == 0) return noPreviousLabel ?? l10n.comparisonNoData(name);
 
     final arrow = diff > 0 ? '▲' : '▼';
     final pct = (diff.abs() / previous.abs() * 100).round();
@@ -63,6 +68,7 @@ class DeltaText extends StatelessWidget {
 
     return Text(
       describe(
+        context.l10n,
         current,
         previous,
         showAmount: showAmount,

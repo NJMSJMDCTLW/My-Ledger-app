@@ -127,6 +127,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uses Traditional Chinese when the phone is set to Chinese, and English otherwise.'**
   String get languageFollowSystemHint;
+
+  /// Navigation drawer entry for the home tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get navStatistics;
+
+  /// No description provided for @navAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get navAccounts;
+
+  /// No description provided for @navCreditCards.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit cards'**
+  String get navCreditCards;
+
+  /// Navigation drawer entry for fixed income and expenses that repeat every month, such as rent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get navRecurring;
+
+  /// No description provided for @navCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get navCategories;
+
+  /// No description provided for @navRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates'**
+  String get navRates;
+
+  /// No description provided for @fabAddTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get fabAddTransaction;
+
+  /// No description provided for @fabAddAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get fabAddAccount;
+
+  /// No description provided for @fabAddCreditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add credit card'**
+  String get fabAddCreditCard;
+
+  /// No description provided for @fabAddRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Add recurring'**
+  String get fabAddRecurring;
+
+  /// No description provided for @fabAddCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get fabAddCategory;
+
+  /// Heading of the card showing the sum of all accounts, converted to HKD.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance'**
+  String get totalBalance;
+
+  /// No description provided for @expenseCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses by category'**
+  String get expenseCategories;
+
+  /// No description provided for @viewStatisticsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'View detailed statistics'**
+  String get viewStatisticsTooltip;
+
+  /// No description provided for @transactionsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get transactionsHeading;
+
+  /// No description provided for @noTransactionsThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions this month'**
+  String get noTransactionsThisMonth;
+
+  /// Title of a transfer transaction. The placeholders are the names of the two accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer: {from} → {to}'**
+  String transferTitle(String from, String to);
+
+  /// No description provided for @uncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
+
+  /// A day's balance (income minus expense) in the home tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance {amount}'**
+  String balanceAmount(String amount);
+
+  /// The heading above each day's transactions: the date with the weekday.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String dayHeader(DateTime date);
+
+  /// No description provided for @tooltipPreviousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get tooltipPreviousMonth;
+
+  /// No description provided for @tooltipNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get tooltipNextMonth;
+
+  /// The month shown between the previous and next buttons, e.g. October 2026.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String monthTitle(DateTime date);
+
+  /// No description provided for @income.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get income;
+
+  /// No description provided for @expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get expense;
+
+  /// No description provided for @balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// No description provided for @noExpensesThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses this month'**
+  String get noExpensesThisMonth;
+
+  /// No description provided for @totalExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expense'**
+  String get totalExpense;
+
+  /// Shown next to a category that had no spending in the previous period but has some now.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get comparisonNew;
+
+  /// The amount the user originally typed when paying in a different currency than the account's.
+  ///
+  /// In en, this message translates to:
+  /// **'Original {amount}'**
+  String originalAmount(String amount);
+
+  /// Separator used when joining several items into one sentence.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get listSeparator;
+
+  /// No description provided for @ratesMissingWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'No exchange rate is set for {currencies}, so the HKD amounts are incomplete. Set it under Exchange rates in the drawer.'**
+  String ratesMissingWarning(String currencies);
+
+  /// No description provided for @ratesConvertedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Foreign currencies are converted to HKD using the rates on the Exchange rates tab.'**
+  String get ratesConvertedNote;
+
+  /// Name of the previous period when comparing a month with the one before it. Used inside sentences such as 'Same as last month'.
+  ///
+  /// In en, this message translates to:
+  /// **'last month'**
+  String get periodLastMonth;
+
+  /// No description provided for @comparisonSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as {previous}'**
+  String comparisonSame(String previous);
+
+  /// No description provided for @comparisonNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for {previous}'**
+  String comparisonNoData(String previous);
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -54,7 +55,7 @@ class TransactionTile extends StatelessWidget {
           : Text([
               accountName,
               if (tx.originalAmount != null && tx.originalCurrency != null)
-                '原幣 ${formatMoney(tx.originalAmount!, tx.originalCurrency!)}',
+                context.l10n.originalAmount(formatMoney(tx.originalAmount!, tx.originalCurrency!)),
             ].join(' · ')),
       trailing: Column(
         mainAxisAlignment: MainAxisAlignment.center,

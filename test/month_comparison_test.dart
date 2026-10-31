@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
+import 'package:hello_ledger/l10n/app_localizations_en.dart';
+import 'package:hello_ledger/l10n/app_localizations_zh.dart';
 import 'package:hello_ledger/presentation/widgets/delta_text.dart';
 
 TransactionRecord tx(
@@ -23,26 +25,42 @@ TransactionRecord tx(
 }
 
 void main() {
+  final en = AppLocalizationsEn();
+  final zh = AppLocalizationsZh();
+
   group('DeltaText.describe', () {
+    test('The comparison wording follows the language', () {
+      expect(DeltaText.describe(zh, 100, 100), '與上月持平');
+      expect(DeltaText.describe(zh, 100, 0), '上月無資料');
+      expect(
+        DeltaText.describe(en, 100, 100, previousName: 'last year'),
+        'Same as last year',
+      );
+      expect(
+        DeltaText.describe(zh, 100, 0, previousName: '去年'),
+        '去年無資料',
+      );
+    });
+
     test('Increase and decrease show the difference and percentage', () {
-      expect(DeltaText.describe(125000, 100000), '▲ 250.00 (+25%)');
-      expect(DeltaText.describe(75000, 100000), '▼ 250.00 (-25%)');
+      expect(DeltaText.describe(en, 125000, 100000), '▲ 250.00 (+25%)');
+      expect(DeltaText.describe(en, 75000, 100000), '▼ 250.00 (-25%)');
     });
 
     test('Percentage only', () {
-      expect(DeltaText.describe(150, 100, showAmount: false), '▲ 50%');
+      expect(DeltaText.describe(en, 150, 100, showAmount: false), '▲ 50%');
     });
 
     test('Unchanged, and previous period is 0', () {
-      expect(DeltaText.describe(100, 100), '與上月持平');
-      expect(DeltaText.describe(0, 0), '與上月持平');
-      expect(DeltaText.describe(100, 0), '上月無資料');
-      expect(DeltaText.describe(100, 0, noPreviousLabel: '新增'), '新增');
+      expect(DeltaText.describe(en, 100, 100), 'Same as last month');
+      expect(DeltaText.describe(en, 0, 0), 'Same as last month');
+      expect(DeltaText.describe(en, 100, 0), 'No data for last month');
+      expect(DeltaText.describe(en, 100, 0, noPreviousLabel: 'New'), 'New');
     });
 
     test('When the previous balance is negative, the percentage uses its absolute value', () {
       // From -100 to +50, a difference of 150, which is 150% of 100
-      expect(DeltaText.describe(5000, -10000), '▲ 150.00 (+150%)');
+      expect(DeltaText.describe(en, 5000, -10000), '▲ 150.00 (+150%)');
     });
   });
 

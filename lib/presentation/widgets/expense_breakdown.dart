@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/presentation/widgets/delta_text.dart';
@@ -19,7 +20,7 @@ class ExpenseBreakdown extends StatefulWidget {
     required this.categories,
     this.showList = false,
     this.previousByCategory,
-    this.previousName = '上月',
+    this.previousName,
   });
 
   final List<MapEntry<int?, int>> rows;
@@ -29,7 +30,7 @@ class ExpenseBreakdown extends StatefulWidget {
   final Map<int?, int>? previousByCategory;
 
   /// Name of the comparison target, e.g. "last month", "the previous six months", "last year".
-  final String previousName;
+  final String? previousName;
 
   @override
   State<ExpenseBreakdown> createState() => _ExpenseBreakdownState();
@@ -73,18 +74,18 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
 
     // Nothing to show at all (no spending this period and no previous-period categories to compare)
     if (rows.isEmpty && !(widget.showList && listRows.isNotEmpty)) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 48),
-        child: Center(child: Text('這個月沒有支出')),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Center(child: Text(context.l10n.noExpensesThisMonth)),
       );
     }
 
     return Column(
       children: [
         if (rows.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Center(child: Text('這個月沒有支出')),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: Center(child: Text(context.l10n.noExpensesThisMonth)),
           )
         else
           SizedBox(
@@ -131,8 +132,8 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                     children: [
                       Text(
                         touched == null
-                            ? '總支出'
-                            : _nameOf(touched.key) ?? '未分類',
+                            ? context.l10n.totalExpense
+                            : _nameOf(touched.key) ?? context.l10n.uncategorized,
                         style: theme.textTheme.bodyMedium,
                       ),
                       Text(
@@ -162,7 +163,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                   child: Icon(categoryIcon(_categoryOf(listRows[i].key)),
                       size: 20),
                 ),
-                title: Text(_nameOf(listRows[i].key) ?? '未分類'),
+                title: Text(_nameOf(listRows[i].key) ?? context.l10n.uncategorized),
                 subtitle: Text(
                   total == 0
                       ? '—'
@@ -179,7 +180,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                         previous: prev[listRows[i].key] ?? 0,
                         higherIsBad: true,
                         previousName: widget.previousName,
-                        noPreviousLabel: '新增',
+                        noPreviousLabel: context.l10n.comparisonNew,
                       ),
                   ],
                 ),

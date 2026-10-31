@@ -24,5 +24,115 @@
   "languageFollowSystemHint": "Uses Traditional Chinese when the phone is set to Chinese, and English otherwise.",
   "@languageFollowSystemHint": {
     "description": "Explains how the Follow system language option picks a language."
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Navigation drawer entry for the home tab."
+  },
+  "navStatistics": "Statistics",
+  "navAccounts": "Accounts",
+  "navCreditCards": "Credit cards",
+  "navRecurring": "Recurring",
+  "@navRecurring": {
+    "description": "Navigation drawer entry for fixed income and expenses that repeat every month, such as rent."
+  },
+  "navCategories": "Categories",
+  "navRates": "Exchange rates",
+
+  "fabAddTransaction": "Add transaction",
+  "fabAddAccount": "Add account",
+  "fabAddCreditCard": "Add credit card",
+  "fabAddRecurring": "Add recurring",
+  "fabAddCategory": "Add category",
+
+  "totalBalance": "Total balance",
+  "@totalBalance": {
+    "description": "Heading of the card showing the sum of all accounts, converted to HKD."
+  },
+  "expenseCategories": "Expenses by category",
+  "viewStatisticsTooltip": "View detailed statistics",
+  "transactionsHeading": "Transactions",
+  "noTransactionsThisMonth": "No transactions this month",
+  "transferTitle": "Transfer: {from} → {to}",
+  "@transferTitle": {
+    "description": "Title of a transfer transaction. The placeholders are the names of the two accounts.",
+    "placeholders": {
+      "from": {"type": "String"},
+      "to": {"type": "String"}
+    }
+  },
+  "uncategorized": "Uncategorized",
+  "balanceAmount": "Balance {amount}",
+  "@balanceAmount": {
+    "description": "A day's balance (income minus expense) in the home tab.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "dayHeader": "{date}",
+  "@dayHeader": {
+    "description": "The heading above each day's transactions: the date with the weekday.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "MMMEd"}
+    }
+  },
+
+  "tooltipPreviousMonth": "Previous month",
+  "tooltipNextMonth": "Next month",
+  "monthTitle": "{date}",
+  "@monthTitle": {
+    "description": "The month shown between the previous and next buttons, e.g. October 2026.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "yMMMM"}
+    }
+  },
+
+  "income": "Income",
+  "expense": "Expense",
+  "balance": "Balance",
+
+  "noExpensesThisMonth": "No expenses this month",
+  "totalExpense": "Total expense",
+  "comparisonNew": "New",
+  "@comparisonNew": {
+    "description": "Shown next to a category that had no spending in the previous period but has some now."
+  },
+
+  "originalAmount": "Original {amount}",
+  "@originalAmount": {
+    "description": "The amount the user originally typed when paying in a different currency than the account's.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Separator used when joining several items into one sentence."
+  },
+  "ratesMissingWarning": "No exchange rate is set for {currencies}, so the HKD amounts are incomplete. Set it under Exchange rates in the drawer.",
+  "@ratesMissingWarning": {
+    "placeholders": {
+      "currencies": {"type": "String"}
+    }
+  },
+  "ratesConvertedNote": "Foreign currencies are converted to HKD using the rates on the Exchange rates tab.",
+
+  "periodLastMonth": "last month",
+  "@periodLastMonth": {
+    "description": "Name of the previous period when comparing a month with the one before it. Used inside sentences such as 'Same as last month'."
+  },
+  "comparisonSame": "Same as {previous}",
+  "@comparisonSame": {
+    "placeholders": {
+      "previous": {"type": "String"}
+    }
+  },
+  "comparisonNoData": "No data for {previous}",
+  "@comparisonNoData": {
+    "placeholders": {
+      "previous": {"type": "String"}
+    }
   }
 }

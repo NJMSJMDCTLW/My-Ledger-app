@@ -29,18 +29,25 @@ class _AppShellState extends State<AppShell> {
   static const _creditCards = 3;
   static const _recurring = 4;
   static const _categories = 5;
+  static const _rates = 6;
   static const _settings = 7;
-
-  // Tab titles that are not translated yet. Home and Settings use l10n (see _title).
-  static const _titles = ['', '統計', '帳戶', '信用卡', '固定收支', '分類管理', '匯率'];
 
   int _index = _home;
 
-  String _title(BuildContext context) => switch (_index) {
-        _home => context.l10n.appTitle,
-        _settings => context.l10n.settings,
-        _ => _titles[_index],
-      };
+  String _title(BuildContext context) {
+    final l10n = context.l10n;
+    return switch (_index) {
+      _home => l10n.appTitle,
+      _stats => l10n.navStatistics,
+      _accounts => l10n.navAccounts,
+      _creditCards => l10n.navCreditCards,
+      _recurring => l10n.navRecurring,
+      _categories => l10n.navCategories,
+      _rates => l10n.navRates,
+      _settings => l10n.settings,
+      _ => l10n.appTitle,
+    };
+  }
 
   void _open(Widget page) {
     Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
@@ -51,28 +58,28 @@ class _AppShellState extends State<AppShell> {
         _home => FloatingActionButton.extended(
             onPressed: () => _open(const TransactionFormPage()),
             icon: const Icon(Icons.add),
-            label: const Text('記一筆'),
+            label: Text(context.l10n.fabAddTransaction),
           ),
         _accounts => FloatingActionButton.extended(
             onPressed: () => _open(const AccountFormPage()),
             icon: const Icon(Icons.add),
-            label: const Text('新增帳戶'),
+            label: Text(context.l10n.fabAddAccount),
           ),
         _creditCards => FloatingActionButton.extended(
             onPressed: () => _open(
                 const AccountFormPage(initialType: AccountType.creditCard)),
             icon: const Icon(Icons.add),
-            label: const Text('新增信用卡'),
+            label: Text(context.l10n.fabAddCreditCard),
           ),
         _recurring => FloatingActionButton.extended(
             onPressed: () => _open(const RecurringFormPage()),
             icon: const Icon(Icons.add),
-            label: const Text('新增固定收支'),
+            label: Text(context.l10n.fabAddRecurring),
           ),
         _categories => FloatingActionButton.extended(
             onPressed: () => _open(const CategoryFormPage()),
             icon: const Icon(Icons.add),
-            label: const Text('新增分類'),
+            label: Text(context.l10n.fabAddCategory),
           ),
         _ => null,
       };
@@ -95,40 +102,40 @@ class _AppShellState extends State<AppShell> {
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: Text('首頁'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: Text(context.l10n.navHome),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.pie_chart_outline),
-            selectedIcon: Icon(Icons.pie_chart),
-            label: Text('統計'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.pie_chart_outline),
+            selectedIcon: const Icon(Icons.pie_chart),
+            label: Text(context.l10n.navStatistics),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: Icon(Icons.account_balance_wallet),
-            label: Text('帳戶'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
+            label: Text(context.l10n.navAccounts),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.credit_card_outlined),
-            selectedIcon: Icon(Icons.credit_card),
-            label: Text('信用卡'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.credit_card_outlined),
+            selectedIcon: const Icon(Icons.credit_card),
+            label: Text(context.l10n.navCreditCards),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.event_repeat_outlined),
-            selectedIcon: Icon(Icons.event_repeat),
-            label: Text('固定收支'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.event_repeat_outlined),
+            selectedIcon: const Icon(Icons.event_repeat),
+            label: Text(context.l10n.navRecurring),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
-            label: Text('分類管理'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.category_outlined),
+            selectedIcon: const Icon(Icons.category),
+            label: Text(context.l10n.navCategories),
           ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.currency_exchange_outlined),
-            selectedIcon: Icon(Icons.currency_exchange),
-            label: Text('匯率'),
+          NavigationDrawerDestination(
+            icon: const Icon(Icons.currency_exchange_outlined),
+            selectedIcon: const Icon(Icons.currency_exchange),
+            label: Text(context.l10n.navRates),
           ),
           NavigationDrawerDestination(
             icon: const Icon(Icons.settings_outlined),

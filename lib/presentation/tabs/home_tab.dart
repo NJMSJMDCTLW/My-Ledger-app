@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -56,7 +57,7 @@ class HomeTab extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '總資產',
+                  context.l10n.totalBalance,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onPrimaryContainer,
                   ),
@@ -84,9 +85,9 @@ class HomeTab extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('支出類別', style: theme.textTheme.titleMedium),
+              Text(context.l10n.expenseCategories, style: theme.textTheme.titleMedium),
               IconButton(
-                tooltip: '查看詳細統計',
+                tooltip: context.l10n.viewStatisticsTooltip,
                 icon: const Icon(Icons.bar_chart),
                 onPressed: onOpenStats,
               ),
@@ -103,10 +104,10 @@ class HomeTab extends ConsumerWidget {
         // Daily transactions
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 16, 4),
-          child: Text('交易紀錄', style: theme.textTheme.titleMedium),
+          child: Text(context.l10n.transactionsHeading, style: theme.textTheme.titleMedium),
         ),
         if (days.isEmpty)
-          const Card(child: ListTile(title: Text('這個月還沒有交易')))
+          Card(child: ListTile(title: Text(context.l10n.noTransactionsThisMonth)))
         else
           for (final entry in days.entries) ...[
             _DayHeader(day: entry.key, txs: entry.value, converter: converter),
@@ -116,8 +117,8 @@ class HomeTab extends ConsumerWidget {
                 currency: converter.currencyOfAccount(t.accountId),
                 hkdAmount: converter.amountOf(t),
                 title: t.type == TransactionType.transfer
-                    ? '轉帳：${accountNames[t.accountId] ?? '?'} → ${accountNames[t.toAccountId] ?? '?'}'
-                    : categoryById[t.categoryId]?.name ?? '未分類',
+                    ? context.l10n.transferTitle(accountNames[t.accountId] ?? '?', accountNames[t.toAccountId] ?? '?')
+                    : categoryById[t.categoryId]?.name ?? context.l10n.uncategorized,
                 icon: t.type == TransactionType.transfer
                     ? Icons.swap_horiz
                     : categoryIcon(categoryById[t.categoryId]),
@@ -147,8 +148,6 @@ class _DayHeader extends StatelessWidget {
   final List<TransactionRecord> txs;
   final HkdConverter converter;
 
-  static const _weekdays = ['一', '二', '三', '四', '五', '六', '日'];
-
   @override
   Widget build(BuildContext context) {
     // Always convert the day's balance to HKD, so transactions in different currencies can be added together
@@ -165,11 +164,11 @@ class _DayHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '${day.month}月${day.day}日 週${_weekdays[day.weekday - 1]}',
+            context.l10n.dayHeader(day),
             style: style?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
-            '結餘 ${formatCents(balance)}',
+            context.l10n.balanceAmount(formatCents(balance)),
             style: style?.copyWith(color: AppTheme.balanceColor(balance)),
           ),
         ],

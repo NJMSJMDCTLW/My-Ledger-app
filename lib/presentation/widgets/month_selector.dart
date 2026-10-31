@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/providers.dart';
-import 'package:intl/intl.dart';
 
 /// The month switcher row, e.g. "< October 2026 >".
 class MonthSelector extends ConsumerWidget {
@@ -18,16 +18,16 @@ class MonthSelector extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          tooltip: '上個月',
+          tooltip: context.l10n.tooltipPreviousMonth,
           icon: const Icon(Icons.chevron_left),
           onPressed: () => notifier.shift(-1),
         ),
         Text(
-          DateFormat('yyyy 年 M 月').format(month),
+          context.l10n.monthTitle(month),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         IconButton(
-          tooltip: '下個月',
+          tooltip: context.l10n.tooltipNextMonth,
           icon: const Icon(Icons.chevron_right),
           onPressed: isCurrentMonth ? null : () => notifier.shift(1),
         ),

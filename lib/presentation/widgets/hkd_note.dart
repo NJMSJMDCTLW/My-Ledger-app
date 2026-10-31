@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/currencies.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/providers.dart';
 
 /// When there are foreign-currency accounts, reminds that amounts are converted to HKD; if a foreign currency has no rate yet, it becomes a warning.
@@ -32,9 +33,9 @@ class HkdNote extends ConsumerWidget {
           Expanded(
             child: Text(
               isWarning
-                  ? '${missing.join('、')} 還沒設定匯率，折合港幣的金額不完整。'
-                      '請到側邊欄「匯率」設定。'
-                  : '外幣已依「匯率」分頁的設定折合成港幣（HKD）。',
+                  ? context.l10n.ratesMissingWarning(
+                      missing.join(context.l10n.listSeparator))
+                  : context.l10n.ratesConvertedNote,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: isWarning ? theme.colorScheme.error : theme.hintColor,
               ),

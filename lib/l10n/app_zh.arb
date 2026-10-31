@@ -5,5 +5,51 @@
   "settings": "設定",
   "language": "語言",
   "languageFollowSystem": "跟隨系統",
-  "languageFollowSystemHint": "手機設為中文時使用繁體中文，其他語言則使用英文。"
+  "languageFollowSystemHint": "手機設為中文時使用繁體中文，其他語言則使用英文。",
+
+  "navHome": "首頁",
+  "navStatistics": "統計",
+  "navAccounts": "帳戶",
+  "navCreditCards": "信用卡",
+  "navRecurring": "固定收支",
+  "navCategories": "分類管理",
+  "navRates": "匯率",
+
+  "fabAddTransaction": "記一筆",
+  "fabAddAccount": "新增帳戶",
+  "fabAddCreditCard": "新增信用卡",
+  "fabAddRecurring": "新增固定收支",
+  "fabAddCategory": "新增分類",
+
+  "totalBalance": "總資產",
+  "expenseCategories": "支出類別",
+  "viewStatisticsTooltip": "查看詳細統計",
+  "transactionsHeading": "交易紀錄",
+  "noTransactionsThisMonth": "這個月還沒有交易",
+  "transferTitle": "轉帳：{from} → {to}",
+  "uncategorized": "未分類",
+  "balanceAmount": "結餘 {amount}",
+  "dayHeader": "{date}",
+
+  "tooltipPreviousMonth": "上個月",
+  "tooltipNextMonth": "下個月",
+  "monthTitle": "{date}",
+
+  "income": "收入",
+  "expense": "支出",
+  "balance": "結餘",
+
+  "noExpensesThisMonth": "這個月沒有支出",
+  "totalExpense": "總支出",
+  "comparisonNew": "新增",
+
+  "originalAmount": "原幣 {amount}",
+
+  "listSeparator": "、",
+  "ratesMissingWarning": "{currencies} 還沒設定匯率，折合港幣的金額不完整。請到側邊欄「匯率」設定。",
+  "ratesConvertedNote": "外幣已依「匯率」分頁的設定折合成港幣（HKD）。",
+
+  "periodLastMonth": "上月",
+  "comparisonSame": "與{previous}持平",
+  "comparisonNoData": "{previous}無資料"
 }

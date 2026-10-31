@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 
@@ -16,10 +17,10 @@ class MonthSummary extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           children: [
-            _Item(label: '收入', cents: stats.income, color: AppTheme.income),
-            _Item(label: '支出', cents: stats.expense, color: AppTheme.expense),
+            _Item(label: context.l10n.income, cents: stats.income, color: AppTheme.income),
+            _Item(label: context.l10n.expense, cents: stats.expense, color: AppTheme.expense),
             _Item(
-              label: '結餘',
+              label: context.l10n.balance,
               cents: stats.balance,
               color: AppTheme.balanceColor(stats.balance),
             ),
