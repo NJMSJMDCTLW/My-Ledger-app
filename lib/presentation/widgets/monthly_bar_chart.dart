@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 
@@ -56,7 +57,7 @@ class MonthlyBarChart extends StatelessWidget {
                         return SideTitleWidget(
                           meta: meta,
                           child: Text(
-                            compactLabels ? '$m' : '$m月',
+                            compactLabels ? '$m' : context.l10n.formatMonthShort(totals[i].month),
                             style: theme.textTheme.bodySmall,
                           ),
                         );
@@ -68,7 +69,7 @@ class MonthlyBarChart extends StatelessWidget {
                   touchTooltipData: BarTouchTooltipData(
                     getTooltipColor: (_) => theme.colorScheme.inverseSurface,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      final label = rodIndex == 0 ? '收入' : '支出';
+                      final label = rodIndex == 0 ? context.l10n.income : context.l10n.expense;
                       return BarTooltipItem(
                         '$label ${formatCents((rod.toY * 100).round())}',
                         TextStyle(
@@ -109,12 +110,12 @@ class MonthlyBarChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _Legend(color: AppTheme.income, label: '收入'),
-            SizedBox(width: 16),
-            _Legend(color: AppTheme.expense, label: '支出'),
+            _Legend(color: AppTheme.income, label: context.l10n.income),
+            const SizedBox(width: 16),
+            _Legend(color: AppTheme.expense, label: context.l10n.expense),
           ],
         ),
       ],

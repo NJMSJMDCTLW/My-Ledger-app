@@ -464,4 +464,168 @@ class AppLocalizationsZh extends AppLocalizations {
 
     return '$dateString';
   }
+
+  @override
+  String get periodMonthly => '每月';
+
+  @override
+  String get periodSixMonths => '近六個月';
+
+  @override
+  String get periodYear => '一年';
+
+  @override
+  String get periodPreviousSixMonths => '前六個月';
+
+  @override
+  String get periodLastYear => '去年';
+
+  @override
+  String get tooltipGoBack => '往前';
+
+  @override
+  String get tooltipGoForward => '往後';
+
+  @override
+  String formatYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.y(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatYearMonth(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthName(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthShort(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String dateRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get averageMonthlyExpense => '平均每月支出';
+
+  @override
+  String get averageMonthlyIncome => '平均每月收入';
+
+  @override
+  String get monthlyIncomeExpense => '每月收支';
+
+  @override
+  String comparisonTitleMonth(String month) {
+    return '與上個月比較（$month）';
+  }
+
+  @override
+  String comparisonTitleSixMonths(String range) {
+    return '與前六個月比較（$range）';
+  }
+
+  @override
+  String comparisonTitleYear(String year) {
+    return '與去年比較（$year）';
+  }
+
+  @override
+  String comparisonNoRecords(String previous) {
+    return '$previous沒有紀錄，無法比較';
+  }
+}
+
+/// The translations for Chinese, as used in Taiwan (`zh_TW`).
+class AppLocalizationsZhTw extends AppLocalizationsZh {
+  AppLocalizationsZhTw() : super('zh_TW');
+
+  @override
+  String dayHeader(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String monthTitle(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String nextStatement(DateTime date, String when) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '下次結帳：$dateString（$when）';
+  }
+
+  @override
+  String nextPayment(DateTime date, String when) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '下次繳款：$dateString（$when）';
+  }
+
+  @override
+  String formatDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.y(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatYearMonth(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthName(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthShort(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
 }

@@ -474,4 +474,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
     return '$dateString';
   }
+
+  @override
+  String get periodMonthly => 'Monthly';
+
+  @override
+  String get periodSixMonths => 'Last 6 months';
+
+  @override
+  String get periodYear => 'Year';
+
+  @override
+  String get periodPreviousSixMonths => 'the previous six months';
+
+  @override
+  String get periodLastYear => 'last year';
+
+  @override
+  String get tooltipGoBack => 'Go back';
+
+  @override
+  String get tooltipGoForward => 'Go forward';
+
+  @override
+  String formatYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.y(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatYearMonth(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthName(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String formatMonthShort(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMM(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String dateRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get averageMonthlyExpense => 'Average monthly expense';
+
+  @override
+  String get averageMonthlyIncome => 'Average monthly income';
+
+  @override
+  String get monthlyIncomeExpense => 'Monthly income and expenses';
+
+  @override
+  String comparisonTitleMonth(String month) {
+    return 'Compared with last month ($month)';
+  }
+
+  @override
+  String comparisonTitleSixMonths(String range) {
+    return 'Compared with the previous six months ($range)';
+  }
+
+  @override
+  String comparisonTitleYear(String year) {
+    return 'Compared with last year ($year)';
+  }
+
+  @override
+  String comparisonNoRecords(String previous) {
+    return 'There are no records for $previous, so there is nothing to compare.';
+  }
 }

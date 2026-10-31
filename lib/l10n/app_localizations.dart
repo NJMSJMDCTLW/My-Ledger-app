@@ -96,6 +96,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('zh'),
+    Locale('zh', 'TW'),
   ];
 
   /// The name of the app, shown in the app bar and the navigation drawer.
@@ -883,6 +884,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{date}'**
   String formatDate(DateTime date);
+
+  /// No description provided for @periodMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get periodMonthly;
+
+  /// No description provided for @periodSixMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 months'**
+  String get periodSixMonths;
+
+  /// No description provided for @periodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get periodYear;
+
+  /// Name of the previous period when comparing six months with the six before. Used inside sentences such as 'Same as the previous six months'.
+  ///
+  /// In en, this message translates to:
+  /// **'the previous six months'**
+  String get periodPreviousSixMonths;
+
+  /// No description provided for @periodLastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'last year'**
+  String get periodLastYear;
+
+  /// No description provided for @tooltipGoBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get tooltipGoBack;
+
+  /// No description provided for @tooltipGoForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Go forward'**
+  String get tooltipGoForward;
+
+  /// A year, e.g. 2026.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String formatYear(DateTime date);
+
+  /// A month with its year in short numeric form, e.g. 5/2026 or 2026/5.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String formatYearMonth(DateTime date);
+
+  /// The name of a month, e.g. September.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String formatMonthName(DateTime date);
+
+  /// A short month label for the bar chart, e.g. Oct.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String formatMonthShort(DateTime date);
+
+  /// No description provided for @dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String dateRange(String start, String end);
+
+  /// No description provided for @averageMonthlyExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Average monthly expense'**
+  String get averageMonthlyExpense;
+
+  /// No description provided for @averageMonthlyIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Average monthly income'**
+  String get averageMonthlyIncome;
+
+  /// No description provided for @monthlyIncomeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly income and expenses'**
+  String get monthlyIncomeExpense;
+
+  /// No description provided for @comparisonTitleMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with last month ({month})'**
+  String comparisonTitleMonth(String month);
+
+  /// No description provided for @comparisonTitleSixMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with the previous six months ({range})'**
+  String comparisonTitleSixMonths(String range);
+
+  /// No description provided for @comparisonTitleYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with last year ({year})'**
+  String comparisonTitleYear(String year);
+
+  /// No description provided for @comparisonNoRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no records for {previous}, so there is nothing to compare.'**
+  String comparisonNoRecords(String previous);
 }
 
 class _AppLocalizationsDelegate
@@ -903,6 +1018,18 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'zh':
+      {
+        switch (locale.countryCode) {
+          case 'TW':
+            return AppLocalizationsZhTw();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':

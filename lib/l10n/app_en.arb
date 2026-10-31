@@ -302,5 +302,81 @@
     "placeholders": {
       "date": {"type": "DateTime", "format": "yMd"}
     }
+  },
+
+  "periodMonthly": "Monthly",
+  "periodSixMonths": "Last 6 months",
+  "periodYear": "Year",
+  "periodPreviousSixMonths": "the previous six months",
+  "@periodPreviousSixMonths": {
+    "description": "Name of the previous period when comparing six months with the six before. Used inside sentences such as 'Same as the previous six months'."
+  },
+  "periodLastYear": "last year",
+
+  "tooltipGoBack": "Go back",
+  "tooltipGoForward": "Go forward",
+  "formatYear": "{date}",
+  "@formatYear": {
+    "description": "A year, e.g. 2026.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "y"}
+    }
+  },
+  "formatYearMonth": "{date}",
+  "@formatYearMonth": {
+    "description": "A month with its year in short numeric form, e.g. 5/2026 or 2026/5.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "yM"}
+    }
+  },
+  "formatMonthName": "{date}",
+  "@formatMonthName": {
+    "description": "The name of a month, e.g. September.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "MMMM"}
+    }
+  },
+  "formatMonthShort": "{date}",
+  "@formatMonthShort": {
+    "description": "A short month label for the bar chart, e.g. Oct.",
+    "placeholders": {
+      "date": {"type": "DateTime", "format": "MMM"}
+    }
+  },
+  "dateRange": "{start} – {end}",
+  "@dateRange": {
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+
+  "averageMonthlyExpense": "Average monthly expense",
+  "averageMonthlyIncome": "Average monthly income",
+  "monthlyIncomeExpense": "Monthly income and expenses",
+
+  "comparisonTitleMonth": "Compared with last month ({month})",
+  "@comparisonTitleMonth": {
+    "placeholders": {
+      "month": {"type": "String"}
+    }
+  },
+  "comparisonTitleSixMonths": "Compared with the previous six months ({range})",
+  "@comparisonTitleSixMonths": {
+    "placeholders": {
+      "range": {"type": "String"}
+    }
+  },
+  "comparisonTitleYear": "Compared with last year ({year})",
+  "@comparisonTitleYear": {
+    "placeholders": {
+      "year": {"type": "String"}
+    }
+  },
+  "comparisonNoRecords": "There are no records for {previous}, so there is nothing to compare.",
+  "@comparisonNoRecords": {
+    "placeholders": {
+      "previous": {"type": "String"}
+    }
   }
 }

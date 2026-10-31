@@ -1,22 +1,24 @@
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/hkd_converter.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 
 /// The time ranges the statistics tab can show.
 enum StatsPeriod { month, sixMonths, year }
 
 extension StatsPeriodLabel on StatsPeriod {
-  String get label => switch (this) {
-        StatsPeriod.month => '每月',
-        StatsPeriod.sixMonths => '近六個月',
-        StatsPeriod.year => '一年',
+  /// The translated name shown on the range switch.
+  String label(AppLocalizations l10n) => switch (this) {
+        StatsPeriod.month => l10n.periodMonthly,
+        StatsPeriod.sixMonths => l10n.periodSixMonths,
+        StatsPeriod.year => l10n.periodYear,
       };
 
   /// Name of the comparison target, used in text like "last month", "the previous six months", "last year".
-  String get previousName => switch (this) {
-        StatsPeriod.month => '上月',
-        StatsPeriod.sixMonths => '前六個月',
-        StatsPeriod.year => '去年',
+  String previousName(AppLocalizations l10n) => switch (this) {
+        StatsPeriod.month => l10n.periodLastMonth,
+        StatsPeriod.sixMonths => l10n.periodPreviousSixMonths,
+        StatsPeriod.year => l10n.periodLastYear,
       };
 
   /// How many months the left/right arrows move at a time.

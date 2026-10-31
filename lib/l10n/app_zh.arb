@@ -151,5 +151,28 @@
   "errorReceivedPositive": "轉入金額要大於 0",
   "errorReceivedRequired": "請填轉入金額",
 
-  "formatDate": "{date}"
+  "formatDate": "{date}",
+
+  "periodMonthly": "每月",
+  "periodSixMonths": "近六個月",
+  "periodYear": "一年",
+  "periodPreviousSixMonths": "前六個月",
+  "periodLastYear": "去年",
+
+  "tooltipGoBack": "往前",
+  "tooltipGoForward": "往後",
+  "formatYear": "{date}",
+  "formatYearMonth": "{date}",
+  "formatMonthName": "{date}",
+  "formatMonthShort": "{date}",
+  "dateRange": "{start} – {end}",
+
+  "averageMonthlyExpense": "平均每月支出",
+  "averageMonthlyIncome": "平均每月收入",
+  "monthlyIncomeExpense": "每月收支",
+
+  "comparisonTitleMonth": "與上個月比較（{month}）",
+  "comparisonTitleSixMonths": "與前六個月比較（{range}）",
+  "comparisonTitleYear": "與去年比較（{year}）",
+  "comparisonNoRecords": "{previous}沒有紀錄，無法比較"
 }

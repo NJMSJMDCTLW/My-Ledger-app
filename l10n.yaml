@@ -1,8 +1,12 @@
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
-# app_zh.arb holds the Traditional Chinese (Taiwan) translation. The app selects it with
-# the locale zh_TW, so date and number formats follow Taiwan conventions.
+# Traditional Chinese (Taiwan) is split in two files:
+# - app_zh.arb has every Traditional Chinese text (the required base for any zh_* locale).
+# - app_zh_TW.arb repeats only the messages that contain dates. A locale's date patterns come from
+#   the locale of the file the message is generated in, so without this the dates would use the
+#   plain zh patterns (for example "九月" and "周六" instead of Taiwan's "9月" and "週六").
+# The app selects the locale zh_TW (see app_language.dart).
 preferred-supported-locales: [en, zh]
 # Translations are always loaded before any screen is built, so of(context) is never null
 nullable-getter: false

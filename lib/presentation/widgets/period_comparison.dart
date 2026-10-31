@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/presentation/widgets/delta_text.dart';
@@ -33,24 +34,25 @@ class PeriodComparison extends StatelessWidget {
             Text(title, style: theme.textTheme.titleSmall),
             const SizedBox(height: 12),
             if (!hasPrevious)
-              Text('$previousName沒有紀錄，無法比較', style: theme.textTheme.bodyMedium)
+              Text(context.l10n.comparisonNoRecords(previousName),
+                  style: theme.textTheme.bodyMedium)
             else ...[
               _Row(
-                label: '支出',
+                label: context.l10n.expense,
                 previousName: previousName,
                 current: current.expense,
                 previous: previous.expense,
                 higherIsBad: true,
               ),
               _Row(
-                label: '收入',
+                label: context.l10n.income,
                 previousName: previousName,
                 current: current.income,
                 previous: previous.income,
                 higherIsBad: false,
               ),
               _Row(
-                label: '結餘',
+                label: context.l10n.balance,
                 previousName: previousName,
                 current: current.balance,
                 previous: previous.balance,

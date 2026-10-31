@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/stats_range.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 import 'package:hello_ledger/presentation/widgets/expense_breakdown.dart';
 import 'package:hello_ledger/presentation/widgets/hkd_note.dart';
 import 'package:hello_ledger/presentation/widgets/month_summary.dart';
@@ -46,7 +48,7 @@ class StatsTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('平均每月支出', style: theme.textTheme.bodySmall),
+                        Text(context.l10n.averageMonthlyExpense, style: theme.textTheme.bodySmall),
                         Text(
                           formatCents((stats.expense / months).round()),
                           style: theme.textTheme.titleMedium,
@@ -58,7 +60,7 @@ class StatsTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('平均每月收入', style: theme.textTheme.bodySmall),
+                        Text(context.l10n.averageMonthlyIncome, style: theme.textTheme.bodySmall),
                         Text(
                           formatCents((stats.income / months).round()),
                           style: theme.textTheme.titleMedium,
@@ -72,7 +74,7 @@ class StatsTab extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 16, 16, 0),
-            child: Text('每月收支', style: theme.textTheme.titleMedium),
+            child: Text(context.l10n.monthlyIncomeExpense, style: theme.textTheme.titleMedium),
           ),
           MonthlyBarChart(
             totals: totals,
@@ -81,14 +83,14 @@ class StatsTab extends ConsumerWidget {
         ],
 
         PeriodComparison(
-          title: _comparisonTitle(period, range),
-          previousName: period.previousName,
+          title: _comparisonTitle(context.l10n, period, range),
+          previousName: period.previousName(context.l10n),
           current: stats,
           previous: previous,
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 16, 4),
-          child: Text('支出類別', style: theme.textTheme.titleMedium),
+          child: Text(context.l10n.expenseCategories, style: theme.textTheme.titleMedium),
         ),
         ExpenseBreakdown(
           key: ValueKey((period, range.start)),
@@ -100,21 +102,22 @@ class StatsTab extends ConsumerWidget {
           previousByCategory: previous.txs.isEmpty
               ? null
               : {for (final r in previous.categoryRows) r.key: r.value},
-          previousName: period.previousName,
+          previousName: period.previousName(context.l10n),
         ),
       ],
     );
   }
 
-  static String _comparisonTitle(StatsPeriod period, StatsRange range) {
+  static String _comparisonTitle(
+      AppLocalizations l10n, StatsPeriod period, StatsRange range) {
     final prevStart = range.previousStart;
     // previousEnd is exclusive, so the last month of the previous period is the month before it
     final prevLast = DateTime(range.previousEnd.year, range.previousEnd.month - 1);
     return switch (period) {
-      StatsPeriod.month => '與上個月比較（${prevStart.month} 月）',
-      StatsPeriod.sixMonths => '與前六個月比較'
-          '（${prevStart.year}/${prevStart.month} – ${prevLast.year}/${prevLast.month}）',
-      StatsPeriod.year => '與去年比較（${prevStart.year} 年）',
+      StatsPeriod.month => l10n.comparisonTitleMonth(l10n.formatMonthName(prevStart)),
+      StatsPeriod.sixMonths => l10n.comparisonTitleSixMonths(l10n.dateRange(
+          l10n.formatYearMonth(prevStart), l10n.formatYearMonth(prevLast))),
+      StatsPeriod.year => l10n.comparisonTitleYear(l10n.formatYear(prevStart)),
     };
   }
 }

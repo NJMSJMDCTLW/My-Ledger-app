@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/stats_range.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 
 /// The top of the statistics tab: switches between monthly / last six months / one year, plus the arrows that move back and forward.
 class PeriodSelector extends ConsumerWidget {
   const PeriodSelector({super.key});
 
-  static String _ym(DateTime d) => '${d.year}/${d.month}';
-
   /// The title text for the current range.
-  static String title(StatsPeriod period, StatsRange range) {
+  static String title(AppLocalizations l10n, StatsPeriod period, StatsRange range) {
     final last = DateTime(range.end.year, range.end.month - 1);
     return switch (period) {
-      StatsPeriod.month => '${range.start.year} 年 ${range.start.month} 月',
-      StatsPeriod.sixMonths => '${_ym(range.start)} – ${_ym(last)}',
-      StatsPeriod.year => '${range.start.year} 年',
+      StatsPeriod.month => l10n.monthTitle(range.start),
+      StatsPeriod.sixMonths => l10n.dateRange(
+          l10n.formatYearMonth(range.start), l10n.formatYearMonth(last)),
+      StatsPeriod.year => l10n.formatYear(range.start),
     };
   }
 
@@ -42,7 +43,7 @@ class PeriodSelector extends ConsumerWidget {
           child: SegmentedButton<StatsPeriod>(
             segments: [
               for (final p in StatsPeriod.values)
-                ButtonSegment(value: p, label: Text(p.label)),
+                ButtonSegment(value: p, label: Text(p.label(context.l10n))),
             ],
             selected: {period},
             showSelectedIcon: false,
@@ -54,16 +55,16 @@ class PeriodSelector extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              tooltip: '往前',
+              tooltip: context.l10n.tooltipGoBack,
               icon: const Icon(Icons.chevron_left),
               onPressed: () => notifier.shift(-period.stepMonths),
             ),
             Text(
-              title(period, range),
+              title(context.l10n, period, range),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             IconButton(
-              tooltip: '往後',
+              tooltip: context.l10n.tooltipGoForward,
               icon: const Icon(Icons.chevron_right),
               onPressed:
                   canGoNext ? () => notifier.shift(period.stepMonths) : null,

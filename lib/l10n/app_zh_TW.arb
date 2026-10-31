@@ -1,0 +1,13 @@
+{
+  "@@locale": "zh_TW",
+
+  "dayHeader": "{date}",
+  "monthTitle": "{date}",
+  "formatDate": "{date}",
+  "formatYear": "{date}",
+  "formatYearMonth": "{date}",
+  "formatMonthName": "{date}",
+  "formatMonthShort": "{date}",
+  "nextStatement": "下次結帳：{date}（{when}）",
+  "nextPayment": "下次繳款：{date}（{when}）"
+}
