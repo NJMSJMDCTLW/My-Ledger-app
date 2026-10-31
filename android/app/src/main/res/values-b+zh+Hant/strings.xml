@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Chinese phones get the Traditional Chinese name, like the app itself. This file is repeated for zh, zh-TW, zh-HK, zh-MO and the Hant script, because Android treats a plain zh folder as Simplified Chinese only. -->
+    <string name="app_name">我的記帳本</string>
+</resources>

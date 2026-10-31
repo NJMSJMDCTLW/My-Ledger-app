@@ -5,8 +5,8 @@
 A personal bookkeeping app that **keeps all of its data on your own phone**, built with Flutter
 and currently targeting Android. There is no sign-up and nothing is uploaded to a server.
 
-> The app's interface is currently in Traditional Chinese (繁體中文). English support, with a
-> language setting, is in progress.
+The app is available in **English** and **Traditional Chinese (繁體中文)**. By default it follows
+the phone's language, and you can pick either one in Settings.
 
 ## Features
 
@@ -33,6 +33,13 @@ and currently targeting Android. There is no sign-up and nothing is uploaded to 
 - Monthly, last six months, and yearly views.
 - Expense pie chart, monthly income/expense bar chart, and a per-category breakdown.
 - Comparison with the previous period (last month, the previous six months, or last year).
+
+**Languages**
+- English and Traditional Chinese, chosen in Settings (or follow the phone: any Chinese language
+  uses Traditional Chinese, everything else uses English). The choice takes effect immediately
+  and is remembered.
+- Dates, the credit card reminder notifications and the built-in category names follow the
+  language too. A category you create keeps the name you gave it.
 
 **Multiple currencies**
 - 12 currencies. Each account has its own currency, and the total balance and statistics are
@@ -63,6 +70,8 @@ and currently targeting Android. There is no sign-up and nothing is uploaded to 
 - Android's default auto-backup is not disabled, so the database may be backed up to your
   Google account.
 - Only tested on Android.
+- Only English and Traditional Chinese are available. The name shown under the app icon follows
+  the phone's language, not the language chosen inside the app (Android does not allow that).
 - This is a personal learning project. Release builds still use the debug signing key and are not
   ready to be published to an app store.
 
@@ -82,9 +91,22 @@ Project layout:
 lib/
 ├── core/           # UI-independent helpers: calculator, money formatting, currencies, dates, theme
 ├── data/           # Tables, database, Riverpod providers, exchange-rate and recurring logic
+├── l10n/           # Translations (app_en.arb, app_zh.arb, app_zh_TW.arb) and generated code
 └── presentation/   # Screens: drawer tabs, form pages, shared widgets
-test/               # Unit tests: calculator, statistics, rates, recurring, database migrations
+test/               # Tests: calculator, statistics, rates, recurring, database migrations, translations
 ```
+
+### Translations
+
+All text on screen lives in `lib/l10n/*.arb` and is used as `context.l10n.someKey`.
+
+- `app_en.arb` is the template: add every new message here first, with a `@description`.
+- `app_zh.arb` holds the Traditional Chinese text.
+- `app_zh_TW.arb` repeats only the messages that contain a date. A date takes its pattern from
+  the locale of the file it is generated in, so without this the Chinese dates would come out as
+  the plain `zh` forms (for example `周六`) instead of Taiwan's (`週六`). **Add any new message that
+  has a date placeholder to `app_zh_TW.arb` too.**
+- Run `flutter gen-l10n` after editing an `.arb` file (a normal build does it as well).
 
 ## Getting started
 
