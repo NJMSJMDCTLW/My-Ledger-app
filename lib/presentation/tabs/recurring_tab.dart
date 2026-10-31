@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/category_names.dart';
 import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
@@ -44,7 +45,7 @@ class RecurringTab extends ConsumerWidget {
             rule: r,
             title: r.type == TransactionType.transfer
                 ? context.l10n.transferTitle(accountNames[r.accountId] ?? '?', accountNames[r.toAccountId] ?? '?')
-                : categoryById[r.categoryId]?.name ?? context.l10n.uncategorized,
+                : categoryNameOrUncategorized(context.l10n, categoryById[r.categoryId]),
             icon: r.type == TransactionType.transfer
                 ? Icons.swap_horiz
                 : categoryIcon(categoryById[r.categoryId]),

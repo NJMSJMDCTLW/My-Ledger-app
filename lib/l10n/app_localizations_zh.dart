@@ -736,6 +736,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String notificationDueToday(String card) {
     return '今天是 $card 的繳款日';
   }
+
+  @override
+  String get categoryFood => '餐飲';
+
+  @override
+  String get categoryTransport => '交通';
+
+  @override
+  String get categoryShopping => '購物';
+
+  @override
+  String get categoryEntertainment => '娛樂';
+
+  @override
+  String get categoryHousing => '居住';
+
+  @override
+  String get categoryMedical => '醫療';
+
+  @override
+  String get categoryEducation => '教育';
+
+  @override
+  String get categoryOtherExpense => '其他';
+
+  @override
+  String get categorySalary => '薪水';
+
+  @override
+  String get categoryBonus => '獎金';
+
+  @override
+  String get categoryOtherIncome => '其他';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

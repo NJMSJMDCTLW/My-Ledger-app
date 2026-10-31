@@ -26,6 +26,10 @@ class Categories extends Table {
   IntColumn get type => intEnum<CategoryType>()();
   TextColumn get icon => text().nullable()();
   IntColumn get color => integer().nullable()();
+
+  /// Set only for the built-in categories (see default_categories.dart). Their name is shown
+  /// translated, so [name] is just a fallback. Renaming one clears this and keeps the new name.
+  TextColumn get defaultKey => text().nullable()();
 }
 
 @DataClassName('TransactionRecord')

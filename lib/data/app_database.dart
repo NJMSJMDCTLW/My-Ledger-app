@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:hello_ledger/data/default_categories.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/tables.dart';
 
@@ -13,7 +14,7 @@ class AppDatabase extends _$AppDatabase {
       : super(executor ?? driftDatabase(name: 'ledger'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,22 +42,46 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(transactions, transactions.originalAmount);
             await m.addColumn(transactions, transactions.originalCurrency);
           }
+          // v5 -> v6: the built-in categories get a stable key, so their names can be translated
+          if (from < 6) {
+            await m.addColumn(categories, categories.defaultKey);
+            await _tagDefaultCategories();
+          }
         },
       );
 
   Future<void> _seedCategories() async {
-    const expense = [
-      '餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他',
-    ];
-    const income = ['薪水', '獎金', '其他'];
-
     await batch((b) {
       b.insertAll(categories, [
-        for (final name in expense)
-          CategoriesCompanion.insert(name: name, type: CategoryType.expense),
-        for (final name in income)
-          CategoriesCompanion.insert(name: name, type: CategoryType.income),
+        for (final c in defaultCategories)
+          CategoriesCompanion.insert(
+            name: c.legacyName,
+            type: c.type,
+            defaultKey: Value(c.key),
+          ),
       ]);
     });
+  }
+
+  /// Gives the built-in categories of an existing database their key.
+  ///
+  /// A fresh install creates them with the ids 1 to 11 in the order of [defaultCategories], and
+  /// they were named in Chinese. Only a row whose id, name and type all still match is tagged: a
+  /// built-in category the user has renamed, and any category the user created, keep being plain
+  /// categories with their own name.
+  Future<void> _tagDefaultCategories() async {
+    for (var i = 0; i < defaultCategories.length; i++) {
+      final c = defaultCategories[i];
+      await customUpdate(
+        'UPDATE categories SET default_key = ? WHERE id = ? AND name = ? AND type = ?',
+        variables: [
+          Variable.withString(c.key),
+          Variable.withInt(i + 1),
+          Variable.withString(c.legacyName),
+          Variable.withInt(c.type.index),
+        ],
+        updates: {categories},
+      );
+    }
   }
 }

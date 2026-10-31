@@ -231,5 +231,17 @@
   "notificationChannelName": "信用卡繳款提醒",
   "notificationTitle": "信用卡繳款提醒",
   "notificationDueSoon": "{card} 將於 {date} 繳款，記得準備資金",
-  "notificationDueToday": "今天是 {card} 的繳款日"
+  "notificationDueToday": "今天是 {card} 的繳款日",
+
+  "categoryFood": "餐飲",
+  "categoryTransport": "交通",
+  "categoryShopping": "購物",
+  "categoryEntertainment": "娛樂",
+  "categoryHousing": "居住",
+  "categoryMedical": "醫療",
+  "categoryEducation": "教育",
+  "categoryOtherExpense": "其他",
+  "categorySalary": "薪水",
+  "categoryBonus": "獎金",
+  "categoryOtherIncome": "其他"
 }

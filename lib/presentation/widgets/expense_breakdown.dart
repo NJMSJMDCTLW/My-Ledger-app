@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/category_names.dart';
 import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
@@ -46,7 +47,9 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
     return null;
   }
 
-  String? _nameOf(int? id) => _categoryOf(id)?.name;
+  /// The category's name to show, or "Uncategorized".
+  String _nameOf(int? id) =>
+      categoryNameOrUncategorized(context.l10n, _categoryOf(id));
 
   /// Rows for the list: categories with spending this period, plus categories with spending last period but none this period (amount 0).
   List<MapEntry<int?, int>> get _listRows {
@@ -133,7 +136,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                       Text(
                         touched == null
                             ? context.l10n.totalExpense
-                            : _nameOf(touched.key) ?? context.l10n.uncategorized,
+                            : _nameOf(touched.key),
                         style: theme.textTheme.bodyMedium,
                       ),
                       Text(
@@ -163,7 +166,7 @@ class _ExpenseBreakdownState extends State<ExpenseBreakdown> {
                   child: Icon(categoryIcon(_categoryOf(listRows[i].key)),
                       size: 20),
                 ),
-                title: Text(_nameOf(listRows[i].key) ?? context.l10n.uncategorized),
+                title: Text(_nameOf(listRows[i].key)),
                 subtitle: Text(
                   total == 0
                       ? '—'

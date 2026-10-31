@@ -1,7 +1,34 @@
+import 'package:drift/drift.dart' show OrderingTerm;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hello_ledger/data/app_database.dart';
+import 'package:hello_ledger/data/default_categories.dart';
 import 'package:hello_ledger/data/enums.dart';
+
+/// The categories table as it was before version 6 (no default_key column), with the 11 built-in
+/// categories a fresh install had created. A real old database always has it.
+void createCategoriesBeforeV6(dynamic raw, {List<String> extra = const []}) {
+  raw.execute('''
+    CREATE TABLE categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type INTEGER NOT NULL,
+      icon TEXT NULL,
+      color INTEGER NULL
+    );
+  ''');
+  const expense = ['餐飲', '交通', '購物', '娛樂', '居住', '醫療', '教育', '其他'];
+  const income = ['薪水', '獎金', '其他'];
+  for (final name in expense) {
+    raw.execute("INSERT INTO categories (name, type) VALUES ('$name', 0)");
+  }
+  for (final name in income) {
+    raw.execute("INSERT INTO categories (name, type) VALUES ('$name', 1)");
+  }
+  for (final statement in extra) {
+    raw.execute(statement);
+  }
+}
 
 void main() {
   test('Upgrade from version 2 to 3: old data is kept, and the new column and rates table work', () async {
@@ -42,6 +69,7 @@ void main() {
             INSERT INTO transactions (date, amount, type, account_id, note)
             VALUES (1790000000, 1234, 0, 1, '午餐')
           ''');
+          createCategoriesBeforeV6(raw);
           raw.execute('PRAGMA user_version = 2');
         },
       ),
@@ -107,6 +135,7 @@ void main() {
               created_at INTEGER NOT NULL DEFAULT 0
             );
           ''');
+          createCategoriesBeforeV6(raw);
           raw.execute('PRAGMA user_version = 3');
         },
       ),
@@ -142,6 +171,7 @@ void main() {
             INSERT INTO transactions (date, amount, type, account_id, note)
             VALUES (1790000000, 777, 0, 1, '舊交易')
           ''');
+          createCategoriesBeforeV6(raw);
           raw.execute('PRAGMA user_version = 4');
         },
       ),
@@ -153,5 +183,98 @@ void main() {
     expect(txs.single.note, '舊交易');
     expect(txs.single.originalAmount, isNull);
     expect(txs.single.originalCurrency, isNull);
+  });
+
+  group('Upgrade from version 5 to 6: built-in categories get a key', () {
+    /// Opens a version 5 database whose categories table has been set up by [extra] statements.
+    AppDatabase openV5({List<String> extra = const []}) {
+      return AppDatabase(
+        NativeDatabase.memory(
+          setup: (raw) {
+            createCategoriesBeforeV6(raw, extra: extra);
+            raw.execute('PRAGMA user_version = 5');
+          },
+        ),
+      );
+    }
+
+    Future<Map<int, Category>> load(AppDatabase db) async {
+      return {for (final c in await db.select(db.categories).get()) c.id: c};
+    }
+
+    test('The 11 built-in categories are tagged, in order, and keep their names', () async {
+      final db = openV5();
+      addTearDown(db.close);
+      final cats = await load(db);
+
+      expect(cats.length, 11);
+      for (var i = 0; i < defaultCategories.length; i++) {
+        final c = cats[i + 1]!;
+        expect(c.defaultKey, defaultCategories[i].key, reason: 'id ${i + 1}');
+        expect(c.name, defaultCategories[i].legacyName); // the stored name is untouched
+      }
+      // Two categories are both called "Other": each gets the key of its own type
+      expect(cats[8]!.defaultKey, 'otherExpense');
+      expect(cats[11]!.defaultKey, 'otherIncome');
+    });
+
+    test('A built-in category the user renamed, and the categories they created, stay plain',
+        () async {
+      final db = openV5(extra: [
+        "UPDATE categories SET name = '吃的' WHERE id = 1", // renamed a built-in one
+        "INSERT INTO categories (id, name, type) VALUES (12, '餐飲', 0)", // created "餐飲" themselves
+        "INSERT INTO categories (id, name, type) VALUES (13, '旅行', 0)",
+      ]);
+      addTearDown(db.close);
+      final cats = await load(db);
+
+      expect(cats[1]!.defaultKey, isNull);
+      expect(cats[1]!.name, '吃的');
+      expect(cats[12]!.defaultKey, isNull); // same name as a built-in one, but not the built-in id
+      expect(cats[13]!.defaultKey, isNull);
+      // Everything else is still tagged
+      expect(cats[2]!.defaultKey, 'transport');
+      expect(cats[11]!.defaultKey, 'otherIncome');
+    });
+
+    test('A row with the right name but the wrong type is not tagged', () async {
+      final db = openV5(extra: ['UPDATE categories SET type = 1 WHERE id = 3']);
+      addTearDown(db.close);
+      expect((await load(db))[3]!.defaultKey, isNull);
+    });
+
+    test('Deleting a built-in category earlier does not shift the others', () async {
+      final db = openV5(extra: ['DELETE FROM categories WHERE id = 4']);
+      addTearDown(db.close);
+      final cats = await load(db);
+
+      expect(cats.containsKey(4), isFalse);
+      expect(cats[3]!.defaultKey, 'shopping');
+      expect(cats[5]!.defaultKey, 'housing'); // still matched by its own id
+      expect(cats.values.where((c) => c.defaultKey != null).length, 10);
+    });
+
+    test('Icons and colors the user set are kept', () async {
+      final db = openV5(extra: [
+        "UPDATE categories SET icon = 'flight', color = 5 WHERE id = 1",
+      ]);
+      addTearDown(db.close);
+      final c = (await load(db))[1]!;
+      expect(c.icon, 'flight');
+      expect(c.color, 5);
+      expect(c.defaultKey, 'food');
+    });
+  });
+
+  test('A fresh database starts with the built-in categories, already tagged', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final cats = await (db.select(db.categories)
+          ..orderBy([(c) => OrderingTerm.asc(c.id)]))
+        .get();
+
+    expect(cats.map((c) => c.id), List.generate(11, (i) => i + 1));
+    expect(cats.map((c) => c.defaultKey), defaultCategories.map((c) => c.key));
+    expect(cats.map((c) => c.type), defaultCategories.map((c) => c.type));
   });
 }

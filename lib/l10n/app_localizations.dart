@@ -1310,6 +1310,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today is the payment due date for {card}.'**
   String notificationDueToday(String card);
+
+  /// Name of a built-in category. The built-in category names follow the app language; categories the user creates keep the name they typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get categoryFood;
+
+  /// No description provided for @categoryTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get categoryTransport;
+
+  /// No description provided for @categoryShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get categoryShopping;
+
+  /// No description provided for @categoryEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get categoryEntertainment;
+
+  /// No description provided for @categoryHousing.
+  ///
+  /// In en, this message translates to:
+  /// **'Housing'**
+  String get categoryHousing;
+
+  /// No description provided for @categoryMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get categoryMedical;
+
+  /// No description provided for @categoryEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get categoryEducation;
+
+  /// No description provided for @categoryOtherExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get categoryOtherExpense;
+
+  /// No description provided for @categorySalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get categorySalary;
+
+  /// No description provided for @categoryBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get categoryBonus;
+
+  /// No description provided for @categoryOtherIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get categoryOtherIncome;
 }
 
 class _AppLocalizationsDelegate

@@ -489,5 +489,20 @@
     "placeholders": {
       "card": {"type": "String"}
     }
-  }
+  },
+
+  "categoryFood": "Food",
+  "@categoryFood": {
+    "description": "Name of a built-in category. The built-in category names follow the app language; categories the user creates keep the name they typed."
+  },
+  "categoryTransport": "Transport",
+  "categoryShopping": "Shopping",
+  "categoryEntertainment": "Entertainment",
+  "categoryHousing": "Housing",
+  "categoryMedical": "Medical",
+  "categoryEducation": "Education",
+  "categoryOtherExpense": "Other",
+  "categorySalary": "Salary",
+  "categoryBonus": "Bonus",
+  "categoryOtherIncome": "Other"
 }

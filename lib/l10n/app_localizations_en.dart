@@ -769,4 +769,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationDueToday(String card) {
     return 'Today is the payment due date for $card.';
   }
+
+  @override
+  String get categoryFood => 'Food';
+
+  @override
+  String get categoryTransport => 'Transport';
+
+  @override
+  String get categoryShopping => 'Shopping';
+
+  @override
+  String get categoryEntertainment => 'Entertainment';
+
+  @override
+  String get categoryHousing => 'Housing';
+
+  @override
+  String get categoryMedical => 'Medical';
+
+  @override
+  String get categoryEducation => 'Education';
+
+  @override
+  String get categoryOtherExpense => 'Other';
+
+  @override
+  String get categorySalary => 'Salary';
+
+  @override
+  String get categoryBonus => 'Bonus';
+
+  @override
+  String get categoryOtherIncome => 'Other';
 }

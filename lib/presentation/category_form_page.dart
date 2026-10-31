@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/category_names.dart';
 import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -36,10 +37,23 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
     final c = widget.existing;
     if (c != null) {
       _type = c.type;
-      _name.text = c.name;
       _iconKey = categoryIconKey(c);
     } else {
       _type = widget.initialType ?? CategoryType.expense;
+    }
+  }
+
+  bool _nameFilled = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The name box starts with the name the user sees, which for a built-in category is the
+    // translated one. The language is not available in initState, so it is filled in here.
+    final c = widget.existing;
+    if (!_nameFilled && c != null) {
+      _nameFilled = true;
+      _name.text = categoryDisplayName(context.l10n, c);
     }
   }
 
@@ -56,7 +70,9 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
     final duplicated = categories.any((c) =>
         c.type == _type &&
         c.id != widget.existing?.id &&
-        c.name.toLowerCase() == name.toLowerCase());
+        // Compare with the names the user sees, so "Food" clashes with the built-in Food
+        categoryDisplayName(context.l10n, c).toLowerCase() ==
+            name.toLowerCase());
     return duplicated ? context.l10n.errorDuplicateCategory : null;
   }
 
@@ -66,10 +82,15 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
     final name = _name.text.trim();
 
     if (_isEditing) {
-      final id = widget.existing!.id;
-      // The type cannot change (old transactions already recorded income or expense with this category), so only the name and icon are updated
-      await (db.update(db.categories)..where((c) => c.id.equals(id))).write(
-        CategoriesCompanion(name: Value(name), icon: Value(_iconKey)),
+      final existing = widget.existing!;
+      await (db.update(db.categories)..where((c) => c.id.equals(existing.id)))
+          .write(
+        categoryEditCompanion(
+          l10n: context.l10n,
+          existing: existing,
+          typedName: name,
+          iconKey: _iconKey,
+        ),
       );
     } else {
       await db.into(db.categories).insert(

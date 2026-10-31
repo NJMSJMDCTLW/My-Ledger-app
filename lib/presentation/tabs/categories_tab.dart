@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/category_names.dart';
 import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -71,7 +72,7 @@ class _Section extends StatelessWidget {
                 foregroundColor: AppTheme.onMacaron,
                 child: Icon(categoryIcon(c), size: 20),
               ),
-              title: Text(c.name),
+              title: Text(categoryDisplayName(context.l10n, c)),
               trailing: const Icon(Icons.chevron_right),
             ),
           ),

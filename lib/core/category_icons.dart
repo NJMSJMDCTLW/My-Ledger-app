@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_ledger/data/app_database.dart';
+import 'package:hello_ledger/data/default_categories.dart';
 
 /// Recommended icons to choose from when adding or editing a category. The database stores the key here (e.g. 'flight'),
 /// so changing the icon style later does not affect old data; but never rename a key that is already in use.
@@ -51,23 +52,10 @@ const Map<String, IconData> recommendedIcons = {
   'more': Icons.more_horiz,
 };
 
-/// Default categories (old data that has no icon key stored yet) map from their name to an icon key.
-const Map<String, String> _defaultKeyByName = {
-  '餐飲': 'restaurant',
-  '交通': 'bus',
-  '購物': 'shopping',
-  '娛樂': 'games',
-  '居住': 'home',
-  '醫療': 'medical',
-  '教育': 'school',
-  '薪水': 'payments',
-  '獎金': 'gift',
-  '其他': 'more',
-};
-
-/// The icon key this category actually uses.
+/// The icon key this category actually uses: the one the user picked, otherwise the built-in
+/// category's own icon, otherwise a neutral one.
 String categoryIconKey(Category category) =>
-    category.icon ?? _defaultKeyByName[category.name] ?? 'more';
+    category.icon ?? defaultCategoryByKey(category.defaultKey)?.iconKey ?? 'more';
 
 /// The icon for a category. A null [category] means "uncategorized".
 IconData categoryIcon(Category? category) {

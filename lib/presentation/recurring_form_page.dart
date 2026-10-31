@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/category_names.dart';
 import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
@@ -248,7 +249,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                               children: [
                                 Icon(categoryIcon(c), size: 20),
                                 const SizedBox(width: 12),
-                                Text(c.name),
+                                Text(categoryDisplayName(context.l10n, c)),
                               ],
                             ),
                           ),

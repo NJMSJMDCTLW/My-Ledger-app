@@ -282,7 +282,7 @@ class Account extends DataClass implements Insertable<Account> {
   final AccountType type;
   final String currency;
 
-  /// 期初餘額，單位是「分」。信用卡的欠款用負數表示。
+  /// Opening balance, in cents. A credit card's debt is stored as a negative number.
   final int openingBalance;
   final bool isArchived;
   final int? creditLimit;
@@ -684,8 +684,26 @@ class $CategoriesTable extends Categories
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _defaultKeyMeta = const VerificationMeta(
+    'defaultKey',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, name, type, icon, color];
+  late final GeneratedColumn<String> defaultKey = GeneratedColumn<String>(
+    'default_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    type,
+    icon,
+    color,
+    defaultKey,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -721,6 +739,12 @@ class $CategoriesTable extends Categories
         color.isAcceptableOrUnknown(data['color']!, _colorMeta),
       );
     }
+    if (data.containsKey('default_key')) {
+      context.handle(
+        _defaultKeyMeta,
+        defaultKey.isAcceptableOrUnknown(data['default_key']!, _defaultKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -752,6 +776,10 @@ class $CategoriesTable extends Categories
         DriftSqlType.int,
         data['${effectivePrefix}color'],
       ),
+      defaultKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_key'],
+      ),
     );
   }
 
@@ -770,12 +798,17 @@ class Category extends DataClass implements Insertable<Category> {
   final CategoryType type;
   final String? icon;
   final int? color;
+
+  /// Set only for the built-in categories (see default_categories.dart). Their name is shown
+  /// translated, so [name] is just a fallback. Renaming one clears this and keeps the new name.
+  final String? defaultKey;
   const Category({
     required this.id,
     required this.name,
     required this.type,
     this.icon,
     this.color,
+    this.defaultKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -791,6 +824,9 @@ class Category extends DataClass implements Insertable<Category> {
     if (!nullToAbsent || color != null) {
       map['color'] = Variable<int>(color);
     }
+    if (!nullToAbsent || defaultKey != null) {
+      map['default_key'] = Variable<String>(defaultKey);
+    }
     return map;
   }
 
@@ -803,6 +839,9 @@ class Category extends DataClass implements Insertable<Category> {
       color: color == null && nullToAbsent
           ? const Value.absent()
           : Value(color),
+      defaultKey: defaultKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultKey),
     );
   }
 
@@ -819,6 +858,7 @@ class Category extends DataClass implements Insertable<Category> {
       ),
       icon: serializer.fromJson<String?>(json['icon']),
       color: serializer.fromJson<int?>(json['color']),
+      defaultKey: serializer.fromJson<String?>(json['defaultKey']),
     );
   }
   @override
@@ -832,6 +872,7 @@ class Category extends DataClass implements Insertable<Category> {
       ),
       'icon': serializer.toJson<String?>(icon),
       'color': serializer.toJson<int?>(color),
+      'defaultKey': serializer.toJson<String?>(defaultKey),
     };
   }
 
@@ -841,12 +882,14 @@ class Category extends DataClass implements Insertable<Category> {
     CategoryType? type,
     Value<String?> icon = const Value.absent(),
     Value<int?> color = const Value.absent(),
+    Value<String?> defaultKey = const Value.absent(),
   }) => Category(
     id: id ?? this.id,
     name: name ?? this.name,
     type: type ?? this.type,
     icon: icon.present ? icon.value : this.icon,
     color: color.present ? color.value : this.color,
+    defaultKey: defaultKey.present ? defaultKey.value : this.defaultKey,
   );
   Category copyWithCompanion(CategoriesCompanion data) {
     return Category(
@@ -855,6 +898,9 @@ class Category extends DataClass implements Insertable<Category> {
       type: data.type.present ? data.type.value : this.type,
       icon: data.icon.present ? data.icon.value : this.icon,
       color: data.color.present ? data.color.value : this.color,
+      defaultKey: data.defaultKey.present
+          ? data.defaultKey.value
+          : this.defaultKey,
     );
   }
 
@@ -865,13 +911,14 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('icon: $icon, ')
-          ..write('color: $color')
+          ..write('color: $color, ')
+          ..write('defaultKey: $defaultKey')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, type, icon, color);
+  int get hashCode => Object.hash(id, name, type, icon, color, defaultKey);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -880,7 +927,8 @@ class Category extends DataClass implements Insertable<Category> {
           other.name == this.name &&
           other.type == this.type &&
           other.icon == this.icon &&
-          other.color == this.color);
+          other.color == this.color &&
+          other.defaultKey == this.defaultKey);
 }
 
 class CategoriesCompanion extends UpdateCompanion<Category> {
@@ -889,12 +937,14 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<CategoryType> type;
   final Value<String?> icon;
   final Value<int?> color;
+  final Value<String?> defaultKey;
   const CategoriesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.type = const Value.absent(),
     this.icon = const Value.absent(),
     this.color = const Value.absent(),
+    this.defaultKey = const Value.absent(),
   });
   CategoriesCompanion.insert({
     this.id = const Value.absent(),
@@ -902,6 +952,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required CategoryType type,
     this.icon = const Value.absent(),
     this.color = const Value.absent(),
+    this.defaultKey = const Value.absent(),
   }) : name = Value(name),
        type = Value(type);
   static Insertable<Category> custom({
@@ -910,6 +961,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Expression<int>? type,
     Expression<String>? icon,
     Expression<int>? color,
+    Expression<String>? defaultKey,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -917,6 +969,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       if (type != null) 'type': type,
       if (icon != null) 'icon': icon,
       if (color != null) 'color': color,
+      if (defaultKey != null) 'default_key': defaultKey,
     });
   }
 
@@ -926,6 +979,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     Value<CategoryType>? type,
     Value<String?>? icon,
     Value<int?>? color,
+    Value<String?>? defaultKey,
   }) {
     return CategoriesCompanion(
       id: id ?? this.id,
@@ -933,6 +987,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       type: type ?? this.type,
       icon: icon ?? this.icon,
       color: color ?? this.color,
+      defaultKey: defaultKey ?? this.defaultKey,
     );
   }
 
@@ -956,6 +1011,9 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (color.present) {
       map['color'] = Variable<int>(color.value);
     }
+    if (defaultKey.present) {
+      map['default_key'] = Variable<String>(defaultKey.value);
+    }
     return map;
   }
 
@@ -966,7 +1024,8 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('icon: $icon, ')
-          ..write('color: $color')
+          ..write('color: $color, ')
+          ..write('defaultKey: $defaultKey')
           ..write(')'))
         .toString();
   }
@@ -1296,19 +1355,19 @@ class TransactionRecord extends DataClass
   final int id;
   final DateTime date;
 
-  /// 金額一律存正整數，單位是「分」。收入或支出由 type 決定。
+  /// Amounts are always stored as positive integers, in cents. Whether it is income or expense is decided by type.
   final int amount;
   final TransactionType type;
   final int accountId;
   final int? toAccountId;
 
-  /// 轉帳時轉入帳戶實際收到的金額（單位：分，用轉入帳戶的貨幣）。
-  /// 兩個帳戶貨幣不同時才會有值；null 代表和 amount 一樣。
+  /// For a transfer, the amount the destination account actually receives (in cents, in the destination account's currency).
+  /// Only set when the two accounts have different currencies; null means the same as amount.
   final int? toAmount;
 
-  /// 使用者輸入的貨幣和金額和帳戶貨幣不同時，保留他輸入的原始值（單位：分）。
-  /// [amount] 是依當時匯率換成帳戶貨幣後的金額，不會再隨匯率改變。
-  /// 兩個欄位同時有值或同時是 null。
+  /// When the currency the user entered differs from the account's currency, keeps the original value they entered (in cents).
+  /// [amount] is the amount converted to the account's currency at the rate of that time and never changes again with the rate.
+  /// The two columns are either both set or both null.
   final int? originalAmount;
   final String? originalCurrency;
   final int? categoryId;
@@ -2015,20 +2074,20 @@ class RecurringRule extends DataClass implements Insertable<RecurringRule> {
   final int id;
   final TransactionType type;
 
-  /// 金額一律存正整數，單位是「分」。
+  /// Amounts are always stored as positive integers, in cents.
   final int amount;
   final int accountId;
   final int? toAccountId;
   final int? categoryId;
   final String note;
 
-  /// 每月幾號（1~31）。該月沒有這一天就用月底。
+  /// Day of the month (1-31). If the month lacks that day, the last day of the month is used.
   final int dayOfMonth;
 
-  /// 從這天起才開始產生交易。
+  /// Transactions are only generated from this date on.
   final DateTime startDate;
 
-  /// 最近一次已產生的交易日期，避免重複產生。
+  /// The date of the most recently generated transaction, to avoid generating duplicates.
   final DateTime? lastGenerated;
   final bool isActive;
   const RecurringRule({
@@ -2529,11 +2588,11 @@ class $ExchangeRatesTable extends ExchangeRates
 }
 
 class ExchangeRate extends DataClass implements Insertable<ExchangeRate> {
-  /// 貨幣代碼，例如 USD、JPY。
+  /// Currency code, e.g. USD, JPY.
   final String currency;
   final double rateToHkd;
 
-  /// true 代表使用者自己填的匯率，自動更新時不會被蓋掉。
+  /// True means the user entered this rate by hand, so automatic updates never overwrite it.
   final bool isManual;
   final DateTime updatedAt;
   const ExchangeRate({
@@ -3040,6 +3099,7 @@ typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
   required CategoryType type,
   Value<String?> icon,
   Value<int?> color,
+  Value<String?> defaultKey,
 });
 typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
   Value<int> id,
@@ -3047,6 +3107,7 @@ typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
   Value<CategoryType> type,
   Value<String?> icon,
   Value<int?> color,
+  Value<String?> defaultKey,
 });
 
 final class $$CategoriesTableReferences
@@ -3122,6 +3183,11 @@ class $$CategoriesTableFilterComposer
 
   ColumnFilters<int> get color => $composableBuilder(
     column: $table.color,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3209,6 +3275,11 @@ class $$CategoriesTableOrderingComposer
     column: $table.color,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$CategoriesTableAnnotationComposer
@@ -3234,6 +3305,11 @@ class $$CategoriesTableAnnotationComposer
 
   GeneratedColumn<int> get color =>
       $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultKey => $composableBuilder(
+    column: $table.defaultKey,
+    builder: (column) => column,
+  );
 
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
@@ -3322,12 +3398,14 @@ class $$CategoriesTableTableManager
                 Value<CategoryType> type = const Value.absent(),
                 Value<String?> icon = const Value.absent(),
                 Value<int?> color = const Value.absent(),
+                Value<String?> defaultKey = const Value.absent(),
               }) => CategoriesCompanion(
                 id: id,
                 name: name,
                 type: type,
                 icon: icon,
                 color: color,
+                defaultKey: defaultKey,
               ),
           createCompanionCallback:
               ({
@@ -3336,12 +3414,14 @@ class $$CategoriesTableTableManager
                 required CategoryType type,
                 Value<String?> icon = const Value.absent(),
                 Value<int?> color = const Value.absent(),
+                Value<String?> defaultKey = const Value.absent(),
               }) => CategoriesCompanion.insert(
                 id: id,
                 name: name,
                 type: type,
                 icon: icon,
                 color: color,
+                defaultKey: defaultKey,
               ),
           withReferenceMapper: (p0) => p0
               .map(
