@@ -9,11 +9,15 @@ import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/settings_providers.dart';
 import 'package:hello_ledger/l10n/app_localizations.dart';
 import 'package:hello_ledger/presentation/app_shell.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.instance.init();
+  // Date patterns for every language, so text built outside a widget (such as the reminders)
+  // can format dates before the first screen has loaded them
+  await initializeDateFormatting();
   // Load the saved settings first, so the app starts in the right language with no flicker.
   final prefs = await SharedPreferences.getInstance();
   runApp(

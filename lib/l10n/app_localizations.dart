@@ -998,6 +998,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There are no records for {previous}, so there is nothing to compare.'**
   String comparisonNoRecords(String previous);
+
+  /// No description provided for @categoriesExpenseSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense categories'**
+  String get categoriesExpenseSection;
+
+  /// No description provided for @categoriesIncomeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Income categories'**
+  String get categoriesIncomeSection;
+
+  /// No description provided for @newCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get newCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// No description provided for @fieldCategoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get fieldCategoryName;
+
+  /// No description provided for @chooseIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an icon'**
+  String get chooseIcon;
+
+  /// No description provided for @errorDuplicateCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'A category with this name already exists'**
+  String get errorDuplicateCategory;
+
+  /// No description provided for @cannotDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t delete'**
+  String get cannotDeleteTitle;
+
+  /// No description provided for @categoryInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This category is used by {txCount, plural, =1{1 transaction} other{{txCount} transactions}} and {ruleCount, plural, =1{1 recurring rule} other{{ruleCount} recurring rules}}.\nTo change its name or icon, edit it instead.'**
+  String categoryInUse(int txCount, int ruleCount);
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @deleteCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this category?'**
+  String get deleteCategoryTitle;
+
+  /// No description provided for @recurringEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring items yet.\nFor example, monthly rent or salary: set it up once and it is recorded automatically.'**
+  String get recurringEmpty;
+
+  /// No description provided for @recurringDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of each month'**
+  String recurringDay(int day);
+
+  /// No description provided for @recurringPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get recurringPaused;
+
+  /// No description provided for @newRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'New recurring item'**
+  String get newRecurring;
+
+  /// No description provided for @editRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit recurring item'**
+  String get editRecurring;
+
+  /// No description provided for @deleteRecurringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this recurring item?'**
+  String get deleteRecurringTitle;
+
+  /// No description provided for @deleteRecurringMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No more transactions will be created automatically. The ones already created are kept.'**
+  String get deleteRecurringMessage;
+
+  /// No description provided for @fieldDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get fieldDayOfMonth;
+
+  /// No description provided for @dayOfMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If a month does not have that day (for example February 31), the last day of the month is used.'**
+  String get dayOfMonthHint;
+
+  /// No description provided for @dayNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String dayNumber(int day);
+
+  /// No description provided for @fieldStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get fieldStartDate;
+
+  /// No description provided for @errorRecurringCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring transfers don\'t support accounts with different currencies yet'**
+  String get errorRecurringCurrency;
+
+  /// No description provided for @ratesExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The total balance and statistics are converted to Hong Kong dollars (HKD).\nRates marked Automatic update by themselves. A rate you change is marked Manual and is never overwritten. Changing a rate also changes the HKD value of past foreign-currency transactions.'**
+  String get ratesExplanation;
+
+  /// No description provided for @rateStatusUpdating.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating…'**
+  String get rateStatusUpdating;
+
+  /// No description provided for @rateStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Last update failed: {reason}'**
+  String rateStatusFailed(String reason);
+
+  /// No description provided for @rateStatusJustUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Just updated'**
+  String get rateStatusJustUpdated;
+
+  /// No description provided for @rateStatusIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'The app updates the rates when needed (at most once or twice a day).'**
+  String get rateStatusIdle;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get updateNow;
+
+  /// No description provided for @ratesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates updated'**
+  String get ratesUpdated;
+
+  /// No description provided for @ratesUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update failed'**
+  String get ratesUpdateFailed;
+
+  /// No description provided for @rateSourceCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rate data: {name}'**
+  String rateSourceCredit(String name);
+
+  /// No description provided for @rateManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Once saved, it is marked Manual and is no longer updated automatically.'**
+  String get rateManualHint;
+
+  /// No description provided for @switchToAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch back to automatic updates'**
+  String get switchToAutomatic;
+
+  /// No description provided for @switchedToAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched back to automatic updates'**
+  String get switchedToAutomatic;
+
+  /// No description provided for @switchedToAutomaticFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched back to automatic updates, but this update failed: {reason}'**
+  String switchedToAutomaticFailed(String reason);
+
+  /// No description provided for @rateNotSetInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'No exchange rate set (an account is using it)'**
+  String get rateNotSetInUse;
+
+  /// No description provided for @rateModeManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get rateModeManual;
+
+  /// No description provided for @rateModeAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get rateModeAutomatic;
+
+  /// No description provided for @rateUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{mode} · updated {date} {time}'**
+  String rateUpdatedAt(String mode, DateTime date, DateTime time);
+
+  /// No description provided for @inUse.
+  ///
+  /// In en, this message translates to:
+  /// **'In use'**
+  String get inUse;
+
+  /// No description provided for @rateErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange rate service is unavailable right now ({code})'**
+  String rateErrorUnavailable(int code);
+
+  /// No description provided for @rateErrorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection timed out. Check your network and try again.'**
+  String get rateErrorTimeout;
+
+  /// No description provided for @rateErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t connect. Check your network.'**
+  String get rateErrorOffline;
+
+  /// No description provided for @rateErrorSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t establish a secure connection. Check your network.'**
+  String get rateErrorSecure;
+
+  /// No description provided for @rateErrorBadFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange rate data is in an unexpected format.'**
+  String get rateErrorBadFormat;
+
+  /// No description provided for @rateErrorService.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange rate service returned an error.'**
+  String get rateErrorService;
+
+  /// No description provided for @rateErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while updating the exchange rates.'**
+  String get rateErrorUnknown;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card payment reminders'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card payment reminder'**
+  String get notificationTitle;
+
+  /// No description provided for @notificationDueSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{card} is due on {date}. Remember to have the funds ready.'**
+  String notificationDueSoon(String card, DateTime date);
+
+  /// No description provided for @notificationDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is the payment due date for {card}.'**
+  String notificationDueToday(String card);
 }
 
 class _AppLocalizationsDelegate

@@ -1,11 +1,15 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_ledger/core/app_language.dart';
 import 'package:hello_ledger/core/notification_service.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/hkd_converter.dart';
 import 'package:hello_ledger/data/rate_service.dart';
 import 'package:hello_ledger/data/recurring_service.dart';
+import 'package:hello_ledger/data/settings_providers.dart';
 import 'package:hello_ledger/data/stats_range.dart';
 
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -174,9 +178,14 @@ final recurringSyncProvider = Provider<void>((ref) {
 
 /// Reschedules the credit card due-date reminders whenever accounts change. Just watch it at the top of the app.
 final reminderSyncProvider = Provider<void>((ref) {
+  // The reminder text is fixed when it is scheduled, so a language change reschedules them too
+  final language = ref.watch(appLanguageProvider);
   final accounts = ref.watch(allAccountsProvider).value;
   if (accounts == null) return;
-  NotificationService.instance.rescheduleCreditCardReminders(accounts);
+  NotificationService.instance.rescheduleCreditCardReminders(
+    accounts,
+    localizationsFor(language, PlatformDispatcher.instance.locales),
+  );
 });
 
 /// Active (non-archived) accounts.
@@ -256,7 +265,7 @@ class RateUpdateState {
   final bool isLoading;
 
   /// Why the last update failed; null if it succeeded or has not run yet.
-  final String? error;
+  final RateFetchError? error;
 
   /// When the most recent successful update happened during this app session.
   final DateTime? lastSuccess;
@@ -275,11 +284,11 @@ class RateUpdater extends Notifier<RateUpdateState> {
       state = RateUpdateState(lastSuccess: DateTime.now());
       return true;
     } on RateFetchException catch (e) {
-      state = RateUpdateState(error: e.message, lastSuccess: state.lastSuccess);
+      state = RateUpdateState(error: e.error, lastSuccess: state.lastSuccess);
       return false;
     } catch (_) {
       state = RateUpdateState(
-        error: '更新匯率時發生錯誤',
+        error: RateFetchError.unknown,
         lastSuccess: state.lastSuccess,
       );
       return false;

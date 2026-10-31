@@ -551,6 +551,191 @@ class AppLocalizationsZh extends AppLocalizations {
   String comparisonNoRecords(String previous) {
     return '$previous沒有紀錄，無法比較';
   }
+
+  @override
+  String get categoriesExpenseSection => '支出分類';
+
+  @override
+  String get categoriesIncomeSection => '收入分類';
+
+  @override
+  String get newCategory => '新增分類';
+
+  @override
+  String get editCategory => '編輯分類';
+
+  @override
+  String get fieldCategoryName => '分類名稱';
+
+  @override
+  String get chooseIcon => '選一個圖示';
+
+  @override
+  String get errorDuplicateCategory => '已經有同名的分類';
+
+  @override
+  String get cannotDeleteTitle => '無法刪除';
+
+  @override
+  String categoryInUse(int txCount, int ruleCount) {
+    return '這個分類已經被 $txCount 筆交易、$ruleCount 個固定收支使用。\n如果只是想換名字或圖示，可以直接編輯。';
+  }
+
+  @override
+  String get gotIt => '知道了';
+
+  @override
+  String get deleteCategoryTitle => '刪除這個分類？';
+
+  @override
+  String get recurringEmpty => '還沒有固定收支\n例如每月的房租、薪水，設定一次就會自動記帳';
+
+  @override
+  String recurringDay(int day) {
+    return '每月 $day 號';
+  }
+
+  @override
+  String get recurringPaused => '已暫停';
+
+  @override
+  String get newRecurring => '新增固定收支';
+
+  @override
+  String get editRecurring => '編輯固定收支';
+
+  @override
+  String get deleteRecurringTitle => '刪除這個固定收支？';
+
+  @override
+  String get deleteRecurringMessage => '以後不會再自動新增。已經產生的交易會保留。';
+
+  @override
+  String get fieldDayOfMonth => '每月幾號';
+
+  @override
+  String get dayOfMonthHint => '該月沒有這一天（例如 2 月 31 號）會改在月底';
+
+  @override
+  String dayNumber(int day) {
+    return '$day 號';
+  }
+
+  @override
+  String get fieldStartDate => '開始日期';
+
+  @override
+  String get errorRecurringCurrency => '固定轉帳暫不支援不同貨幣的帳戶';
+
+  @override
+  String get ratesExplanation =>
+      '總資產與統計都會折合成港幣（HKD）。\n標示「自動」的匯率會自動更新；自己修改過的會標示「手動」，不會被蓋掉。改了匯率之後，過去的外幣交易折合的港幣金額也會一起改變。';
+
+  @override
+  String get rateStatusUpdating => '更新中…';
+
+  @override
+  String rateStatusFailed(String reason) {
+    return '上次更新失敗：$reason';
+  }
+
+  @override
+  String get rateStatusJustUpdated => '剛剛已更新';
+
+  @override
+  String get rateStatusIdle => '需要時 App 會自動更新（每天最多一兩次）';
+
+  @override
+  String get updateNow => '立即更新';
+
+  @override
+  String get ratesUpdated => '匯率已更新';
+
+  @override
+  String get ratesUpdateFailed => '更新失敗';
+
+  @override
+  String rateSourceCredit(String name) {
+    return '匯率資料來源：$name';
+  }
+
+  @override
+  String get rateManualHint => '儲存後會標示為「手動」，不再自動更新';
+
+  @override
+  String get switchToAutomatic => '改回自動更新';
+
+  @override
+  String get switchedToAutomatic => '已改回自動更新';
+
+  @override
+  String switchedToAutomaticFailed(String reason) {
+    return '已改回自動更新，但這次更新失敗：$reason';
+  }
+
+  @override
+  String get rateNotSetInUse => '尚未設定匯率（有帳戶在使用）';
+
+  @override
+  String get rateModeManual => '手動';
+
+  @override
+  String get rateModeAutomatic => '自動';
+
+  @override
+  String rateUpdatedAt(String mode, DateTime date, DateTime time) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+    final intl.DateFormat timeDateFormat = intl.DateFormat.Hm(localeName);
+    final String timeString = timeDateFormat.format(time);
+
+    return '$mode　更新於 $dateString $timeString';
+  }
+
+  @override
+  String get inUse => '使用中';
+
+  @override
+  String rateErrorUnavailable(int code) {
+    return '匯率服務暫時無法使用（$code）';
+  }
+
+  @override
+  String get rateErrorTimeout => '連線逾時，請確認網路後再試';
+
+  @override
+  String get rateErrorOffline => '無法連線，請確認網路';
+
+  @override
+  String get rateErrorSecure => '無法建立安全連線，請確認網路';
+
+  @override
+  String get rateErrorBadFormat => '匯率資料格式不正確';
+
+  @override
+  String get rateErrorService => '匯率服務回傳錯誤';
+
+  @override
+  String get rateErrorUnknown => '更新匯率時發生錯誤';
+
+  @override
+  String get notificationChannelName => '信用卡繳款提醒';
+
+  @override
+  String get notificationTitle => '信用卡繳款提醒';
+
+  @override
+  String notificationDueSoon(String card, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$card 將於 $dateString 繳款，記得準備資金';
+  }
+
+  @override
+  String notificationDueToday(String card) {
+    return '今天是 $card 的繳款日';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -627,5 +812,23 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
     final String dateString = dateDateFormat.format(date);
 
     return '$dateString';
+  }
+
+  @override
+  String rateUpdatedAt(String mode, DateTime date, DateTime time) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+    final intl.DateFormat timeDateFormat = intl.DateFormat.Hm(localeName);
+    final String timeString = timeDateFormat.format(time);
+
+    return '$mode　更新於 $dateString $timeString';
+  }
+
+  @override
+  String notificationDueSoon(String card, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$card 將於 $dateString 繳款，記得準備資金';
   }
 }

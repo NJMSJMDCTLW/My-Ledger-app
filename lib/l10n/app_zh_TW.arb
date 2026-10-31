@@ -9,5 +9,7 @@
   "formatMonthName": "{date}",
   "formatMonthShort": "{date}",
   "nextStatement": "下次結帳：{date}（{when}）",
-  "nextPayment": "下次繳款：{date}（{when}）"
+  "nextPayment": "下次繳款：{date}（{when}）",
+  "rateUpdatedAt": "{mode}　更新於 {date} {time}",
+  "notificationDueSoon": "{card} 將於 {date} 繳款，記得準備資金"
 }

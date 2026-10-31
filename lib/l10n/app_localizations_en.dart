@@ -561,4 +561,212 @@ class AppLocalizationsEn extends AppLocalizations {
   String comparisonNoRecords(String previous) {
     return 'There are no records for $previous, so there is nothing to compare.';
   }
+
+  @override
+  String get categoriesExpenseSection => 'Expense categories';
+
+  @override
+  String get categoriesIncomeSection => 'Income categories';
+
+  @override
+  String get newCategory => 'New category';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get fieldCategoryName => 'Category name';
+
+  @override
+  String get chooseIcon => 'Choose an icon';
+
+  @override
+  String get errorDuplicateCategory =>
+      'A category with this name already exists';
+
+  @override
+  String get cannotDeleteTitle => 'Can\'t delete';
+
+  @override
+  String categoryInUse(int txCount, int ruleCount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      txCount,
+      locale: localeName,
+      other: '$txCount transactions',
+      one: '1 transaction',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      ruleCount,
+      locale: localeName,
+      other: '$ruleCount recurring rules',
+      one: '1 recurring rule',
+    );
+    return 'This category is used by $_temp0 and $_temp1.\nTo change its name or icon, edit it instead.';
+  }
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get deleteCategoryTitle => 'Delete this category?';
+
+  @override
+  String get recurringEmpty =>
+      'No recurring items yet.\nFor example, monthly rent or salary: set it up once and it is recorded automatically.';
+
+  @override
+  String recurringDay(int day) {
+    return 'Day $day of each month';
+  }
+
+  @override
+  String get recurringPaused => 'Paused';
+
+  @override
+  String get newRecurring => 'New recurring item';
+
+  @override
+  String get editRecurring => 'Edit recurring item';
+
+  @override
+  String get deleteRecurringTitle => 'Delete this recurring item?';
+
+  @override
+  String get deleteRecurringMessage =>
+      'No more transactions will be created automatically. The ones already created are kept.';
+
+  @override
+  String get fieldDayOfMonth => 'Day of the month';
+
+  @override
+  String get dayOfMonthHint =>
+      'If a month does not have that day (for example February 31), the last day of the month is used.';
+
+  @override
+  String dayNumber(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get fieldStartDate => 'Start date';
+
+  @override
+  String get errorRecurringCurrency =>
+      'Recurring transfers don\'t support accounts with different currencies yet';
+
+  @override
+  String get ratesExplanation =>
+      'The total balance and statistics are converted to Hong Kong dollars (HKD).\nRates marked Automatic update by themselves. A rate you change is marked Manual and is never overwritten. Changing a rate also changes the HKD value of past foreign-currency transactions.';
+
+  @override
+  String get rateStatusUpdating => 'Updating…';
+
+  @override
+  String rateStatusFailed(String reason) {
+    return 'Last update failed: $reason';
+  }
+
+  @override
+  String get rateStatusJustUpdated => 'Just updated';
+
+  @override
+  String get rateStatusIdle =>
+      'The app updates the rates when needed (at most once or twice a day).';
+
+  @override
+  String get updateNow => 'Update now';
+
+  @override
+  String get ratesUpdated => 'Exchange rates updated';
+
+  @override
+  String get ratesUpdateFailed => 'Update failed';
+
+  @override
+  String rateSourceCredit(String name) {
+    return 'Exchange rate data: $name';
+  }
+
+  @override
+  String get rateManualHint =>
+      'Once saved, it is marked Manual and is no longer updated automatically.';
+
+  @override
+  String get switchToAutomatic => 'Switch back to automatic updates';
+
+  @override
+  String get switchedToAutomatic => 'Switched back to automatic updates';
+
+  @override
+  String switchedToAutomaticFailed(String reason) {
+    return 'Switched back to automatic updates, but this update failed: $reason';
+  }
+
+  @override
+  String get rateNotSetInUse => 'No exchange rate set (an account is using it)';
+
+  @override
+  String get rateModeManual => 'Manual';
+
+  @override
+  String get rateModeAutomatic => 'Automatic';
+
+  @override
+  String rateUpdatedAt(String mode, DateTime date, DateTime time) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+    final intl.DateFormat timeDateFormat = intl.DateFormat.Hm(localeName);
+    final String timeString = timeDateFormat.format(time);
+
+    return '$mode · updated $dateString $timeString';
+  }
+
+  @override
+  String get inUse => 'In use';
+
+  @override
+  String rateErrorUnavailable(int code) {
+    return 'The exchange rate service is unavailable right now ($code)';
+  }
+
+  @override
+  String get rateErrorTimeout =>
+      'The connection timed out. Check your network and try again.';
+
+  @override
+  String get rateErrorOffline => 'Can\'t connect. Check your network.';
+
+  @override
+  String get rateErrorSecure =>
+      'Couldn\'t establish a secure connection. Check your network.';
+
+  @override
+  String get rateErrorBadFormat =>
+      'The exchange rate data is in an unexpected format.';
+
+  @override
+  String get rateErrorService => 'The exchange rate service returned an error.';
+
+  @override
+  String get rateErrorUnknown =>
+      'Something went wrong while updating the exchange rates.';
+
+  @override
+  String get notificationChannelName => 'Credit card payment reminders';
+
+  @override
+  String get notificationTitle => 'Credit card payment reminder';
+
+  @override
+  String notificationDueSoon(String card, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.Md(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$card is due on $dateString. Remember to have the funds ready.';
+  }
+
+  @override
+  String notificationDueToday(String card) {
+    return 'Today is the payment due date for $card.';
+  }
 }

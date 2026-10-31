@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
@@ -50,13 +51,13 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
 
   String? _validateName(String? v) {
     final name = v?.trim() ?? '';
-    if (name.isEmpty) return '請輸入名稱';
+    if (name.isEmpty) return context.l10n.nameRequired;
     final categories = ref.read(categoriesProvider).value ?? [];
     final duplicated = categories.any((c) =>
         c.type == _type &&
         c.id != widget.existing?.id &&
         c.name.toLowerCase() == name.toLowerCase());
-    return duplicated ? '已經有同名的分類' : null;
+    return duplicated ? context.l10n.errorDuplicateCategory : null;
   }
 
   Future<void> _save() async {
@@ -101,13 +102,12 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
       await showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('無法刪除'),
-          content: Text('這個分類已經被 $txCount 筆交易、$ruleCount 個固定收支使用。'
-              '\n如果只是想換名字或圖示，可以直接編輯。'),
+          title: Text(context.l10n.cannotDeleteTitle),
+          content: Text(context.l10n.categoryInUse(txCount, ruleCount)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('知道了'),
+              child: Text(context.l10n.gotIt),
             ),
           ],
         ),
@@ -118,16 +118,16 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('刪除這個分類？'),
-        content: const Text('刪除後無法復原。'),
+        title: Text(context.l10n.deleteCategoryTitle),
+        content: Text(context.l10n.deleteCannotUndo),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('刪除'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -140,6 +140,10 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    // The duplicate-name check reads the categories with ref.read, so watch them here to keep
+    // them loaded while the form is open (otherwise a duplicate could slip through).
+    ref.watch(categoriesProvider);
+
     final theme = Theme.of(context);
     final previewColor = _isEditing
         ? AppTheme.categoryColor(widget.existing!.id)
@@ -147,11 +151,11 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? '編輯分類' : '新增分類'),
+        title: Text(_isEditing ? context.l10n.editCategory : context.l10n.newCategory),
         actions: [
           if (_isEditing)
             IconButton(
-              tooltip: '刪除',
+              tooltip: context.l10n.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -172,9 +176,9 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
             ),
             const SizedBox(height: 16),
             SegmentedButton<CategoryType>(
-              segments: const [
-                ButtonSegment(value: CategoryType.expense, label: Text('支出')),
-                ButtonSegment(value: CategoryType.income, label: Text('收入')),
+              segments: [
+                ButtonSegment(value: CategoryType.expense, label: Text(context.l10n.expense)),
+                ButtonSegment(value: CategoryType.income, label: Text(context.l10n.income)),
               ],
               selected: {_type},
               // The type cannot be changed when editing
@@ -185,13 +189,13 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: '分類名稱'),
+              decoration: InputDecoration(labelText: context.l10n.fieldCategoryName),
               maxLength: 30,
               autofocus: !_isEditing,
               validator: _validateName,
             ),
             const SizedBox(height: 8),
-            Text('選一個圖示', style: theme.textTheme.titleMedium),
+            Text(context.l10n.chooseIcon, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,
@@ -206,7 +210,7 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
               ],
             ),
             const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: const Text('儲存')),
+            FilledButton(onPressed: _save, child: Text(context.l10n.save)),
           ],
         ),
       ),

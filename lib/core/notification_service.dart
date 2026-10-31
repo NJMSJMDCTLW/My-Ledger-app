@@ -2,10 +2,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hello_ledger/core/billing_dates.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
-import 'package:intl/intl.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 /// Credit card due-date reminders: notifications 3 days before the due date and on the due date at 9:00.
+///
+/// A notification's text is fixed when it is scheduled, so the reminders have to be scheduled
+/// again whenever the language changes (see `reminderSyncProvider`).
 class NotificationService {
   NotificationService._();
   static final instance = NotificationService._();
@@ -23,8 +26,20 @@ class NotificationService {
     );
   }
 
+  /// The text of the reminder sent 3 days before [due], e.g. "Travel card (1234) is due on 11/5. ...".
+  static String dueSoonBody(AppLocalizations l10n, String cardLabel, DateTime due) =>
+      l10n.notificationDueSoon(cardLabel, due);
+
+  /// The text of the reminder sent on the due date itself.
+  static String dueTodayBody(AppLocalizations l10n, String cardLabel) =>
+      l10n.notificationDueToday(cardLabel);
+
   /// Reschedules based on the current credit cards. Everything is cancelled and rescheduled, so changing a due day or archiving a card stays correct.
-  Future<void> rescheduleCreditCardReminders(List<Account> accounts) async {
+  /// The text is written in the language of [l10n].
+  Future<void> rescheduleCreditCardReminders(
+    List<Account> accounts,
+    AppLocalizations l10n,
+  ) async {
     await _plugin.cancelAll();
 
     final cards = accounts.where((a) =>
@@ -38,7 +53,6 @@ class NotificationService {
         ?.requestNotificationsPermission();
 
     final now = DateTime.now();
-    final fmt = DateFormat('M/d');
 
     for (final card in cards) {
       final label =
@@ -52,16 +66,18 @@ class NotificationService {
         // id: two per card per month, so it never collides with another card
         final baseId = card.id * 100 + k * 2;
         await _schedule(
+          l10n: l10n,
           id: baseId,
           at: DateTime(
               threeDaysBefore.year, threeDaysBefore.month, threeDaysBefore.day, _hour),
-          body: '$label 將於 ${fmt.format(due)} 繳款，記得準備資金',
+          body: dueSoonBody(l10n, label, due),
           now: now,
         );
         await _schedule(
+          l10n: l10n,
           id: baseId + 1,
           at: DateTime(due.year, due.month, due.day, _hour),
-          body: '今天是 $label 的繳款日',
+          body: dueTodayBody(l10n, label),
           now: now,
         );
       }
@@ -69,6 +85,7 @@ class NotificationService {
   }
 
   Future<void> _schedule({
+    required AppLocalizations l10n,
     required int id,
     required DateTime at,
     required String body,
@@ -78,14 +95,15 @@ class NotificationService {
 
     await _plugin.zonedSchedule(
       id: id,
-      title: '信用卡繳款提醒',
+      title: l10n.notificationTitle,
       body: body,
       // Convert local time to the same instant in UTC, so no time zone lookup is needed
       scheduledDate: tz.TZDateTime.from(at, tz.UTC),
-      notificationDetails: const NotificationDetails(
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           'credit_card_due',
-          '信用卡繳款提醒',
+          // Android keeps the name the channel was first created with
+          l10n.notificationChannelName,
           importance: Importance.high,
           priority: Priority.high,
         ),

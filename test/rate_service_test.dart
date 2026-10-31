@@ -79,7 +79,7 @@ void main() {
     test('A failed fetch leaves the database untouched', () async {
       await setManualRate(db, 'USD', 8.0);
       await expectLater(
-        updateExchangeRates(db, fetch: () async => throw const RateFetchException('無法連線')),
+        updateExchangeRates(db, fetch: () async => throw const RateFetchException(RateFetchError.offline)),
         throwsA(isA<RateFetchException>()),
       );
       final rows = await db.select(db.exchangeRates).get();

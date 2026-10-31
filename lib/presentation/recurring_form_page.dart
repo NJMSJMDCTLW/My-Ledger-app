@@ -8,7 +8,6 @@ import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
-import 'package:intl/intl.dart';
 
 /// Add or edit a recurring rule.
 class RecurringFormPage extends ConsumerStatefulWidget {
@@ -102,16 +101,16 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('刪除這個固定收支？'),
-        content: const Text('以後不會再自動新增。已經產生的交易會保留。'),
+        title: Text(context.l10n.deleteRecurringTitle),
+        content: Text(context.l10n.deleteRecurringMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(context.l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('刪除'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -142,18 +141,18 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? '編輯固定收支' : '新增固定收支'),
+        title: Text(_isEditing ? context.l10n.editRecurring : context.l10n.newRecurring),
         actions: [
           if (_isEditing)
             IconButton(
-              tooltip: '刪除',
+              tooltip: context.l10n.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
         ],
       ),
       body: accounts.isEmpty
-          ? const Center(child: Text('請先新增一個帳戶'))
+          ? Center(child: Text(context.l10n.addAccountFirst))
           : Form(
               key: _formKey,
               child: ListView(
@@ -174,7 +173,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                   TextFormField(
                     controller: _amount,
                     decoration: InputDecoration(
-                      labelText: '金額',
+                      labelText: context.l10n.fieldAmount,
                       prefixText: currencyInfo(_currencyOf(_accountId)).symbol,
                     ),
                     keyboardType:
@@ -183,20 +182,23 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                     validator: (v) {
                       final cents = parseCents(v ?? '');
                       return (cents == null || cents <= 0)
-                          ? '請輸入大於 0 的金額'
+                          ? context.l10n.errorAmountPositive
                           : null;
                     },
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
                     initialValue: _day,
-                    decoration: const InputDecoration(
-                      labelText: '每月幾號',
-                      helperText: '該月沒有這一天（例如 2 月 31 號）會改在月底',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.fieldDayOfMonth,
+                      helperText: context.l10n.dayOfMonthHint,
                     ),
                     items: [
                       for (var d = 1; d <= 31; d++)
-                        DropdownMenuItem(value: d, child: Text('$d 號')),
+                        DropdownMenuItem(
+                          value: d,
+                          child: Text(context.l10n.dayNumber(d)),
+                        ),
                     ],
                     onChanged: (v) => setState(() => _day = v!),
                   ),
@@ -204,31 +206,31 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                   DropdownButtonFormField<int>(
                     initialValue: _accountId,
                     decoration: InputDecoration(
-                      labelText: _isTransfer ? '轉出帳戶' : '帳戶',
+                      labelText: _isTransfer ? context.l10n.fieldFromAccount : context.l10n.fieldAccount,
                     ),
                     items: [
                       for (final a in accounts)
                         DropdownMenuItem(value: a.id, child: Text(a.name)),
                     ],
                     onChanged: (v) => setState(() => _accountId = v),
-                    validator: (v) => v == null ? '請選擇帳戶' : null,
+                    validator: (v) => v == null ? context.l10n.errorSelectAccount : null,
                   ),
                   const SizedBox(height: 16),
                   if (_isTransfer)
                     DropdownButtonFormField<int>(
                       initialValue: _toAccountId,
-                      decoration: const InputDecoration(labelText: '轉入帳戶'),
+                      decoration: InputDecoration(labelText: context.l10n.fieldToAccount),
                       items: [
                         for (final a in accounts)
                           DropdownMenuItem(value: a.id, child: Text(a.name)),
                       ],
                       onChanged: (v) => setState(() => _toAccountId = v),
                       validator: (v) {
-                        if (v == null) return '請選擇轉入帳戶';
-                        if (v == _accountId) return '不能轉給同一個帳戶';
+                        if (v == null) return context.l10n.errorSelectToAccount;
+                        if (v == _accountId) return context.l10n.errorSameAccount;
                         // A recurring transfer is recorded automatically every month and cannot ask how much was actually received each time, so only same-currency accounts are supported
                         if (_currencyOf(v) != _currencyOf(_accountId)) {
-                          return '固定轉帳暫不支援不同貨幣的帳戶';
+                          return context.l10n.errorRecurringCurrency;
                         }
                         return null;
                       },
@@ -237,7 +239,7 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                     DropdownButtonFormField<int>(
                       key: ValueKey(categoryType), // rebuild when the type changes to clear the old choice
                       initialValue: _categoryId,
-                      decoration: const InputDecoration(labelText: '類別'),
+                      decoration: InputDecoration(labelText: context.l10n.fieldCategory),
                       items: [
                         for (final c in categories)
                           DropdownMenuItem(
@@ -252,22 +254,22 @@ class _RecurringFormPageState extends ConsumerState<RecurringFormPage> {
                           ),
                       ],
                       onChanged: (v) => setState(() => _categoryId = v),
-                      validator: (v) => v == null ? '請選擇類別' : null,
+                      validator: (v) => v == null ? context.l10n.errorSelectCategory : null,
                     ),
                   const SizedBox(height: 8),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('開始日期'),
-                    subtitle: Text(DateFormat('yyyy/MM/dd').format(_startDate)),
+                    title: Text(context.l10n.fieldStartDate),
+                    subtitle: Text(context.l10n.formatDate(_startDate)),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: _pickStartDate,
                   ),
                   TextFormField(
                     controller: _note,
-                    decoration: const InputDecoration(labelText: '備註（選填）'),
+                    decoration: InputDecoration(labelText: context.l10n.fieldNoteOptional),
                   ),
                   const SizedBox(height: 24),
-                  FilledButton(onPressed: _save, child: const Text('儲存')),
+                  FilledButton(onPressed: _save, child: Text(context.l10n.save)),
                 ],
               ),
             ),

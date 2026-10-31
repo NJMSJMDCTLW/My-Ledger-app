@@ -5,21 +5,62 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:hello_ledger/core/currencies.dart';
 import 'package:hello_ledger/data/app_database.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 
 /// Exchange-rate source: the free open endpoint of ExchangeRate-API (no key needed, updated once a day).
 /// Its terms require attribution, so the rates tab shows [rateSourceName].
 const rateSourceUrl = 'https://open.er-api.com/v6/latest/$baseCurrency';
 const rateSourceName = 'ExchangeRate-API (exchangerate-api.com)';
 
-/// Fetching rates failed (offline, server error, bad format). [message] can be shown to the user directly.
-class RateFetchException implements Exception {
-  const RateFetchException(this.message);
+/// Why fetching the rates failed.
+enum RateFetchError {
+  /// The server answered with an error status code.
+  unavailable,
+  timeout,
+  offline,
+  secureConnection,
 
-  final String message;
+  /// The response was not the JSON we expect.
+  badFormat,
+
+  /// The service said the request failed.
+  service,
+
+  /// Anything else.
+  unknown,
+}
+
+/// Fetching rates failed (offline, server error, bad format). The kind of failure is in [error];
+/// the screen turns it into text in the user's language with [message].
+class RateFetchException implements Exception {
+  const RateFetchException(this.error, [this.statusCode]);
+
+  final RateFetchError error;
+
+  /// The HTTP status code, for [RateFetchError.unavailable].
+  final int? statusCode;
+
+  /// The text to show the user, in the language of [l10n].
+  String message(AppLocalizations l10n) => error.message(l10n, statusCode);
 
   @override
-  String toString() => message;
+  String toString() =>
+      'RateFetchException($error${statusCode == null ? '' : ', $statusCode'})';
 }
+
+extension RateFetchErrorMessage on RateFetchError {
+  String message(AppLocalizations l10n, [int? statusCode]) => switch (this) {
+        RateFetchError.unavailable =>
+          l10n.rateErrorUnavailable(statusCode ?? 0),
+        RateFetchError.timeout => l10n.rateErrorTimeout,
+        RateFetchError.offline => l10n.rateErrorOffline,
+        RateFetchError.secureConnection => l10n.rateErrorSecure,
+        RateFetchError.badFormat => l10n.rateErrorBadFormat,
+        RateFetchError.service => l10n.rateErrorService,
+        RateFetchError.unknown => l10n.rateErrorUnknown,
+      };
+}
+
 
 /// A function that returns the raw rates JSON. Tests can swap in a fake one so no real network is used.
 typedef RateFetcher = Future<String> Function();
@@ -33,7 +74,7 @@ Future<String> fetchRatesFromNetwork() async {
         .timeout(const Duration(seconds: 15));
     final response = await request.close().timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {
-      throw RateFetchException('匯率服務暫時無法使用（${response.statusCode}）');
+      throw RateFetchException(RateFetchError.unavailable, response.statusCode);
     }
     return await response
         .transform(utf8.decoder)
@@ -42,11 +83,11 @@ Future<String> fetchRatesFromNetwork() async {
   } on RateFetchException {
     rethrow;
   } on TimeoutException {
-    throw const RateFetchException('連線逾時，請確認網路後再試');
+    throw const RateFetchException(RateFetchError.timeout);
   } on SocketException {
-    throw const RateFetchException('無法連線，請確認網路');
+    throw const RateFetchException(RateFetchError.offline);
   } on HandshakeException {
-    throw const RateFetchException('無法建立安全連線，請確認網路');
+    throw const RateFetchException(RateFetchError.secureConnection);
   } finally {
     client.close();
   }
@@ -61,13 +102,13 @@ Map<String, double> parseRatesResponse(String body) {
   try {
     decoded = jsonDecode(body);
   } on FormatException {
-    throw const RateFetchException('匯率資料格式不正確');
+    throw const RateFetchException(RateFetchError.badFormat);
   }
   if (decoded is! Map || decoded['result'] != 'success') {
-    throw const RateFetchException('匯率服務回傳錯誤');
+    throw const RateFetchException(RateFetchError.service);
   }
   final rates = decoded['rates'];
-  if (rates is! Map) throw const RateFetchException('匯率資料格式不正確');
+  if (rates is! Map) throw const RateFetchException(RateFetchError.badFormat);
 
   final result = <String, double>{};
   for (final entry in rates.entries) {

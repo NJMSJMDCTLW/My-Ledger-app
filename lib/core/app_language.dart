@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:hello_ledger/l10n/app_localizations.dart';
 
-/// The locale used for Traditional Chinese (Taiwan). The translations live in `app_zh.arb`;
+/// The locale used for Traditional Chinese (Taiwan). The translations live in `app_zh.arb`, and
+/// `app_zh_TW.arb` repeats the messages that contain dates;
 /// using zh_TW as the app locale makes dates and numbers follow Taiwan conventions.
 const traditionalChineseLocale = Locale('zh', 'TW');
 
@@ -36,4 +38,14 @@ Locale resolveSystemLocale(List<Locale>? deviceLocales) {
     if (locale.languageCode == 'en') return englishLocale;
   }
   return englishLocale;
+}
+
+/// The translations to use for [language] right now. [deviceLocales] is the phone's language
+/// list, used when the user chose to follow the system.
+/// For code that has no BuildContext, such as the credit card reminders.
+AppLocalizations localizationsFor(
+  AppLanguage language,
+  List<Locale> deviceLocales,
+) {
+  return lookupAppLocalizations(language.locale ?? resolveSystemLocale(deviceLocales));
 }

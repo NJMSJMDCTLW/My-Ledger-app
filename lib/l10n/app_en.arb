@@ -378,5 +378,116 @@
     "placeholders": {
       "previous": {"type": "String"}
     }
+  },
+
+  "categoriesExpenseSection": "Expense categories",
+  "categoriesIncomeSection": "Income categories",
+  "newCategory": "New category",
+  "editCategory": "Edit category",
+  "fieldCategoryName": "Category name",
+  "chooseIcon": "Choose an icon",
+  "errorDuplicateCategory": "A category with this name already exists",
+  "cannotDeleteTitle": "Can't delete",
+  "categoryInUse": "This category is used by {txCount, plural, =1{1 transaction} other{{txCount} transactions}} and {ruleCount, plural, =1{1 recurring rule} other{{ruleCount} recurring rules}}.\nTo change its name or icon, edit it instead.",
+  "@categoryInUse": {
+    "placeholders": {
+      "txCount": {"type": "int"},
+      "ruleCount": {"type": "int"}
+    }
+  },
+  "gotIt": "Got it",
+  "deleteCategoryTitle": "Delete this category?",
+
+  "recurringEmpty": "No recurring items yet.\nFor example, monthly rent or salary: set it up once and it is recorded automatically.",
+  "recurringDay": "Day {day} of each month",
+  "@recurringDay": {
+    "placeholders": {
+      "day": {"type": "int"}
+    }
+  },
+  "recurringPaused": "Paused",
+  "newRecurring": "New recurring item",
+  "editRecurring": "Edit recurring item",
+  "deleteRecurringTitle": "Delete this recurring item?",
+  "deleteRecurringMessage": "No more transactions will be created automatically. The ones already created are kept.",
+  "fieldDayOfMonth": "Day of the month",
+  "dayOfMonthHint": "If a month does not have that day (for example February 31), the last day of the month is used.",
+  "dayNumber": "Day {day}",
+  "@dayNumber": {
+    "placeholders": {
+      "day": {"type": "int"}
+    }
+  },
+  "fieldStartDate": "Start date",
+  "errorRecurringCurrency": "Recurring transfers don't support accounts with different currencies yet",
+
+  "ratesExplanation": "The total balance and statistics are converted to Hong Kong dollars (HKD).\nRates marked Automatic update by themselves. A rate you change is marked Manual and is never overwritten. Changing a rate also changes the HKD value of past foreign-currency transactions.",
+  "rateStatusUpdating": "Updating…",
+  "rateStatusFailed": "Last update failed: {reason}",
+  "@rateStatusFailed": {
+    "placeholders": {
+      "reason": {"type": "String"}
+    }
+  },
+  "rateStatusJustUpdated": "Just updated",
+  "rateStatusIdle": "The app updates the rates when needed (at most once or twice a day).",
+  "updateNow": "Update now",
+  "ratesUpdated": "Exchange rates updated",
+  "ratesUpdateFailed": "Update failed",
+  "rateSourceCredit": "Exchange rate data: {name}",
+  "@rateSourceCredit": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "rateManualHint": "Once saved, it is marked Manual and is no longer updated automatically.",
+  "switchToAutomatic": "Switch back to automatic updates",
+  "switchedToAutomatic": "Switched back to automatic updates",
+  "switchedToAutomaticFailed": "Switched back to automatic updates, but this update failed: {reason}",
+  "@switchedToAutomaticFailed": {
+    "placeholders": {
+      "reason": {"type": "String"}
+    }
+  },
+  "rateNotSetInUse": "No exchange rate set (an account is using it)",
+  "rateModeManual": "Manual",
+  "rateModeAutomatic": "Automatic",
+  "rateUpdatedAt": "{mode} · updated {date} {time}",
+  "@rateUpdatedAt": {
+    "placeholders": {
+      "mode": {"type": "String"},
+      "date": {"type": "DateTime", "format": "yMd"},
+      "time": {"type": "DateTime", "format": "Hm"}
+    }
+  },
+  "inUse": "In use",
+
+  "rateErrorUnavailable": "The exchange rate service is unavailable right now ({code})",
+  "@rateErrorUnavailable": {
+    "placeholders": {
+      "code": {"type": "int"}
+    }
+  },
+  "rateErrorTimeout": "The connection timed out. Check your network and try again.",
+  "rateErrorOffline": "Can't connect. Check your network.",
+  "rateErrorSecure": "Couldn't establish a secure connection. Check your network.",
+  "rateErrorBadFormat": "The exchange rate data is in an unexpected format.",
+  "rateErrorService": "The exchange rate service returned an error.",
+  "rateErrorUnknown": "Something went wrong while updating the exchange rates.",
+
+  "notificationChannelName": "Credit card payment reminders",
+  "notificationTitle": "Credit card payment reminder",
+  "notificationDueSoon": "{card} is due on {date}. Remember to have the funds ready.",
+  "@notificationDueSoon": {
+    "placeholders": {
+      "card": {"type": "String"},
+      "date": {"type": "DateTime", "format": "Md"}
+    }
+  },
+  "notificationDueToday": "Today is the payment due date for {card}.",
+  "@notificationDueToday": {
+    "placeholders": {
+      "card": {"type": "String"}
+    }
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/core/money.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
@@ -21,11 +22,11 @@ class RecurringTab extends ConsumerWidget {
     final converter = ref.watch(hkdConverterProvider);
 
     if (rules.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Text(
-            '還沒有固定收支\n例如每月的房租、薪水，設定一次就會自動記帳',
+            context.l10n.recurringEmpty,
             textAlign: TextAlign.center,
           ),
         ),
@@ -42,8 +43,8 @@ class RecurringTab extends ConsumerWidget {
           _RuleTile(
             rule: r,
             title: r.type == TransactionType.transfer
-                ? '轉帳：${accountNames[r.accountId] ?? '?'} → ${accountNames[r.toAccountId] ?? '?'}'
-                : categoryById[r.categoryId]?.name ?? '未分類',
+                ? context.l10n.transferTitle(accountNames[r.accountId] ?? '?', accountNames[r.toAccountId] ?? '?')
+                : categoryById[r.categoryId]?.name ?? context.l10n.uncategorized,
             icon: r.type == TransactionType.transfer
                 ? Icons.swap_horiz
                 : categoryIcon(categoryById[r.categoryId]),
@@ -101,10 +102,10 @@ class _RuleTile extends ConsumerWidget {
         ),
         title: Text(title),
         subtitle: Text([
-          '每月 ${rule.dayOfMonth} 號',
+          context.l10n.recurringDay(rule.dayOfMonth),
           if (!isTransfer) accountName,
           if (rule.note.isNotEmpty) rule.note,
-          if (!active) '已暫停',
+          if (!active) context.l10n.recurringPaused,
         ].join(' · ')),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,

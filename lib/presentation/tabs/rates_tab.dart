@@ -6,7 +6,6 @@ import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/providers.dart';
 import 'package:hello_ledger/data/rate_service.dart';
-import 'package:intl/intl.dart';
 
 /// The rates tab: exchange rates used to convert foreign currencies to HKD. They update automatically by default, or you can enter one yourself (and it will not be overwritten by automatic updates).
 class RatesTab extends ConsumerWidget {
@@ -44,7 +43,7 @@ class RatesTab extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
           child: Text(
-            '匯率資料來源：$rateSourceName',
+            context.l10n.rateSourceCredit(rateSourceName),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
@@ -62,7 +61,11 @@ class _UpdateCard extends ConsumerWidget {
     if (!context.mounted) return;
     final error = ref.read(rateUpdaterProvider).error;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? '匯率已更新' : (error ?? '更新失敗'))),
+      SnackBar(
+        content: Text(ok
+            ? context.l10n.ratesUpdated
+            : (error?.message(context.l10n) ?? context.l10n.ratesUpdateFailed)),
+      ),
     );
   }
 
@@ -73,13 +76,13 @@ class _UpdateCard extends ConsumerWidget {
 
     final String statusText;
     if (status.isLoading) {
-      statusText = '更新中…';
+      statusText = context.l10n.rateStatusUpdating;
     } else if (status.error != null) {
-      statusText = '上次更新失敗：${status.error}';
+      statusText = context.l10n.rateStatusFailed(status.error!.message(context.l10n));
     } else if (status.lastSuccess != null) {
-      statusText = '剛剛已更新';
+      statusText = context.l10n.rateStatusJustUpdated;
     } else {
-      statusText = '需要時 App 會自動更新（每天最多一兩次）';
+      statusText = context.l10n.rateStatusIdle;
     }
 
     return Card(
@@ -89,9 +92,7 @@ class _UpdateCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '總資產與統計都會折合成港幣（HKD）。\n'
-              '標示「自動」的匯率會自動更新；自己修改過的會標示「手動」，不會被蓋掉。'
-              '改了匯率之後，過去的外幣交易折合的港幣金額也會一起改變。',
+              context.l10n.ratesExplanation,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -121,7 +122,7 @@ class _UpdateCard extends ConsumerWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.refresh),
-                  label: const Text('立即更新'),
+                  label: Text(context.l10n.updateNow),
                 ),
               ],
             ),
@@ -167,7 +168,7 @@ class _RateTile extends ConsumerWidget {
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: '1 ${currency.code} = ? HKD',
-                    helperText: '儲存後會標示為「手動」，不再自動更新',
+                    helperText: context.l10n.rateManualHint,
                     errorText: error,
                   ),
                 ),
@@ -177,7 +178,7 @@ class _RateTile extends ConsumerWidget {
                     child: TextButton.icon(
                       onPressed: () => Navigator.pop(context, -1),
                       icon: const Icon(Icons.autorenew),
-                      label: const Text('改回自動更新'),
+                      label: Text(context.l10n.switchToAutomatic),
                     ),
                   ),
               ],
@@ -185,18 +186,18 @@ class _RateTile extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('取消'),
+                child: Text(context.l10n.cancel),
               ),
               TextButton(
                 onPressed: () {
                   final v = double.tryParse(controller.text.trim());
                   if (v == null || v <= 0) {
-                    setState(() => error = '請輸入大於 0 的數字');
+                    setState(() => error = context.l10n.rateInvalid);
                     return;
                   }
                   Navigator.pop(context, v);
                 },
-                child: const Text('儲存'),
+                child: Text(context.l10n.save),
               ),
             ],
           ),
@@ -211,10 +212,12 @@ class _RateTile extends ConsumerWidget {
       await useAutomaticRate(db, currency.code);
       final ok = await ref.read(rateUpdaterProvider.notifier).refresh();
       if (!context.mounted) return;
+      final error = ref.read(rateUpdaterProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(ok
-            ? '已改回自動更新'
-            : '已改回自動更新，但這次更新失敗：${ref.read(rateUpdaterProvider).error ?? ''}'),
+            ? context.l10n.switchedToAutomatic
+            : context.l10n.switchedToAutomaticFailed(
+                error?.message(context.l10n) ?? context.l10n.ratesUpdateFailed)),
       ));
     } else {
       await setManualRate(db, currency.code, result);
@@ -249,16 +252,15 @@ class _RateTile extends ConsumerWidget {
         title: Text('${currency.code}　${currencyName(context.l10n, currency.code)}'),
         subtitle: Text(
           missing
-              ? (inUse ? '尚未設定匯率（有帳戶在使用）' : '尚未設定')
+              ? (inUse ? context.l10n.rateNotSetInUse : context.l10n.rateNotSet)
               : '1 ${currency.code} = ${_plain(rate!.rateToHkd)} HKD\n'
-                  '${rate!.isManual ? '手動' : '自動'}'
-                  '　更新於 ${DateFormat('yyyy/MM/dd HH:mm').format(rate!.updatedAt)}',
+                  '${context.l10n.rateUpdatedAt(rate!.isManual ? context.l10n.rateModeManual : context.l10n.rateModeAutomatic, rate!.updatedAt, rate!.updatedAt)}',
           style: missing && inUse
               ? TextStyle(color: theme.colorScheme.error)
               : null,
         ),
         isThreeLine: !missing,
-        trailing: inUse ? const Chip(label: Text('使用中')) : null,
+        trailing: inUse ? Chip(label: Text(context.l10n.inUse)) : null,
       ),
     );
   }

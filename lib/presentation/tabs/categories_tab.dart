@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_ledger/core/app_theme.dart';
 import 'package:hello_ledger/core/category_icons.dart';
+import 'package:hello_ledger/core/l10n_context.dart';
 import 'package:hello_ledger/data/app_database.dart';
 import 'package:hello_ledger/data/enums.dart';
 import 'package:hello_ledger/data/providers.dart';
@@ -19,12 +20,12 @@ class CategoriesTab extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 96),
       children: [
         _Section(
-          title: '支出分類',
+          title: context.l10n.categoriesExpenseSection,
           categories:
               categories.where((c) => c.type == CategoryType.expense).toList(),
         ),
         _Section(
-          title: '收入分類',
+          title: context.l10n.categoriesIncomeSection,
           categories:
               categories.where((c) => c.type == CategoryType.income).toList(),
         ),
